@@ -135,6 +135,10 @@ module.exports = function(ctx, forany, argv, bddy) {
 		await this.need("hint-start");
 		await this.cd("hint").runInteractive("node", "top", "hint");
 	});
+	forany.virt("hint-visual").def(async function(target) {
+		await this.need("hint-start");
+		await this.cd("hint").runInteractive("node", "top", "visual");
+	});
 	forany.virt("hint-start").def(async function(target) {
 		let dependents = [];
 		const wSet = new Set();
