@@ -13,7 +13,7 @@
 
 # Segmentations when hinting
 # 分段数，hint 部分
-JHINT = 1
+JHINT = 128
 
 CVTFILE = build/_CVT.mk
 FPGMFILE = build/_FPGM.mk

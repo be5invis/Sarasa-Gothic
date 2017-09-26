@@ -123,7 +123,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 		const [$1] = await this.need(`sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
 		await runBuildTask.call(this, "build-punct/build.js", { main: $1, o: tmpOTD });
-		await this.run("otfccbuild", tmpOTD, "-o", target);
+		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
 
@@ -174,7 +174,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 		const [$1] = await this.need(`sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
 		await runBuildTask.call(this, "build-kanji/build.js", { main: $1, o: tmpOTD });
-		await this.run("otfccbuild", tmpOTD, "-o", target);
+		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
 

@@ -58,9 +58,9 @@ function idhParam(config) {
 		a.push(`XX_IDH_INSTANCE=ideohint`);
 	} else {
 		if (os.platform() === "win32") {
-			a.push(`XX_IDH_INSTANCE=${path.join(entryDir, "node_modules/.bin/ideohint.cmd")}`);
+			a.push(`XX_IDH_INSTANCE=${path.join(entryDir, "../node_modules/.bin/ideohint.cmd")}`);
 		} else {
-			a.push(`XX_IDH_INSTANCE=${path.join(entryDir, "node_modules/.bin/ideohint")}`);
+			a.push(`XX_IDH_INSTANCE=${path.join(entryDir, "../node_modules/.bin/ideohint")}`);
 		}
 	}
 	/*
@@ -73,9 +73,11 @@ function idhParam(config) {
 	}
 
 	if (os.platform() === "win32") {
-		a.push(`XX_TTCIZE_INSTANCE=${path.join(entryDir, "node_modules/.bin/otfcc-ttcize.cmd")}`);
+		a.push(
+			`XX_TTCIZE_INSTANCE=${path.join(entryDir, "../node_modules/.bin/otfcc-ttcize.cmd")}`
+		);
 	} else {
-		a.push(`XX_TTCIZE_INSTANCE=${path.join(entryDir, "node_modules/.bin/otfcc-ttcize")}`);
+		a.push(`XX_TTCIZE_INSTANCE=${path.join(entryDir, "../node_modules/.bin/otfcc-ttcize")}`);
 	}
 	return a;
 }
