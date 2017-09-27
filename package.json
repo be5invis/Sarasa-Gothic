@@ -14,7 +14,7 @@
 		"ideohint": "^0.99.4",
 		"inquirer": "^3.2.3",
 		"inquirer-file-path": "^1.0.0",
-		"megaminx": "^0.4.3",
+		"megaminx": "^0.4.5",
 		"otfcc-ttcize": "^0.5.0",
 		"scc-config": "^0.8.1",
 		"which": "^1.2.14",

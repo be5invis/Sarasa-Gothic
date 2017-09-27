@@ -1,6 +1,12 @@
 "use strict";
 
-const { quadify, introduce, build, gc, merge: { above: merge } } = require("megaminx");
+const {
+	quadify,
+	introduce,
+	build,
+	gc,
+	merge: { above: mergeAbove, below: mergeBelow }
+} = require("megaminx");
 const { isKanji } = require("caryll-iddb");
 const italize = require("../common/italize");
 
@@ -15,6 +21,11 @@ async function pass(ctx, config, argv) {
 		prefix: "b",
 		ignoreHints: true
 	});
+	const c = await ctx.run(introduce, "c", {
+		from: argv.ws,
+		prefix: "c",
+		ignoreHints: true
+	});
 
 	// vhea
 	a.vhea = b.vhea;
@@ -27,7 +38,9 @@ async function pass(ctx, config, argv) {
 	if (argv.italize) italize(b, 10);
 
 	// merge and build
-	await ctx.run(merge, "a", "a", "b", { mergeOTL: true });
+	await ctx.run(mergeBelow, "a", "a", "c", { mergeOTL: true });
+	await ctx.run(mergeAbove, "a", "a", "b", { mergeOTL: true });
+
 	await ctx.run(gc, "a");
 	await ctx.run(build, "a", { to: config.o, optimize: true });
 }

@@ -86,6 +86,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 	forany.file(`build/kanji0`).def(ctx.ensureDir);
 	forany.file(`build/punct0`).def(ctx.ensureDir);
 	forany.file(`build/pass0`).def(ctx.ensureDir);
+	forany.file(`build/ws0`).def(ctx.ensureDir);
 	forany.file(`build/pass1`).def(ctx.ensureDir);
 	forany.file(`build/out`).def(ctx.ensureDir);
 	forany.file(`build/ttc`).def(ctx.ensureDir);
@@ -111,13 +112,15 @@ module.exports = function(ctx, forany, argv, bddy) {
 	});
 	forany.file(`build/pass1/*.ttf`).def(async function(target) {
 		await this.check(`${target.dir}`);
-		const [$1, $2] = await this.need(
+		const [$1, $2, $3] = await this.need(
 			`sources/iosevka/iosevka-${styleOf(target.name)}.ttf`,
-			`build/punct0/${deItalizedNameOf(target.name)}.ttf`
+			`build/punct0/${deItalizedNameOf(target.name)}.ttf`,
+			`build/ws0/${deItalizedNameOf(target.name)}.ttf`
 		);
 		await runBuildTask.call(this, "build-pass1/build.js", {
 			main: $1,
 			asian: $2,
+			ws: $3,
 			o: target + ".tmp.ttf",
 			italize: deItalizedNameOf(target.name) === target.name ? false : true
 		});
@@ -127,7 +130,15 @@ module.exports = function(ctx, forany, argv, bddy) {
 		await this.check(`${target.dir}`);
 		const [$1] = await this.need(`sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "build-punct/build.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "build-punct/as.js", { main: $1, o: tmpOTD });
+		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
+		await this.rm(tmpOTD);
+	});
+	forany.file(`build/ws0/*.ttf`).def(async function(target) {
+		await this.check(`${target.dir}`);
+		const [$1] = await this.need(`sources/shs/${target.name}.otf`);
+		const tmpOTD = `${target.dir}/${target.name}.otd`;
+		await runBuildTask.call(this, "build-punct/ws.js", { main: $1, o: tmpOTD });
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
