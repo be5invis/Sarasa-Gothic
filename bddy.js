@@ -1,8 +1,10 @@
 "use strict";
 
 const fs = require("fs-extra");
+const os = require("os");
 
 const CVT_PADDING = 300;
+const PREFIX = "sarasa";
 
 function objToArgs(o) {
 	let a = [];
@@ -39,13 +41,13 @@ const STYLE_FILENAME_OF = {
 	italic: "italic",
 	bolditalic: "bolditalic"
 };
-
 const STYLE_OF = {
 	regular: "Regular",
 	bold: "Bold",
 	italic: "Italic",
-	bolditalic: "BoldItalic"
+	bolditalic: "Bold Italic"
 };
+const STYLES = Object.keys(STYLE_FILENAME_OF);
 
 const FAMILY_OF = {
 	cl: "cl",
@@ -53,6 +55,8 @@ const FAMILY_OF = {
 	tc: "tc",
 	j: "j"
 };
+const SUBFAMILIES = Object.keys(FAMILY_OF);
+
 function styleOf(set) {
 	return (set + "")
 		.split("-")
@@ -84,10 +88,11 @@ module.exports = function(ctx, forany, argv, bddy) {
 	forany.file(`build/pass0`).def(ctx.ensureDir);
 	forany.file(`build/pass1`).def(ctx.ensureDir);
 	forany.file(`build/out`).def(ctx.ensureDir);
+	forany.file(`build/ttc`).def(ctx.ensureDir);
 
 	forany.file(`build/out/*.ttf`).def(async function(target) {
 		await this.check(`${target.dir}`);
-		const rawName = target.name.replace(/^sarasa-/g, "");
+		const rawName = target.name.replace(new RegExp("^" + PREFIX + "-", "g"), "");
 		const [$1, $2] = await this.need(
 			`build/pass1/${rawName}.ttf`,
 			`hint/out/${deItalizedNameOf(rawName)}.ttf`
@@ -182,14 +187,26 @@ module.exports = function(ctx, forany, argv, bddy) {
 		await this.rm(tmpOTD);
 	});
 
-	forany.virt("all").def(async function(target) {
+	forany.virt("ttf").def(async function(target) {
 		let targets = [];
-
-		for (let sf in FAMILY_OF)
-			for (let st in STYLE_FILENAME_OF) {
+		for (let sf of SUBFAMILIES)
+			for (let st of STYLES) {
 				targets.push(`build/out/sarasa-${sf}-${st}.ttf`);
 			}
 
 		await this.need(...targets);
+	});
+
+	forany.file(`build/ttc/*.ttc`).def(async function(target) {
+		await this.check(`${target.dir}`);
+		const rawName = target.name.replace(new RegExp("^" + PREFIX + "-", "g"), "");
+		const $$ = await this.need(
+			...SUBFAMILIES.map(sf => `build/out/${PREFIX}-${sf}-${rawName}.ttf`)
+		);
+		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
+		await this.run(ttcize, "-o", target, ...$$, "-k", "-h");
+	});
+	forany.virt("ttc").def(async function(target) {
+		await this.need(...STYLES.map(st => `build/ttc/${PREFIX}-${st}.ttc`));
 	});
 };

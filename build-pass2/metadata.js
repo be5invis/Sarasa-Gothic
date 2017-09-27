@@ -28,7 +28,7 @@ function convPostscript(name) {
 }
 
 function compatibilityName(family, style) {
-	if (style === "Regular" || style === "Bold" || style === "Italic" || style === "BoldItalic") {
+	if (style === "Regular" || style === "Bold" || style === "Italic" || style === "Bold Italic") {
 		return { family, style, standardFour: true };
 	} else {
 		return { family: family + " " + style, style: "Regular", standardFour: false };
