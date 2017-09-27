@@ -19,7 +19,7 @@
 		"scc-config": "^0.8.1",
 		"which": "^1.2.14",
 		"yargs": "^8.0.2",
-		"bddy": "^0.2.0"
+		"bddy": "^0.2.1"
 	},
 	"browser": {
 		"vue": "vue/dist/vue.common"

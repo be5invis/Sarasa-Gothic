@@ -37,67 +37,12 @@ async function saveConfig(config) {
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2));
 }
 
-async function beforeMake() {
-	await fs.ensureDir("build");
-	await fs.ensureDir("out");
-	const cvtmkPath = path.resolve(entryDir, "build", "_CVT.mk");
-	if (!fs.existsSync(cvtmkPath)) {
-		await fs.writeFile(cvtmkPath, "CVT_PADDING = 0");
-	}
-	let config = await loadConfig();
-	if (config.settings.cvt_padding) {
-		await fs.writeFile(cvtmkPath, "CVT_PADDING = " + config.settings.cvt_padding);
-	}
-	const fpgmmkPath = path.resolve(entryDir, "build", "_FPGM.mk");
-	await fs.writeFile(fpgmmkPath, "FPGM_PADDING = " + (config.settings.fpgm_padding - 0 || 0));
-}
-
-function idhParam(config) {
-	const a = [];
-	if (config.settings.use_externalIDH) {
-		a.push(`XX_IDH_INSTANCE=ideohint`);
-	} else {
-		if (os.platform() === "win32") {
-			a.push(`XX_IDH_INSTANCE=${path.join(entryDir, "../node_modules/.bin/ideohint.cmd")}`);
-		} else {
-			a.push(`XX_IDH_INSTANCE=${path.join(entryDir, "../node_modules/.bin/ideohint")}`);
-		}
-	}
-	/*
-	if (config.settings.build_ttc) {
-		a.push(`XX_BUILD_TTC=--buildttc`);
-	}
-	*/
-	if (config.settings.use_VTTShell) {
-		a.push(`XX_USE_VTTSHELL=--usevttshell`);
-	}
-
-	if (os.platform() === "win32") {
-		a.push(
-			`XX_TTCIZE_INSTANCE=${path.join(entryDir, "../node_modules/.bin/otfcc-ttcize.cmd")}`
-		);
-	} else {
-		a.push(`XX_TTCIZE_INSTANCE=${path.join(entryDir, "../node_modules/.bin/otfcc-ttcize")}`);
-	}
-	return a;
-}
-
 const topActions = {};
 topActions.hint = async function() {
 	await hr();
 	let config = await loadConfig();
 	console.log("Hint all fonts.");
-	await beforeMake();
-	if (!config.settings.cvt_padding) {
-		await cp.spawn(
-			"make",
-			["-f", "support/makefile", "-j", cores, ...idhParam(config), "__measure-cvt-save"],
-			{ stdio: "inherit" }
-		);
-	}
-	await cp.spawn("make", ["-f", "support/makefile", "-j", cores, ...idhParam(config), `all`], {
-		stdio: "inherit"
-	});
+	await cp.spawn("node", ["build", "start"], { stdio: "inherit" });
 	console.log("Done.");
 	await hr();
 	return false;
@@ -118,24 +63,109 @@ topActions.visual = async function() {
 		"Press Control-C in the terminal/command prompt to go back to the main menu.".green
 	);
 	await hr();
-	await beforeMake();
-	await cp.spawn(
-		"make",
-		["-f", "support/makefile", "-j", cores, ...idhParam(config), "visual-" + which.group],
-		{ stdio: "inherit" }
-	);
+	await cp.spawn("node", ["build", "visual-" + which.group], { stdio: "inherit" });
 	await hr();
 	return false;
 };
+topActions.addFont = async function() {
+	const basePath = "source";
+	let ttf = await inquirer.prompt({
+		type: "file",
+		name: "ttf",
+		message: "The path of your font.",
+		basePath: basePath
+	});
+	let have = await inquirer.prompt({
+		type: "list",
+		message: "Do you have a parameter file?",
+		name: "have",
+		choices: [{ name: "Yes.", value: true }, { name: "No, create one for me.", value: false }]
+	});
+	let entry = null;
+	if (have.have) {
+		let par = await inquirer.prompt({
+			type: "file",
+			name: "par",
+			message: "The path of your parameter file.",
+			basePath: basePath
+		});
+		entry = {
+			input: fixpath(path.resolve(basePath, ttf.ttf)),
+			param: fixpath(path.resolve(basePath, par.par))
+		};
+	} else {
+		let par = await inquirer.prompt({
+			name: "par",
+			message: "Save to...",
+			default: path.join(basePath, "parameters", path.parse(ttf.ttf).name + ".toml")
+		});
+		let a_upm = await inquirer.prompt({
+			name: "upm",
+			message: "Your font's UPM = ?",
+			default: 1000
+		});
+		let upm = a_upm.upm;
+		fs.writeFile(
+			par.par,
+			`
+[hinting]
+UPM = ${upm}
+BLUEZONE_TOP_CENTER = ${0.83 * upm}
+BLUEZONE_TOP_LIMIT = ${0.813 * upm}
+BLUEZONE_BOTTOM_CENTER = ${-0.07 * upm}
+BLUEZONE_BOTTOM_LIMIT = ${-0.045 * upm}
+`
+		);
+		entry = {
+			input: fixpath(path.resolve(basePath, ttf.ttf)),
+			param: fixpath(par.par)
+		};
+	}
+	let config = await loadConfig();
+	config.fonts.push(entry);
+	await saveConfig(config);
+	console.log(
+		`Hinting task for ${entry.input.cyan} successfully registered. Parameter file is ${entry
+			.param.cyan}.`
+	);
+	return false;
+};
+topActions.deleteFont = async function() {
+	let config = await loadConfig();
+	let w = await inquirer.prompt({
+		type: "list",
+		name: "which",
+		message: "Delete which one?",
+		choices: config.fonts.map((font, j) => ({ value: j, name: font.input }))
+	});
+	const deleted = config.fonts.splice(w.which, 1);
+	await saveConfig(config);
+	console.log(`Hinting task for ${deleted[0].input.cyan} successfully deleted.`);
+	return false;
+};
+topActions.toggleTTFA = async function() {
+	let config = await loadConfig();
+	config.settings.do_ttfautohint = !config.settings.do_ttfautohint;
+	await saveConfig(config);
+};
+topActions.toggleIDH = async function() {
+	let config = await loadConfig();
+	config.settings.use_externalIDH = !config.settings.use_externalIDH;
+	await saveConfig(config);
+};
+topActions.toggleVTTShell = async function() {
+	let config = await loadConfig();
+	config.settings.use_VTTShell = !config.settings.use_VTTShell;
+	await saveConfig(config);
+};
+topActions.toggleBuildTTC = async function() {
+	let config = await loadConfig();
+	config.settings.build_ttc = !config.settings.build_ttc;
+	await saveConfig(config);
+};
 topActions.measureCVT = async function() {
 	await hr();
-	await beforeMake();
-	await cp.spawn(
-		"make",
-		["-f", "support/makefile", "-j", cores, ...idhParam(config), "measure-cvt"],
-		{ stdio: "inherit" }
-	);
-	await beforeMake();
+	await cp.spawn("node", ["build", "measure-cvt"], { stdio: "inherit" });
 	await hr();
 	return false;
 };
@@ -161,13 +191,79 @@ topActions.cleanup = async function() {
 	await fs.remove("build");
 	console.log("Complete.");
 };
+topActions.exit = async function() {
+	return true;
+};
+
+async function startRepl() {
+	let over = false;
+	while (!over) {
+		clear();
+		console.log(`
+Current hinting tasks
+---------------------`);
+		let config = await loadConfig();
+		for (let font of config.fonts) {
+			console.log(`  - ${font.input.cyan}, using parameter ${font.param.cyan}`);
+		}
+		console.log(
+			`\nRun TTFAutohint for non-ideographs: ${("" + config.settings.do_ttfautohint).cyan}`
+		);
+		if (config.settings.cvt_padding) {
+			console.log(`CVT Padding: Fixed, ${("" + config.settings.cvt_padding).cyan}`);
+		} else {
+			console.log(`CVT Padding: ${"Measured before hinting".cyan}`);
+		}
+		if (config.settings.use_externalIDH) {
+			console.log(`IDEOHINT Instance: ${"External".cyan}`);
+		} else {
+			console.log(`IDEOHINT Instance: ${"Internal".cyan}`);
+		}
+		if (config.settings.fpgm_padding) {
+			console.log(`FPGM Padding: Active, ${("" + config.settings.fpgm_padding).cyan}`);
+		} else {
+			console.log(`FPGM Inactive`);
+		}
+		console.log(`Use VTTShell: ${("" + !!config.settings.use_VTTShell).cyan}`);
+		// console.log(`Build TTC: ${("" + !!config.settings.build_ttc).cyan}`);
+		console.log("");
+		let choice = await inquirer.prompt({
+			type: "list",
+			message: "What would you do?",
+			name: "task",
+			pageSize: process.stdout.rows / 2,
+			choices: [
+				{ name: "Hint all fonts.", value: "hint" },
+				{ name: "Adjust parameters.", value: "visual" },
+				{ name: "Suggest CVT Padding.", value: "measureCVT" },
+				{ name: "Set CVT Padding.", value: "setCVTPadding" },
+				{ name: "Set FPGM Padding.", value: "setFPGMPadding" },
+				{ name: "Add new hinting task.", value: "addFont" },
+				{ name: "Delete hinting task.", value: "deleteFont" },
+				{ name: "Toggle TTFAutohint for non-ideographs.", value: "toggleTTFA" },
+				{ name: "Toggle use external Ideohint instance.", value: "toggleIDH" },
+				{ name: "Toggle VTTShell usage.", value: "toggleVTTShell" },
+				//{ name: "Toggle Build TTC.", value: "toggleBuildTTC" },
+				{ name: "Cleanup intermediate files.", value: "cleanup" },
+				{ name: "Exit.", value: "exit" }
+			]
+		});
+		over = await topActions[choice.task]();
+	}
+}
 
 async function directTask(command) {
-	await topActions[command]();
+	if (!topActions[command]) {
+		throw new Error("Command " + command + " not found.");
+	} else {
+		await topActions[command]();
+	}
 }
 
 (async function() {
 	if (argv._[0]) {
 		await directTask(argv._[0]);
+	} else {
+		await startRepl();
 	}
-})();
+})().catch(e => console.error(e));
