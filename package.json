@@ -1,7 +1,7 @@
 {
 	"name": "iosevka-sarasa",
-	"version": "0.1.0",
-	"main": "./nachtgeist/compose",
+	"version": "0.1.1",
+	"main": "./run",
 	"dependencies": {
 		"caryll-iddb": "*",
 		"child-process-promise": "^2.2.1",
@@ -25,5 +25,8 @@
 	},
 	"devDependencies": {
 		"vueify": "^9.4.1"
+	},
+	"engines": {
+		"node": ">=8.5.0"
 	}
 }

@@ -4,7 +4,7 @@ This is SARASA GOTHIC, a Chinese & Japanese programming font based on Iosevka an
 
 ## To build
 
-You need Node.js 8.5, otfcc and AFDKO installed, then run:
+You need Node.js 8.5 (or newer), otfcc and AFDKO installed, then run:
 
 ```bash
 npm install bddy -g
