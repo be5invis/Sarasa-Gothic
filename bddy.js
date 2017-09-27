@@ -90,7 +90,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 			`hint/out/${deItalizedNameOf(rawName)}.ttf`
 		);
 		const tmpOTD = `${target.dir}/${rawName}.otd`;
-		await runBuildTask.call(this, "build-pass2/build.js", {
+		await runBuildTask.call(this, "make/pass2/build.js", {
 			main: $1,
 			kanji: $2,
 			o: tmpOTD,
@@ -105,10 +105,10 @@ module.exports = function(ctx, forany, argv, bddy) {
 		const [_, $1, $2, $3] = await this.need(
 			target.dir,
 			`sources/iosevka/iosevka-${styleOf(target.name)}.ttf`,
-			`build/punct0/${deItalizedNameOf(target.name)}.ttf`,
+			`build/as0/${deItalizedNameOf(target.name)}.ttf`,
 			`build/ws0/${deItalizedNameOf(target.name)}.ttf`
 		);
-		await runBuildTask.call(this, "build-pass1/build.js", {
+		await runBuildTask.call(this, "make/pass1/build.js", {
 			main: $1,
 			asian: $2,
 			ws: $3,
@@ -117,28 +117,26 @@ module.exports = function(ctx, forany, argv, bddy) {
 		});
 		await sanitize.call(this, target, target + ".tmp.ttf");
 	});
-	forany.file(`build/punct0/*.ttf`).def(async function(target) {
+
+	forany.file(`build/as0/*.ttf`).def(async function(target) {
 		const [_, $1] = await this.need(target.dir, `sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "build-punct/as.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "make/punct/as.js", { main: $1, o: tmpOTD });
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
 	forany.file(`build/ws0/*.ttf`).def(async function(target) {
 		const [_, $1] = await this.need(target.dir, `sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "build-punct/ws.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "make/punct/ws.js", { main: $1, o: tmpOTD });
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
 
 	// kanji tasks
-	forany
-		.file(`hint/out/*.ttf`)
-		.alsodir()
-		.def(async function(target) {
-			await this.need("hint-finish");
-		});
+	forany.file(`hint/out/*.ttf`).def(async function(target) {
+		await this.need("hint-finish");
+	});
 	forany.virt("hint-finish").def(async function(target) {
 		await this.need("hint-start");
 		await this.cd("hint").runInteractive("node", "top", "hint");
@@ -184,7 +182,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 	forany.file(`build/kanji0/*.ttf`).def(async function(target) {
 		const [_, $1] = await this.need(target.dir, `sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "build-kanji/build.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "make/kanji/build.js", { main: $1, o: tmpOTD });
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
