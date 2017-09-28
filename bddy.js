@@ -3,9 +3,6 @@
 const fs = require("fs-extra");
 const os = require("os");
 
-const CVT_PADDING = 300;
-const PREFIX = "sarasa";
-
 function objToArgs(o) {
 	let a = [];
 	for (let k in o) {
@@ -35,120 +32,104 @@ async function sanitize(target, ttf) {
 	await this.rm(ttf, tmpTTX, tmpTTF2);
 }
 
-const STYLE_FILENAME_OF = {
-	regular: "regular",
-	bold: "bold",
-	italic: "italic",
-	bolditalic: "bolditalic"
-};
-const STYLE_OF = {
-	regular: "Regular",
-	bold: "Bold",
-	italic: "Italic",
-	bolditalic: "Bold Italic"
-};
-const STYLES = Object.keys(STYLE_FILENAME_OF);
+/// config loader
+const config = fs.readJsonSync(__dirname + "/config.json");
+const PREFIX = config.prefix;
+const CVT_PADDING = config.CVT_PADDING;
+const FAMILIES = config.families;
+const SUBFAMILIES = ["cl", "sc", "tc", "j"];
+const STYLES = config.styles;
 
-const FAMILY_OF = {
-	cl: "cl",
-	sc: "sc",
-	tc: "tc",
-	j: "j"
-};
-const SUBFAMILIES = Object.keys(FAMILY_OF);
-
-function styleOf(set) {
-	return (set + "")
-		.split("-")
-		.map(w => STYLE_FILENAME_OF[w])
-		.filter(w => w)[0];
-}
-function familyOf(set) {
-	return (set + "")
-		.split("-")
-		.map(w => FAMILY_OF[w])
-		.filter(w => w)[0];
-}
-
-const DEITALIC = {
-	italic: "regular",
-	bolditalic: "bold"
-};
 function deItalizedNameOf(set) {
 	return (set + "")
 		.split("-")
-		.map(w => DEITALIC[w] || w)
+		.map(w => config.uprightStyleMaps[w] || w)
 		.join("-");
 }
 
-module.exports = function(ctx, forany, argv, bddy) {
-	forany.file(`out/ttf/*.ttf`).def(async function(target) {
-		const rawName = target.name.replace(new RegExp("^" + PREFIX + "-", "g"), "");
+module.exports = function(ctx, the, argv, bddy) {
+	the.file(`out/ttf/${PREFIX}-*-*-*.ttf`).def(async function(target) {
+		const { $1: family, $2: region, $3: style } = target;
 		const [_, $1, $2] = await this.need(
 			target.dir,
-			`build/pass1/${rawName}.ttf`,
-			`hint/out/${deItalizedNameOf(rawName)}.ttf`
+			`build/pass1/${family}-${region}-${style}.ttf`,
+			`hint/out/${region}-${deItalizedNameOf(style)}.ttf`
 		);
-		const tmpOTD = `${target.dir}/${rawName}.otd`;
+		const tmpOTD = `${target.dir}/${target.name}.otd`;
 		await runBuildTask.call(this, "make/pass2/build.js", {
 			main: $1,
 			kanji: $2,
 			o: tmpOTD,
-			style: STYLE_OF[styleOf(rawName)],
-			subfamily: familyOf(rawName).toUpperCase(),
-			italize: deItalizedNameOf(rawName) === rawName ? false : true
+
+			italize: deItalizedNameOf(style) === style ? false : true
 		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "--keep-average-char-width", "-O3");
 		await this.rm(tmpOTD);
 	});
-	forany.file(`build/pass1/*.ttf`).def(async function(target) {
+	the.file(`build/pass1/*-*-*.ttf`).def(async function(target) {
+		const { $1: family, $2: region, $3: style } = target;
+		const latinFamily = config.latinFamilyMaps[family];
 		const [_, $1, $2, $3] = await this.need(
 			target.dir,
-			`sources/iosevka/iosevka-${styleOf(target.name)}.ttf`,
-			`build/as0/${deItalizedNameOf(target.name)}.ttf`,
-			`build/ws0/${deItalizedNameOf(target.name)}.ttf`
+			`sources/${latinFamily}/${latinFamily}-${style}.ttf`,
+			`build/as0/${family}-${region}-${deItalizedNameOf(style)}.ttf`,
+			`build/ws0/${family}-${region}-${deItalizedNameOf(style)}.ttf`
 		);
 		await runBuildTask.call(this, "make/pass1/build.js", {
 			main: $1,
 			asian: $2,
 			ws: $3,
 			o: target + ".tmp.ttf",
+
+			family: family,
+			subfamily: region.toUpperCase(),
+			style: style,
 			italize: deItalizedNameOf(target.name) === target.name ? false : true
 		});
 		await sanitize.call(this, target, target + ".tmp.ttf");
 	});
 
-	forany.file(`build/as0/*.ttf`).def(async function(target) {
-		const [_, $1] = await this.need(target.dir, `sources/shs/${target.name}.otf`);
+	the.file(`build/as0/*-*-*.ttf`).def(async function(target) {
+		const { $1: family, $2: region, $3: style } = target;
+		const [_, $1] = await this.need(target.dir, `sources/shs/${region}-${style}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "make/punct/as.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "make/punct/as.js", {
+			main: $1,
+			o: tmpOTD,
+			mono: config.isMono[family] || false
+		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
-	forany.file(`build/ws0/*.ttf`).def(async function(target) {
-		const [_, $1] = await this.need(target.dir, `sources/shs/${target.name}.otf`);
+	the.file(`build/ws0/*-*-*.ttf`).def(async function(target) {
+		const { $1: family, $2: region, $3: style } = target;
+		const [_, $1] = await this.need(target.dir, `sources/shs/${region}-${style}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "make/punct/ws.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "make/punct/ws.js", {
+			main: $1,
+			o: tmpOTD,
+			mono: config.isMono[family] || false
+		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
 
 	// kanji tasks
-	forany.file(`hint/out/*.ttf`).def(async function(target) {
+	the.file(`hint/out/*.ttf`).def(async function(target) {
 		await this.need("hint-finish");
 	});
-	forany.virt("hint-finish").def(async function(target) {
+	the.virt("hint-finish").def(async function(target) {
 		await this.need("hint-start");
 		await this.cd("hint").runInteractive("node", "top", "hint");
 	});
-	forany.virt("hint-visual").def(async function(target) {
+	the.virt("hint-visual").def(async function(target) {
 		await this.need("hint-start");
 		await this.cd("hint").runInteractive("node", "top", "visual");
 	});
-	forany.virt("hint-start").def(async function(target) {
+	the.virt("hint-start").def(async function(target) {
 		let dependents = [];
 		const wSet = new Set();
-		for (let st in STYLE_FILENAME_OF) {
+		for (let st of STYLES) {
 			wSet.add(deItalizedNameOf(st));
 		}
 
@@ -163,7 +144,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 		};
 
 		for (let st of wSet)
-			for (let sf in FAMILY_OF) {
+			for (let sf of SUBFAMILIES) {
 				dependents.push(`hint/source/fonts/${sf}-${st}.ttf`);
 				config.fonts.push({
 					input: `source/fonts/${sf}-${st}.ttf`,
@@ -174,12 +155,12 @@ module.exports = function(ctx, forany, argv, bddy) {
 		await this.need(...dependents);
 		await fs.writeFile("hint/source/fonts.json", JSON.stringify(config, null, 2));
 	});
-	forany.file(`hint/source/fonts/*.ttf`).def(async function(target) {
+	the.file(`hint/source/fonts/*.ttf`).def(async function(target) {
 		const [$1] = await this.need(`build/kanji0/${target.name}.ttf`);
 		await this.cp($1, target);
 	});
 
-	forany.file(`build/kanji0/*.ttf`).def(async function(target) {
+	the.file(`build/kanji0/*.ttf`).def(async function(target) {
 		const [_, $1] = await this.need(target.dir, `sources/shs/${target.name}.otf`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
 		await runBuildTask.call(this, "make/kanji/build.js", { main: $1, o: tmpOTD });
@@ -187,31 +168,34 @@ module.exports = function(ctx, forany, argv, bddy) {
 		await this.rm(tmpOTD);
 	});
 
-	forany.virt("ttf").def(async function(target) {
-		let targets = [];
-		for (let sf of SUBFAMILIES)
-			for (let st of STYLES) {
-				targets.push(`out/ttf/sarasa-${sf}-${st}.ttf`);
-			}
+	the.virt("ttf").def(async function(target) {
+		let reqs = [];
+		for (let f of FAMILIES)
+			for (let sf of SUBFAMILIES)
+				for (let st of STYLES) {
+					reqs.push(`out/ttf/${PREFIX}-${f}-${sf}-${st}.ttf`);
+				}
 
-		await this.need(...targets);
+		await this.need(...reqs);
 	});
 
-	forany.file(`out/ttc/*.ttc`).def(async function(target) {
-		const rawName = target.name.replace(new RegExp("^" + PREFIX + "-", "g"), "");
-		const [_, ...$$] = await this.need(
-			target.dir,
-			...SUBFAMILIES.map(sf => `out/ttf/${PREFIX}-${sf}-${rawName}.ttf`)
-		);
+	the.file(`out/ttc/${PREFIX}-*.ttc`).def(async function(target) {
+		const style = target.$1;
+		let reqs = [];
+		for (let f of FAMILIES)
+			for (let sf of SUBFAMILIES) {
+				reqs.push(`out/ttf/${PREFIX}-${f}-${sf}-${style}.ttf`);
+			}
+		const [_, ...$$] = await this.need(target.dir, ...reqs);
 		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
 		await this.run(ttcize, "-o", target, ...$$, "-k", "-h");
 	});
-	forany.virt("ttc").def(async function(target) {
+	the.virt("ttc").def(async function(target) {
 		await this.need(...STYLES.map(st => `out/ttc/${PREFIX}-${st}.ttc`));
 	});
 
 	// cleanup
-	forany.virt("clear").def(async function(target) {
+	the.virt("clear").def(async function(target) {
 		await this.rm(`build`, `out`, `hint/build`, `hint/out`);
 	});
 };
