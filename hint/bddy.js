@@ -44,6 +44,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 	const APPLYHGI = [IDEOHINT, "apply"];
 	const HINTHGL = [IDEOHINT, "hint"];
 	const VISUAL = [IDEOHINT, "visual"];
+	const CACHE = [IDEOHINT, "cache"];
 	const NODE = ["node"];
 
 	const inOTDs = [];
@@ -68,7 +69,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 		const ghint = `${tempdir}/hint-${groupbase}`;
 		const gfont = `${tempdir}/font-${groupbase}`;
 		const hgl = `${ghint}/group.hgl`;
-		const hgi = `${ghint}/group.hgi`;
+		const hgc = `${ghint}.hgc`;
 
 		const paramfile = group.param;
 		const groupHGLs = [];
@@ -121,17 +122,18 @@ module.exports = function(ctx, forany, argv, bddy) {
 
 			// output
 			forany.file(outotd).def(async function(target) {
-				const [_, $hgi, $inotd, $param, _config, $cvt] = await this.need(
+				const [_, $hgc, $inotd, $param, _config, $cvt] = await this.need(
 					target.dir,
-					hgi,
+					hgc,
 					inotd,
 					paramfile,
 					CONFIG_PATH,
-					config.settings.cvt_padding ? null : `${tempdir}/cvt.json`
+					config.settings.cvt_padding ? null : `${tempdir}/cvt.json`,
+					hgc
 				);
 				await this.run(
 					...APPLYHGI,
-					$hgi,
+					$hgc,
 					$inotd,
 					...["-o", target],
 					...["--parameters", $param],
@@ -173,15 +175,16 @@ module.exports = function(ctx, forany, argv, bddy) {
 					$1,
 					...["-o", target],
 					...["--parameters", $2],
+					...["--cache", hgc],
 					...["-d", jHint],
 					...["-m", j]
 				);
 			});
 			groupHGIs.push(`${ghint}/${j}.hgi`);
 		}
-		forany.file(hgi).def(async function(target) {
+		forany.file(hgc).def(async function(target) {
 			const [_, ...$$] = await this.need(target.dir, ...groupHGIs);
-			await this.run(...MERGE, "-o", target, ...$$);
+			await this.run(...CACHE, "-o", target, target, ...$$);
 		});
 
 		// visual
