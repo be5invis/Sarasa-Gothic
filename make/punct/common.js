@@ -27,26 +27,38 @@ const sanitizers = {};
 sanitizers.auto = function(glyph) {
 	const targetW = Math.ceil(glyph.advanceWidth / (this.em / 2)) * (this.em / 2);
 	const shift = (targetW - glyph.advanceWidth) / 2;
-	if (!glyph.contours) return;
+	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x += shift;
 	glyph.advanceWidth = targetW;
+	return glyph;
+};
+sanitizers.half = function(glyph) {
+	const targetW = this.em / 2;
+	const shift = (targetW - glyph.advanceWidth) / 2;
+	if (!glyph.contours) return glyph;
+	for (let c of glyph.contours) for (let z of c) z.x += shift;
+	glyph.advanceWidth = targetW;
+	return glyph;
 };
 sanitizers.halfLeft = function(glyph, gid) {
-	glyph.advanceWidth = this.em / 2;
+	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
+	Object.assign(glyph, g1);
 	deleteGPOS(this.font, gid);
+	return glyph;
 };
 sanitizers.halfRight = function(glyph, gid) {
-	if (!glyph.contours) return;
-	for (let c of glyph.contours) for (let z of c) z.x -= glyph.advanceWidth - this.em / 2;
-	glyph.advanceWidth = this.em / 2;
+	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
+	Object.assign(glyph, g1);
 	deleteGPOS(this.font, gid);
+	return glyph;
 };
 sanitizers.halfComp = function(glyph, gid) {
 	const targetW = Math.round(glyph.advanceWidth / this.em) * (this.em / 2);
-	if (!glyph.contours) return;
+	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x *= targetW / glyph.advanceWidth;
 	glyph.advanceWidth = targetW;
 	deleteGPOS(this.font, gid);
+	return glyph;
 };
 
 const sanitizerTypes = {
@@ -63,7 +75,7 @@ const sanitizerTypes = {
 	"\u2e3b": "halfComp"
 };
 
-async function sanitizeSymbols(config) {
+exports.sanitizeSymbols = async function sanitizeSymbols() {
 	let san = new Map();
 	for (let c in this.font.cmap) {
 		if (!this.font.cmap[c]) continue;
@@ -76,8 +88,7 @@ async function sanitizeSymbols(config) {
 		if (!glyph) continue;
 		sanitizer.call(this, glyph, g);
 	}
-}
-exports.sanitizeSymbols = sanitizeSymbols;
+};
 
 exports.removeUnusedFeatures = function(a) {
 	for (let f in a.GSUB.features) {

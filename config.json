@@ -1,0 +1,25 @@
+{
+	"prefix": "sarasa",
+	"CVT_PADDING": 300,
+	"families": ["gothic", "mono"],
+	"styles": ["regular", "bold", "italic", "bolditalic"],
+
+	"uprightStyleMaps": {
+		"italic": "regular",
+		"bolditalic": "bold"
+	},
+	"isMono": { "mono": true },
+	"latinFamilyMaps": { "mono": "iosevka", "gothic": "noto-sans" },
+	"fontNameMaps": {
+		"en_US": { "mono": "Sarasa Mono", "gothic": "Sarasa Gothic" },
+		"zh_CN": { "mono": "等距更纱黑体", "gothic": "更纱黑体" },
+		"zh_TW": { "mono": "等距更紗黑體", "gothic": "更紗黑體" },
+		"ja_JP": { "mono": "更紗等幅ゴシック", "gothic": "更紗ゴシック" },
+		"styles": {
+			"regular": "Regular",
+			"bold": "Bold",
+			"italic": "Italic",
+			"bolditalic": "Bold Italic"
+		}
+	}
+}

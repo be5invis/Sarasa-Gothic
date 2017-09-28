@@ -4,7 +4,7 @@ const { quadify, introduce, build, gc, manip: { glyph: glyphManip } } = require(
 const { isKanji } = require("caryll-iddb");
 const { isWestern, isWS, isKorean, sanitizeSymbols, removeUnusedFeatures } = require("./common");
 
-async function pass(ctx, config, argv) {
+module.exports = async function makeFont(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
 		from: argv.main,
 		prefix: "a",
@@ -17,15 +17,12 @@ async function pass(ctx, config, argv) {
 			a.cmap[c] = null;
 		}
 	}
-
+	if (argv.mono) {
+		await ctx.run(glyphManip, "a", sanitizeSymbols);
+	}
 	removeUnusedFeatures(ctx.items.a);
 	await ctx.run(gc, "a", { ignoreAltSub: true });
-	await ctx.run(glyphManip, "a", sanitizeSymbols, config);
 
-	await ctx.run(build, "a", { to: config.o, optimize: true });
+	await ctx.run(build, "a", { to: argv.o, optimize: true });
 	ctx.remove("a");
-}
-
-module.exports = async function makeFont(ctx, config, argv) {
-	await pass(ctx, { o: argv.o }, argv);
 };
