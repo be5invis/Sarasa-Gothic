@@ -1,9 +1,9 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"main": "./run",
 	"dependencies": {
-		"caryll-iddb": "*",
+		"caryll-iddb": "^0.1.2",
 		"child-process-promise": "^2.2.1",
 		"clear": "0.0.1",
 		"clone": "^2.1.1",
@@ -15,19 +15,17 @@
 		"inquirer": "^3.2.3",
 		"inquirer-file-path": "^1.0.0",
 		"megaminx": "^0.4.5",
-		"otfcc-ttcize": "^0.5.0",
+		"otfcc-ttcize": "^0.6.0",
 		"scc-config": "^0.8.1",
 		"which": "^1.2.14",
 		"yargs": "^8.0.2",
-		"bddy": "^0.2.1"
-	},
-	"browser": {
-		"vue": "vue/dist/vue.common"
-	},
-	"devDependencies": {
-		"vueify": "^9.4.1"
+		"bddy": "^0.4.1",
+		"colors": "^1.1.2"
 	},
 	"engines": {
 		"node": ">=8.5.0"
+	},
+	"scripts": {
+		"install": "node checkenv"
 	}
 }
