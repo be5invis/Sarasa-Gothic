@@ -106,3 +106,12 @@ exports.removeUnusedFeatures = function(a) {
 		}
 	}
 };
+
+exports.toPWID = async function() {
+	const font = this.font;
+	for (let c in font.cmap) {
+		if (!font.cmap[c]) continue;
+		if (!sanitizerTypes[String.fromCodePoint(c - 0)]) continue;
+		font.cmap[c] = this.find.gname.subst("pwid", font.cmap[c]);
+	}
+};

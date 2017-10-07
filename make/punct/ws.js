@@ -2,7 +2,14 @@
 
 const { quadify, introduce, build, gc, manip: { glyph: glyphManip } } = require("megaminx");
 const { isKanji } = require("caryll-iddb");
-const { isWestern, isWS, isKorean, sanitizeSymbols, removeUnusedFeatures } = require("./common");
+const {
+	isWestern,
+	isWS,
+	isKorean,
+	sanitizeSymbols,
+	removeUnusedFeatures,
+	toPWID
+} = require("./common");
 
 module.exports = async function makeFont(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
@@ -17,7 +24,9 @@ module.exports = async function makeFont(ctx, config, argv) {
 			a.cmap[c] = null;
 		}
 	}
-
+	if (argv.pwid) {
+		await ctx.run(glyphManip, "a", toPWID);
+	}
 	if (argv.mono) {
 		await ctx.run(glyphManip, "a", sanitizeSymbols);
 	}

@@ -37,15 +37,15 @@ async function sanitize(target, ttf) {
 const config = fs.readJsonSync(__dirname + "/config.json");
 const PREFIX = config.prefix;
 const CVT_PADDING = config.CVT_PADDING;
-const FAMILIES = config.families;
-const SUBFAMILIES = ["cl", "sc", "tc", "j"];
-const STYLES = config.styles;
+const FAMILIES = config.familyOrder;
+const SUBFAMILIES = config.subfamilyOrder;
+const STYLES = config.styleOrder;
 const version = fs.readJsonSync(path.resolve(__dirname, "package.json")).version;
 
 function deItalizedNameOf(set) {
 	return (set + "")
 		.split("-")
-		.map(w => config.uprightStyleMaps[w] || w)
+		.map(w => (config.styles[w] ? config.styles[w].uprightStyleMap || w : w))
 		.join("-");
 }
 
@@ -70,7 +70,7 @@ module.exports = function(ctx, the, argv, bddy) {
 	});
 	the.file(`build/pass1/*-*-*.ttf`).def(async function(target) {
 		const { $1: family, $2: region, $3: style } = target;
-		const latinFamily = config.latinFamilyMaps[family];
+		const latinFamily = config.families[family].latinGroup;
 		const [_, $1, $2, $3] = await this.need(
 			target.dir,
 			`sources/${latinFamily}/${latinFamily}-${style}.ttf`,
@@ -84,7 +84,7 @@ module.exports = function(ctx, the, argv, bddy) {
 			o: target + ".tmp.ttf",
 
 			family: family,
-			subfamily: region.toUpperCase(),
+			subfamily: config.subfamilies[region].name,
 			style: style,
 			italize: deItalizedNameOf(target.name) === target.name ? false : true
 		});
@@ -98,7 +98,8 @@ module.exports = function(ctx, the, argv, bddy) {
 		await runBuildTask.call(this, "make/punct/as.js", {
 			main: $1,
 			o: tmpOTD,
-			mono: config.isMono[family] || false
+			mono: config.families[family].isMono || false,
+			pwid: config.families[family].isPWID || false
 		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
@@ -110,7 +111,8 @@ module.exports = function(ctx, the, argv, bddy) {
 		await runBuildTask.call(this, "make/punct/ws.js", {
 			main: $1,
 			o: tmpOTD,
-			mono: config.isMono[family] || false
+			mono: config.families[family].isMono || false,
+			pwid: config.families[family].isPWID || false
 		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);

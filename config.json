@@ -1,25 +1,61 @@
 {
 	"prefix": "sarasa",
 	"CVT_PADDING": 300,
-	"families": ["gothic", "mono"],
-	"styles": ["regular", "bold", "italic", "bolditalic"],
 
-	"uprightStyleMaps": {
-		"italic": "regular",
-		"bolditalic": "bold"
-	},
-	"isMono": { "mono": true },
-	"latinFamilyMaps": { "mono": "iosevka", "gothic": "noto-sans" },
-	"fontNameMaps": {
-		"en_US": { "mono": "Sarasa Mono", "gothic": "Sarasa Gothic" },
-		"zh_CN": { "mono": "等距更纱黑体", "gothic": "更纱黑体" },
-		"zh_TW": { "mono": "等距更紗黑體", "gothic": "更紗黑體" },
-		"ja_JP": { "mono": "更紗等幅ゴシック", "gothic": "更紗ゴシック" },
-		"styles": {
-			"regular": "Regular",
-			"bold": "Bold",
-			"italic": "Italic",
-			"bolditalic": "Bold Italic"
+	"familyOrder": ["gothic", "ui", "mono"],
+	"families": {
+		"gothic": {
+			"isMono": false,
+			"latinGroup": "noto-sans",
+			"naming": {
+				"en_US": "Sarasa Gothic",
+				"zh_CN": "更纱黑体",
+				"zh_TW": "更紗黑體",
+				"ja_JP": "更紗ゴシック"
+			}
+		},
+		"ui": {
+			"isPWID": true,
+			"isMono": false,
+			"latinGroup": "noto-sans",
+			"naming": {
+				"en_US": "Sarasa UI",
+				"zh_CN": "更纱黑体 UI",
+				"zh_TW": "更紗黑體 UI",
+				"ja_JP": "更紗ゴシック UI"
+			}
+		},
+		"mono": {
+			"isMono": true,
+			"latinGroup": "iosevka",
+			"naming": {
+				"en_US": "Sarasa Mono",
+				"zh_CN": "等距更纱黑体",
+				"zh_TW": "等距更紗黑體",
+				"ja_JP": "更紗等幅ゴシック"
+			}
 		}
+	},
+
+	"styleOrder": ["regular", "bold", "italic", "bolditalic"],
+	"styles": {
+		"regular": { "name": "Regular" },
+		"bold": { "name": "Bold" },
+		"italic": {
+			"name": "Italic",
+			"uprightStyleMap": "regular"
+		},
+		"bolditalic": {
+			"name": "Bold Italic",
+			"uprightStyleMap": "bold"
+		}
+	},
+
+	"subfamilyOrder": ["cl", "sc", "tc", "j"],
+	"subfamilies": {
+		"cl": { "name": "CL" },
+		"sc": { "name": "SC" },
+		"tc": { "name": "TC" },
+		"j": { "name": "J" }
 	}
 }
