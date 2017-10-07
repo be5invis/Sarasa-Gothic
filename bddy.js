@@ -282,7 +282,7 @@ module.exports = function(ctx, the, argv, bddy) {
 	});
 
 	// cleanup
-	the.virt("clear").def(async function(target) {
-		await this.rm(`build`, `out`, `hint/build`, `hint/out`);
+	the.virt("clean").def(async function(target) {
+		await this.rm(`build`, `out`, `hint/source/fonts`, `hint/out`);
 	});
 };
