@@ -163,7 +163,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 
 		// hgl and hgi
 		forany.file(hgl).def(async function(target) {
-			const [_, ...$$] = await this.need(target.dir, ...groupHGLs);
+			const [_, $$] = await this.need(target.dir, groupHGLs);
 			await this.run(...MERGE, "-o", target, ...$$);
 		});
 		const groupHGIs = [];
@@ -183,7 +183,7 @@ module.exports = function(ctx, forany, argv, bddy) {
 			groupHGIs.push(`${ghint}/${j}.hgi`);
 		}
 		forany.file(hgc).def(async function(target) {
-			const [_, ...$$] = await this.need(target.dir, ...groupHGIs);
+			const [_, $$] = await this.need(target.dir, groupHGIs);
 			await this.run(...CACHE, "-o", target, target, ...$$);
 		});
 

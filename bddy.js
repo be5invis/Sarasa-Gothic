@@ -198,7 +198,7 @@ module.exports = function(ctx, the, argv, bddy) {
 			for (let sf of SUBFAMILIES) {
 				reqs.push(`out/ttf/${PREFIX}-${f}-${sf}-${style}.ttf`);
 			}
-		const [...$$] = await this.need(...reqs);
+		const [$$] = await this.need(reqs);
 		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
 		await this.run(ttcize, ...["--prefix", `out/ttc/${PREFIX}-${style}-parts`], ...$$, [
 			"-k",
@@ -237,7 +237,7 @@ module.exports = function(ctx, the, argv, bddy) {
 					reqs.push(`out/ttc/${PREFIX}-${style}-parts.${n}.ttf`);
 					n += 1;
 				}
-			const [_, ...$$] = await this.need(target.dir, ...reqs);
+			const [_, $$] = await this.need(target.dir, reqs);
 			await this.run(`otf2otc`, ["-o", target], $$);
 			for (let r of $$) {
 				await this.rm(r, `${r.dir}/${r.name}.otd`);

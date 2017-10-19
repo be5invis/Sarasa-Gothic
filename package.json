@@ -11,15 +11,15 @@
 		"fs-extra": "^3.0.1",
 		"glob": "^7.1.2",
 		"glob-promise": "^3.1.0",
-		"ideohint": "^1.0.1",
+		"ideohint": "^1.4.4",
 		"inquirer": "^3.2.3",
 		"inquirer-file-path": "^1.0.0",
 		"megaminx": "^0.4.5",
 		"otfcc-ttcize": "^0.6.0",
 		"scc-config": "^0.8.1",
 		"which": "^1.2.14",
-		"yargs": "^8.0.2",
-		"bddy": "^0.4.1",
+		"yargs": "^9.0.0",
+		"bddy": "^0.8.0",
 		"colors": "^1.1.2"
 	},
 	"engines": {
