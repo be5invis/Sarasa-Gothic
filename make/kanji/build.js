@@ -16,6 +16,10 @@ async function pass(ctx, config, argv) {
 	a.cvt_ = [];
 	a.fpgm = [];
 	a.prep = [];
+	if (!config.loclFeature) {
+		a.GSUB = null;
+		a.GPOS = null;
+	}
 	await ctx.run(gc, "a");
 	await ctx.run(build, "a", { to: config.o, optimize: true });
 	ctx.remove("a");

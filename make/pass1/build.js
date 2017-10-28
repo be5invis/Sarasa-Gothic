@@ -83,20 +83,20 @@ async function pass(ctx, config, argv) {
 		en_US: {
 			copyright: "Copyright (c) 2017 Belleve Invis, et al.",
 			version: fs.readJsonSync(path.resolve(__dirname, "../../package.json")).version,
-			family: globalConfig.fontNameMaps.en_US[argv.family] + " " + argv.subfamily,
-			style: globalConfig.fontNameMaps.styles[argv.style]
+			family: globalConfig.families[argv.family].naming.en_US + " " + argv.subfamily,
+			style: globalConfig.styles[argv.style].name
 		},
 		zh_CN: {
-			family: globalConfig.fontNameMaps.zh_CN[argv.family] + " " + argv.subfamily,
-			style: globalConfig.fontNameMaps.styles[argv.style]
+			family: globalConfig.families[argv.family].naming.zh_CN + " " + argv.subfamily,
+			style: globalConfig.styles[argv.style].name
 		},
 		zh_TW: {
-			family: globalConfig.fontNameMaps.zh_TW[argv.family] + " " + argv.subfamily,
-			style: globalConfig.fontNameMaps.styles[argv.style]
+			family: globalConfig.families[argv.family].naming.zh_TW + " " + argv.subfamily,
+			style: globalConfig.styles[argv.style].name
 		},
 		ja_JP: {
-			family: globalConfig.fontNameMaps.ja_JP[argv.family] + " " + argv.subfamily,
-			style: globalConfig.fontNameMaps.styles[argv.style]
+			family: globalConfig.families[argv.family].naming.ja_JP + " " + argv.subfamily,
+			style: globalConfig.styles[argv.style].name
 		}
 	});
 	await ctx.run(setEncodings, "a", ENCODINGS[argv.subfamily]);
