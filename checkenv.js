@@ -15,6 +15,5 @@ function check(util) {
 check("ttx");
 check("otc2otf");
 check("otf2otc");
-check("ttfautohint");
 check("otfccdump");
 check("otfccbuild");
