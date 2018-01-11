@@ -49,7 +49,7 @@ function deItalizedNameOf(set) {
 		.join("-");
 }
 
-module.exports = function(ctx, the, argv, bddy) {
+module.exports = function(ctx, the) {
 	the.file(`out/ttf/${PREFIX}-*-*-*.ttf`).def(async function(target) {
 		const { $1: family, $2: region, $3: style } = target;
 		const [_, $1, $2] = await this.need(
@@ -167,7 +167,10 @@ module.exports = function(ctx, the, argv, bddy) {
 	the.file(`build/kanji0/*.ttf`).def(async function(target) {
 		const [_, $1] = await this.need(target.dir, `build/shs/${target.name}.otd`);
 		const tmpOTD = `${target.dir}/${target.name}.otd`;
-		await runBuildTask.call(this, "make/kanji/build.js", { main: $1, o: tmpOTD });
+		await runBuildTask.call(this, "make/kanji/build.js", {
+			main: $1,
+			o: tmpOTD
+		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
 	});
@@ -274,12 +277,9 @@ module.exports = function(ctx, the, argv, bddy) {
 			`*.ttf`
 		);
 	});
-	the.virt("start").def(async function(target) {
-		await this.need(
-			`out/sarasa-gothic-ttc-${version}.7z`,
-			`out/sarasa-gothic-ttf-${version}.7z`
-		);
-	});
+
+	ctx.want(`out/sarasa-gothic-ttc-${version}.7z`);
+	ctx.want(`out/sarasa-gothic-ttf-${version}.7z`);
 
 	// cleanup
 	the.virt("clean").def(async function(target) {

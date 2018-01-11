@@ -13,7 +13,7 @@ const CONFIG_PATH = __dirname + "/source/fonts.json";
 const os = require("os");
 const jHint = os.cpus().length * 2;
 
-module.exports = function(ctx, forany, argv, bddy) {
+module.exports = function(ctx, forany, the, argv, bddy) {
 	const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
 	const stylegroups = sg.stylegroupsOf(config);
 	sg.initParamfiles(stylegroups, config);
