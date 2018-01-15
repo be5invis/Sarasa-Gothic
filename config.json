@@ -34,6 +34,16 @@
 				"zh_TW": "等距更紗黑體",
 				"ja_JP": "更紗等幅ゴシック"
 			}
+		},
+		"term": {
+			"isMono": true,
+			"latinGroup": "iosevka-term",
+			"naming": {
+				"en_US": "Sarasa Term",
+				"zh_CN": "Sarasa Term",
+				"zh_TW": "Sarasa Term",
+				"ja_JP": "Sarasa Term"
+			}
 		}
 	},
 
