@@ -2,7 +2,7 @@
 	"prefix": "sarasa",
 	"CVT_PADDING": 300,
 
-	"familyOrder": ["gothic", "ui", "mono"],
+	"familyOrder": ["gothic", "ui", "mono", "term"],
 	"families": {
 		"gothic": {
 			"isMono": false,
@@ -33,6 +33,16 @@
 				"zh_CN": "等距更纱黑体",
 				"zh_TW": "等距更紗黑體",
 				"ja_JP": "更紗等幅ゴシック"
+			}
+		},
+		"term": {
+			"isMono": true,
+			"latinGroup": "iosevka-term",
+			"naming": {
+				"en_US": "Sarasa Term",
+				"zh_CN": "Sarasa Term",
+				"zh_TW": "Sarasa Term",
+				"ja_JP": "Sarasa Term"
 			}
 		}
 	},

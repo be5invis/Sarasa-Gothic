@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"main": "./run",
 	"dependencies": {
 		"caryll-iddb": "^0.1.2",
@@ -19,7 +19,7 @@
 		"scc-config": "^0.9.3",
 		"which": "^1.2.14",
 		"yargs": "^9.0.0",
-		"bddy": "^0.8.0",
+		"bddy": "^0.9.0",
 		"colors": "^1.1.2"
 	},
 	"engines": {
