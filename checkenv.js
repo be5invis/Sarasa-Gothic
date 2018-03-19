@@ -17,3 +17,4 @@ check("otc2otf");
 check("otf2otc");
 check("otfccdump");
 check("otfccbuild");
+check("ttfautohint");
