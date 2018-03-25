@@ -1,6 +1,6 @@
 "use strict";
 
-exports.isWestern = c => c <= 0x2000;
+exports.isWestern = c => c < 0x2000;
 exports.isKorean = c =>
 	(c >= 0xac00 && c <= 0xd7af) ||
 	(c >= 0x3130 && c <= 0x318f) ||
@@ -9,7 +9,9 @@ exports.isKorean = c =>
 	(c >= 0x3260 && c <= 0x327f) ||
 	(c >= 0xa960 && c <= 0xd7ff);
 
-exports.isWS = c => c >= 0x20a0 && c < 0x3000 && !(c >= 0x2e3a && c <= 0x2e3b);
+exports.isWS = function (c, isTerm = false) {
+	return c >= (isTerm ? 0x2000 : 0x20a0) && c < 0x3000 && !(c >= 0x2e3a && c <= 0x2e3b);
+}
 
 function deleteGPOS(font, gid) {
 	if (!font.GPOS) return;
