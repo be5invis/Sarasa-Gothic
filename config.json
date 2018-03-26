@@ -38,6 +38,7 @@
 		"term": {
 			"isMono": true,
 			"latinGroup": "iosevka-term",
+			"isTerm": true,
 			"naming": {
 				"en_US": "Sarasa Term",
 				"zh_CN": "Sarasa Term",

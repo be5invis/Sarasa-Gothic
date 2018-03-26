@@ -99,7 +99,8 @@ module.exports = function(ctx, the) {
 			main: $1,
 			o: tmpOTD,
 			mono: config.families[family].isMono || false,
-			pwid: config.families[family].isPWID || false
+			pwid: config.families[family].isPWID || false,
+			term: config.families[family].isTerm || false
 		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);
@@ -112,7 +113,8 @@ module.exports = function(ctx, the) {
 			main: $1,
 			o: tmpOTD,
 			mono: config.families[family].isMono || false,
-			pwid: config.families[family].isPWID || false
+			pwid: config.families[family].isPWID || false,
+			term: config.families[family].isTerm || false
 		});
 		await this.run("otfccbuild", tmpOTD, "-o", target, "-q");
 		await this.rm(tmpOTD);

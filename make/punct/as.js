@@ -20,7 +20,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 	await ctx.run(quadify, "a");
 	a.cmap_uvs = null;
 	for (let c in a.cmap) {
-		if (isKanji(c - 0) || isWestern(c - 0) || isKorean(c - 0) || isWS(c - 0)) {
+		if (isKanji(c - 0) || isWestern(c - 0) || isKorean(c - 0) || isWS(c - 0, argv.term)) {
 			a.cmap[c] = null;
 		}
 	}
