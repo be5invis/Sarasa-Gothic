@@ -9,9 +9,9 @@ exports.isKorean = c =>
 	(c >= 0x3260 && c <= 0x327f) ||
 	(c >= 0xa960 && c <= 0xd7ff);
 
-exports.isWS = function (c, isTerm = false) {
+exports.isWS = function(c, isType = false, isTerm = false) {
 	return c >= (isTerm ? 0x2000 : 0x20a0) && c < 0x3000 && !(c >= 0x2e3a && c <= 0x2e3b);
-}
+};
 
 function deleteGPOS(font, gid) {
 	if (!font.GPOS) return;
@@ -54,8 +54,8 @@ sanitizers.halfRight = function(glyph, gid) {
 	deleteGPOS(this.font, gid);
 	return glyph;
 };
-sanitizers.halfComp = function(glyph, gid) {
-	const targetW = Math.round(glyph.advanceWidth / this.em) * (this.em / 2);
+sanitizers.halfComp = function(glyph, gid, isType = false) {
+	const targetW = Math.ceil(glyph.advanceWidth / this.em) * (this.em * (isType ? 1 : 1 / 2));
 	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x *= targetW / glyph.advanceWidth;
 	glyph.advanceWidth = targetW;
@@ -77,7 +77,7 @@ const sanitizerTypes = {
 	"\u2e3b": "halfComp"
 };
 
-exports.sanitizeSymbols = async function sanitizeSymbols() {
+exports.sanitizeSymbols = async function sanitizeSymbols(isType) {
 	let san = new Map();
 	for (let c in this.font.cmap) {
 		if (!this.font.cmap[c]) continue;
@@ -88,7 +88,7 @@ exports.sanitizeSymbols = async function sanitizeSymbols() {
 		let sanitizer = sanitizers[san.has(g) ? san.get(g) : "auto"];
 		const glyph = this.font.glyf[g];
 		if (!glyph) continue;
-		sanitizer.call(this, glyph, g);
+		sanitizer.call(this, glyph, g, isType);
 	}
 };
 

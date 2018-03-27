@@ -99,6 +99,7 @@ module.exports = function(ctx, the) {
 			main: $1,
 			o: tmpOTD,
 			mono: config.families[family].isMono || false,
+			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
 			term: config.families[family].isTerm || false
 		});
@@ -113,6 +114,7 @@ module.exports = function(ctx, the) {
 			main: $1,
 			o: tmpOTD,
 			mono: config.families[family].isMono || false,
+			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
 			term: config.families[family].isTerm || false
 		});

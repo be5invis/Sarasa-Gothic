@@ -35,6 +35,17 @@
 				"ja_JP": "更紗等幅ゴシック"
 			}
 		},
+		"monoT": {
+			"isMono": true,
+			"isType": true,
+			"latinGroup": "iosevka",
+			"naming": {
+				"en_US": "Sarasa Mono T",
+				"zh_CN": "等距更纱黑体 T",
+				"zh_TW": "等距更紗黑體 T",
+				"ja_JP": "更紗等幅ゴシック T"
+			}
+		},
 		"term": {
 			"isMono": true,
 			"latinGroup": "iosevka-term",
