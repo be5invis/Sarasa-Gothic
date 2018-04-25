@@ -2,7 +2,7 @@
 	"prefix": "sarasa",
 	"CVT_PADDING": 300,
 
-	"familyOrder": ["gothic", "ui", "mono", "term"],
+	"familyOrder": ["gothic", "ui", "mono", "monoT", "term"],
 	"families": {
 		"gothic": {
 			"isMono": false,
