@@ -81,7 +81,8 @@ async function pass(ctx, config, argv) {
 
 	await ctx.run(nameFont, "a", {
 		en_US: {
-			copyright: "Copyright (c) 2017 Belleve Invis, et al.",
+			copyright:
+				"Copyright 2015-2018, Belleve Invis (belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
 			version: fs.readJsonSync(path.resolve(__dirname, "../../package.json")).version,
 			family: globalConfig.families[argv.family].naming.en_US + " " + argv.subfamily,
 			style: globalConfig.styles[argv.style].name

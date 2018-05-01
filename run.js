@@ -21,4 +21,7 @@ const main = async function() {
 	await flow.run(recipe, config, argv);
 };
 
-main().catch(console.error);
+main().catch(function(e) {
+	console.error(e);
+	process.exit(1);
+});
