@@ -27,7 +27,10 @@ function deleteGPOS(font, gid) {
 
 const sanitizers = {};
 sanitizers.auto = function(glyph) {
-	const targetW = Math.ceil(glyph.advanceWidth / (this.em / 2)) * (this.em / 2);
+	const targetW = Math.min(
+		this.em,
+		Math.ceil(glyph.advanceWidth / (this.em / 2)) * (this.em / 2)
+	);
 	const shift = (targetW - glyph.advanceWidth) / 2;
 	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x += shift;
@@ -55,7 +58,10 @@ sanitizers.halfRight = function(glyph, gid) {
 	return glyph;
 };
 sanitizers.halfComp = function(glyph, gid, isType = false) {
-	const targetW = Math.ceil(glyph.advanceWidth / this.em) * (this.em * (isType ? 1 : 1 / 2));
+	const targetW = Math.min(
+		this.em,
+		Math.ceil(glyph.advanceWidth / this.em) * (this.em * (isType ? 1 : 1 / 2))
+	);
 	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x *= targetW / glyph.advanceWidth;
 	glyph.advanceWidth = targetW;
