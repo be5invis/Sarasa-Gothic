@@ -25,3 +25,13 @@ node build ttc
 ```
 
 instead, the files would be in `build/ttc` directory.
+
+## What are the names?
+
+- LGC set being Nono Sans
+  - Quotes (`“”`) are full width —— Gothic
+  - Quotes (`“”`) are narrow —— UI
+- LGC set being Iosevka
+  - Have ligature, Em dashes (`——`) are full width —— MonoT
+  - Have ligature, Em dashes (`——`) are half width —— Mono
+  - No ligature, Em dashes (`——`) are half width —— Term
