@@ -11,6 +11,7 @@
 				"en_US": "Sarasa Gothic",
 				"zh_CN": "更纱黑体",
 				"zh_TW": "更紗黑體",
+				"zh_HK": "更紗黑體",
 				"ja_JP": "更紗ゴシック"
 			}
 		},
@@ -22,6 +23,7 @@
 				"en_US": "Sarasa UI",
 				"zh_CN": "更纱黑体 UI",
 				"zh_TW": "更紗黑體 UI",
+				"zh_HK": "更紗黑體 UI",
 				"ja_JP": "更紗ゴシック UI"
 			}
 		},
@@ -32,6 +34,7 @@
 				"en_US": "Sarasa Mono",
 				"zh_CN": "等距更纱黑体",
 				"zh_TW": "等距更紗黑體",
+				"zh_HK": "等距更紗黑體",
 				"ja_JP": "更紗等幅ゴシック"
 			}
 		},
@@ -43,6 +46,7 @@
 				"en_US": "Sarasa Mono T",
 				"zh_CN": "等距更纱黑体 T",
 				"zh_TW": "等距更紗黑體 T",
+				"zh_HK": "等距更紗黑體 T",
 				"ja_JP": "更紗等幅ゴシック T"
 			}
 		},
@@ -54,6 +58,7 @@
 				"en_US": "Sarasa Term",
 				"zh_CN": "Sarasa Term",
 				"zh_TW": "Sarasa Term",
+				"zh_HK": "Sarasa Term",
 				"ja_JP": "Sarasa Term"
 			}
 		}
@@ -73,11 +78,22 @@
 		}
 	},
 
-	"subfamilyOrder": ["cl", "sc", "tc", "j"],
+	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j"],
 	"subfamilies": {
 		"cl": { "name": "CL" },
 		"sc": { "name": "SC" },
 		"tc": { "name": "TC" },
+		"hc": { "name": "HC" },
 		"j": { "name": "J" }
-	}
+	},
+
+	"os2encodings": {
+		"J": { "gbk": false, "big5": false, "jis": true, "korean": false },
+		"SC": { "gbk": true, "big5": false, "jis": false, "korean": false },
+		"TC": { "gbk": false, "big5": true, "jis": false, "korean": false },
+		"HC": { "gbk": false, "big5": true, "jis": false, "korean": false },
+		"CL": { "gbk": false, "big5": true, "jis": false, "korean": false }
+	},
+
+	"copyright": "Copyright 2015-2018, Belleve Invis (belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc."
 }

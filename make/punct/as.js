@@ -1,6 +1,12 @@
 "use strict";
 
-const { quadify, introduce, build, gc, manip: { glyph: glyphManip } } = require("megaminx");
+const {
+	quadify,
+	introduce,
+	build,
+	gc,
+	manip: { glyph: glyphManip }
+} = require("megaminx");
 const { isKanji } = require("caryll-iddb");
 const {
 	isWestern,
@@ -35,7 +41,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 	if (argv.mono) {
 		await ctx.run(glyphManip, "a", sanitizeSymbols, argv.type);
 	}
-	removeUnusedFeatures(ctx.items.a);
+	removeUnusedFeatures(ctx.items.a, argv.mono);
 	await ctx.run(gc, "a", { ignoreAltSub: true });
 
 	await ctx.run(build, "a", { to: argv.o, optimize: true });

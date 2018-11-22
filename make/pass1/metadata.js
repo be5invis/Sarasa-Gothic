@@ -39,6 +39,7 @@ const langIDMap = {
 	en_US: 1033,
 	zh_CN: 2052,
 	zh_TW: 1028,
+	zh_HK: 3076,
 	ja_JP: 1041
 };
 

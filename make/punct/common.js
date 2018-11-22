@@ -98,7 +98,7 @@ exports.sanitizeSymbols = async function sanitizeSymbols(isType) {
 	}
 };
 
-exports.removeUnusedFeatures = function(a) {
+exports.removeUnusedFeatures = function(a, mono) {
 	for (let f in a.GSUB.features) {
 		if (
 			f.slice(0, 4) === "pwid" ||
@@ -111,6 +111,21 @@ exports.removeUnusedFeatures = function(a) {
 				a.GSUB.lookups[l] = null;
 			}
 			a.GSUB.features[f] = null;
+		}
+	}
+	if (mono && a.GPOS) {
+		for (let f in a.GPOS.features) {
+			if (
+				f.slice(0, 4) === "kern" ||
+				f.slice(0, 4) === "vkrn" ||
+				f.slice(0, 4) === "palt" ||
+				f.slice(0, 4) === "vpal"
+			) {
+				for (let l of a.GPOS.features[f]) {
+					a.GPOS.lookups[l] = null;
+				}
+				a.GPOS.features[f] = null;
+			}
 		}
 	}
 };
