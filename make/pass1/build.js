@@ -66,7 +66,7 @@ async function pass(ctx, config, argv) {
 			family: globalConfig.families[argv.family].naming.zh_TW + " " + argv.subfamily,
 			style: globalConfig.styles[argv.style].name
 		},
-		zh_TW: {
+		zh_HK: {
 			family: globalConfig.families[argv.family].naming.zh_HK + " " + argv.subfamily,
 			style: globalConfig.styles[argv.style].name
 		},
