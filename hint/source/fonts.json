@@ -22,6 +22,11 @@
       "allchar": true
     },
     {
+      "input": "source/fonts/hc-regular.ttf",
+      "param": "source/parameters/regular.toml",
+      "allchar": true
+    },
+    {
       "input": "source/fonts/j-regular.ttf",
       "param": "source/parameters/regular.toml",
       "allchar": true
@@ -38,6 +43,11 @@
     },
     {
       "input": "source/fonts/tc-bold.ttf",
+      "param": "source/parameters/bold.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/hc-bold.ttf",
       "param": "source/parameters/bold.toml",
       "allchar": true
     },
