@@ -10,7 +10,7 @@ const {
 } = require("megaminx");
 
 const italize = require("../common/italize");
-const { nameFont } = require("./metadata.js");
+const { nameFont, setHintFlag } = require("./metadata.js");
 
 const fs = require("fs-extra");
 const path = require("path");
@@ -76,6 +76,7 @@ async function pass(ctx, config, argv) {
 		}
 	});
 	await ctx.run(setEncodings, "a", ENCODINGS[argv.subfamily]);
+	await ctx.run(setHintFlag, "a");
 
 	await ctx.run(gc, "a");
 	await ctx.run(build, "a", { to: config.o, optimize: true });

@@ -88,3 +88,12 @@ async function nameFont(ctx, demand, namings, config) {
 }
 
 exports.nameFont = nameFont;
+
+async function setHintFlag(ctx, demand) {
+	const font = this.items[demand];
+	font.head.flags.baselineAtY_0 = true;
+	font.head.flags.lsbAtX_0 = true;
+	font.head.flags.alwaysUseIntegerSize = true;
+	font.head.flags.instrMayDependOnPointSize = true;
+}
+exports.setHintFlag = setHintFlag;
