@@ -7,6 +7,56 @@
   },
   "fonts": [
     {
+      "input": "source/fonts/cl-extralight.ttf",
+      "param": "source/parameters/extralight.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/sc-extralight.ttf",
+      "param": "source/parameters/extralight.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/tc-extralight.ttf",
+      "param": "source/parameters/extralight.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/hc-extralight.ttf",
+      "param": "source/parameters/extralight.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/j-extralight.ttf",
+      "param": "source/parameters/extralight.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/cl-light.ttf",
+      "param": "source/parameters/light.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/sc-light.ttf",
+      "param": "source/parameters/light.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/tc-light.ttf",
+      "param": "source/parameters/light.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/hc-light.ttf",
+      "param": "source/parameters/light.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/j-light.ttf",
+      "param": "source/parameters/light.toml",
+      "allchar": true
+    },
+    {
       "input": "source/fonts/cl-regular.ttf",
       "param": "source/parameters/regular.toml",
       "allchar": true
@@ -29,6 +79,31 @@
     {
       "input": "source/fonts/j-regular.ttf",
       "param": "source/parameters/regular.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/cl-medium.ttf",
+      "param": "source/parameters/medium.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/sc-medium.ttf",
+      "param": "source/parameters/medium.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/tc-medium.ttf",
+      "param": "source/parameters/medium.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/hc-medium.ttf",
+      "param": "source/parameters/medium.toml",
+      "allchar": true
+    },
+    {
+      "input": "source/fonts/j-medium.ttf",
+      "param": "source/parameters/medium.toml",
       "allchar": true
     },
     {

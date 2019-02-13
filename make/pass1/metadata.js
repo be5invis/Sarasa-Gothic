@@ -31,7 +31,15 @@ function compatibilityName(family, style) {
 	if (style === "Regular" || style === "Bold" || style === "Italic" || style === "Bold Italic") {
 		return { family, style, standardFour: true };
 	} else {
-		return { family: family + " " + style, style: "Regular", standardFour: false };
+		if (/Italic/.test(style)) {
+			return {
+				family: family + " " + style.replace(/Italic/, "").trim(),
+				style: "Italic",
+				standardFour: false
+			};
+		} else {
+			return { family: family + " " + style, style: "Regular", standardFour: false };
+		}
 	}
 }
 

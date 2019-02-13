@@ -58,11 +58,12 @@ sanitizers.halfRight = function(glyph, gid) {
 	return glyph;
 };
 
-function HalfCompN(n, ov) {
+function HalfCompN(n, forceFullWidth, forceHalfWidth) {
 	return function(glyph, gid, isType = false) {
 		const targetW = Math.min(
 			this.em * n,
-			Math.ceil(glyph.advanceWidth / this.em) * (this.em * (isType || ov ? 1 : 1 / 2))
+			Math.ceil(glyph.advanceWidth / this.em) *
+				(this.em * (forceHalfWidth ? 1 / 2 : isType || forceFullWidth ? 1 : 1 / 2))
 		);
 		if (glyph.contours) {
 			for (let c of glyph.contours) for (let z of c) z.x *= targetW / glyph.advanceWidth;
@@ -74,6 +75,7 @@ function HalfCompN(n, ov) {
 }
 
 sanitizers.halfComp = HalfCompN(1);
+sanitizers.halfCompH = HalfCompN(1, false, true);
 sanitizers.halfComp2 = HalfCompN(2);
 sanitizers.halfComp3 = HalfCompN(3);
 
@@ -83,10 +85,10 @@ const sanitizerTypes = {
 	"’": "halfLeft",
 	"”": "halfLeft",
 	"—": "halfComp",
-	"\u2013": "halfComp",
+	"\u2010": "halfComp",
 	"\u2011": "halfComp",
 	"\u2012": "halfComp",
-	"\u2010": "halfComp",
+	"\u2013": "halfCompH",
 	"\u2e3a": "halfComp2",
 	"\u2e3b": "halfComp3"
 };
