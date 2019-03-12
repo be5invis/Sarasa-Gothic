@@ -13,18 +13,18 @@ npm install
 after the NPM packages are installed, run
 
 ```bash
-node run build ttf
+npm run build ttf
 ```
 
-to build the TTF files, it would be in `build/out` directory.
+to build the TTF files, it would be in `out/ttf` directory.
 
 To build TTC, type
 
 ```bash
-node run build ttc
+npm run build ttc
 ```
 
-instead, the files would be in `build/ttc` directory.
+instead, the files would be in `out/ttc` directory.
 
 ## What are the names?
 
