@@ -143,11 +143,11 @@ const Kanji0 = files(`build/kanji0/*.ttf`, async (t, { full, dir, name }) => {
 const Prod = files(
 	`out/ttf/${PREFIX}-*-*-*.ttf`,
 	async (t, { full, dir, name, $: [family, region, style] }) => {
-		const [config] = await t.need(Config, Scripts, Version);
+		const [config] = await t.need(Config, Scripts, Version, HintingConfig);
 		const [, $1, $2] = await t.need(
 			de(dir),
 			Pass1`build/pass1/${family}-${region}-${style}.ttf`,
-			HintedOTD`build/kanji1/${region}-${deItalizedNameOf(config, style)}.otd`
+			HintedTTF`build/kanji1/${region}-${deItalizedNameOf(config, style)}.ttf`
 		);
 		const tmpOTD = `${dir}/${name}.otd`;
 		await runBuildTask("make/pass2/build.js", {
@@ -247,7 +247,7 @@ const HGCache = tasks(`cache-hint-*`, async (t, gid) => {
 	await run(...CACHE, "-o", `build/${gid}.hgc`, `build/${gid}.hgc`, ...$$.map(t => t.full));
 });
 
-const HintedOTD = files(`build/kanji1/*.otd`, async (t, { full, dir, name }) => {
+const HintedTTF = files(`build/kanji1/*.ttf`, async (t, { full, dir, name }) => {
 	let gid = null;
 	const [config] = await t.need(HintingConfig);
 	for (let g of config.fonts) {
@@ -259,17 +259,22 @@ const HintedOTD = files(`build/kanji1/*.otd`, async (t, { full, dir, name }) => 
 		HGCache`cache-hint-${gid}`,
 		de(dir)
 	);
+	
+	const otd = `${dir}/${name}.otd`
 
 	await run(
 		...APPLYHGI,
 		`build/${gid}.hgc`,
 		inOtd.full,
-		...["-o", full],
+		...["-o", otd],
 		...["--parameters", param.full],
 		...(config.settings.cvt_padding ? ["--CVT_PADDING", config.settings.cvt_padding] : []),
 		...(config.settings.fpgm_padding ? ["--FPGM_PADDING", config.settings.fpgm_padding] : []),
 		...(config.settings.use_VTTShell ? ["--padvtt"] : [])
 	);
+	
+	await run(`otfccbuild`, otd, `-o`, full, `--keep-average-char-width`);
+	await rm(otd);
 });
 
 // TTC building
