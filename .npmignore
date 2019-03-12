@@ -1,5 +1,6 @@
 bin/*
 build/*
+out/*
 node_modules/
 references/*
 doc/*
@@ -17,9 +18,5 @@ preview/test-fonts
 *.pdf
 **.DS_Store
 **/*.packed.js
-ns-proof-page/fonts
-hint/build/*
-hint/source/fonts/*
-hint/out/*
 package-lock.json
 *.tgz

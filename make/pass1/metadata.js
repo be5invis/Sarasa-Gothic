@@ -31,7 +31,15 @@ function compatibilityName(family, style) {
 	if (style === "Regular" || style === "Bold" || style === "Italic" || style === "Bold Italic") {
 		return { family, style, standardFour: true };
 	} else {
-		return { family: family + " " + style, style: "Regular", standardFour: false };
+		if (/Italic/.test(style)) {
+			return {
+				family: family + " " + style.replace(/Italic/, "").trim(),
+				style: "Italic",
+				standardFour: false
+			};
+		} else {
+			return { family: family + " " + style, style: "Regular", standardFour: false };
+		}
 	}
 }
 
@@ -88,3 +96,12 @@ async function nameFont(ctx, demand, namings, config) {
 }
 
 exports.nameFont = nameFont;
+
+async function setHintFlag(ctx, demand) {
+	const font = this.items[demand];
+	font.head.flags.baselineAtY_0 = true;
+	font.head.flags.lsbAtX_0 = true;
+	font.head.flags.alwaysUseIntegerSize = true;
+	font.head.flags.instrMayDependOnPointSize = true;
+}
+exports.setHintFlag = setHintFlag;

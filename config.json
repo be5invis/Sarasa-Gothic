@@ -1,7 +1,4 @@
 {
-	"prefix": "sarasa",
-	"CVT_PADDING": 300,
-
 	"familyOrder": ["gothic", "ui", "mono", "monoT", "term"],
 	"families": {
 		"gothic": {
@@ -64,14 +61,40 @@
 		}
 	},
 
-	"styleOrder": ["regular", "bold", "italic", "bolditalic"],
+	"styleOrder": [
+		"extralight",
+		"extralightitalic",
+		"light",
+		"lightitalic",
+		"regular",
+		"italic",
+		"medium",
+		"mediumitalic",
+		"bold",
+		"bolditalic"
+	],
 	"styles": {
+		"extralight": { "name": "Extralight" },
+		"extralightitalic": {
+			"name": "Extralight Italic",
+			"uprightStyleMap": "extralight"
+		},
+		"light": { "name": "Light" },
+		"lightitalic": {
+			"name": "Light Italic",
+			"uprightStyleMap": "light"
+		},
 		"regular": { "name": "Regular" },
-		"bold": { "name": "Bold" },
 		"italic": {
 			"name": "Italic",
 			"uprightStyleMap": "regular"
 		},
+		"medium": { "name": "Medium" },
+		"mediumitalic": {
+			"name": "Medium Italic",
+			"uprightStyleMap": "medium"
+		},
+		"bold": { "name": "Bold" },
 		"bolditalic": {
 			"name": "Bold Italic",
 			"uprightStyleMap": "bold"

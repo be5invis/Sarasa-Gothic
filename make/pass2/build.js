@@ -7,7 +7,7 @@ const italize = require("../common/italize");
 const fs = require("fs-extra");
 const path = require("path");
 
-const globalConfig = fs.readJsonSync(path.resolve(__dirname, "../../config.json"));
+const hintingConfig = fs.readJsonSync(path.resolve(__dirname, "../../hinting-config.json"));
 
 module.exports = async function makeFont(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
@@ -21,7 +21,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 
 	// italize
 	if (argv.italize) italize(b, 10);
-	for (let j = globalConfig.CVT_PADDING; j < b.cvt_.length; j++) {
+	for (let j = hintingConfig.settings.cvt_padding; j < b.cvt_.length; j++) {
 		a.cvt_[j] = b.cvt_[j];
 	}
 

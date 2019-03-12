@@ -3,6 +3,7 @@ build/
 node_modules/
 references/
 doc/
+out/
 preview/test-fonts
 .typeSXS_public
 *.7z
@@ -19,7 +20,4 @@ preview/test-fonts
 **.DS_Store
 **/*.packed.js
 ns-proof-page/fonts
-hint/build
-hint/source/fonts
-hint/out
 package-lock.json
