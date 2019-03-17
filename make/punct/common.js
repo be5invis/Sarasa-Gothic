@@ -108,35 +108,28 @@ exports.sanitizeSymbols = async function sanitizeSymbols(isType) {
 	}
 };
 
-exports.removeUnusedFeatures = function(a, mono) {
-	for (let f in a.GSUB.features) {
-		if (
-			f.slice(0, 4) === "pwid" ||
-			f.slice(0, 4) === "hwid" ||
-			f.slice(0, 4) === "fwid" ||
-			f.slice(0, 4) === "twid" ||
-			f.slice(0, 4) === "qwid"
-		) {
-			for (let l of a.GSUB.features[f]) {
-				a.GSUB.lookups[l] = null;
-			}
-			a.GSUB.features[f] = null;
+function removeUnusedFeature(table, tag) {
+	if (!table) return;
+	for (let f in table.features) {
+		if (f.slice(0, 4) === tag) {
+			table.features[f] = null;
 		}
 	}
-	if (mono && a.GPOS) {
-		for (let f in a.GPOS.features) {
-			if (
-				f.slice(0, 4) === "kern" ||
-				f.slice(0, 4) === "vkrn" ||
-				f.slice(0, 4) === "palt" ||
-				f.slice(0, 4) === "vpal"
-			) {
-				for (let l of a.GPOS.features[f]) {
-					a.GPOS.lookups[l] = null;
-				}
-				a.GPOS.features[f] = null;
-			}
-		}
+}
+
+exports.removeUnusedFeatures = function(a, mono) {
+	removeUnusedFeature(a.GSUB, "pwid");
+	removeUnusedFeature(a.GSUB, "fwid");
+	removeUnusedFeature(a.GSUB, "hwid");
+	removeUnusedFeature(a.GSUB, "twid");
+	removeUnusedFeature(a.GSUB, "qwid");
+
+	if (mono) {
+		removeUnusedFeature(a.GSUB, "locl");
+		removeUnusedFeature(a.GPOS, "kern");
+		removeUnusedFeature(a.GPOS, "vkrn");
+		removeUnusedFeature(a.GPOS, "palt");
+		removeUnusedFeature(a.GPOS, "vpal");
 	}
 };
 

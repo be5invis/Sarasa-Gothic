@@ -369,7 +369,9 @@ const TTFArchive = files(`out/sarasa-gothic-ttf-*.7z`, async (t, target) => {
 
 	// StyleOrder is interlaced with "upright" and "italic"
 	// Compressing in this order reduces archive size
-	for (const style of config.styleOrder) {
+	for (let j = 0; j < config.styleOrder.length; j += 2) {
+		const styleUpright = config.styleOrder[j];
+		const styleItalic = config.styleOrder[j + 1];
 		await cd(`out/ttf`).run(
 			`7z`,
 			`a`,
@@ -377,7 +379,8 @@ const TTFArchive = files(`out/sarasa-gothic-ttf-*.7z`, async (t, target) => {
 			`-mmt=on`,
 			`-m0=LZMA:a=0:d=1536m:fb=256`,
 			`../${target.name}.7z`,
-			`*-${style}.ttf`
+			styleUpright ? `*-${styleUpright}.ttf` : null,
+			styleItalic ? `*-${styleItalic}.ttf` : null
 		);
 	}
 });
