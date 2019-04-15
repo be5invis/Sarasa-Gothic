@@ -61,8 +61,13 @@ const Config = oracle("config", async () => {
 	return await fs.readJSON(__dirname + "/config.json");
 });
 
-const ShsOtd = files(`build/shs/*.otd`, async (t, { full, dir, $: [name] }) => {
-	const [, $1] = await t.need(de(dir), fu`sources/shs/${name}.otf`);
+const ShsOtd = files(`build/shs/*-*.otd`, async (t, { full, dir, $: [region, style] }) => {
+	const [config] = await t.need(Config);
+	const shsSourceMap = config.shsSourceMap;
+	const [, $1] = await t.need(
+		de(dir),
+		fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
+	);
 	await run(`otfccdump`, `-o`, full, $1.full);
 });
 

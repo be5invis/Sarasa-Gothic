@@ -9,7 +9,7 @@ exports.isKorean = c =>
 	(c >= 0x3260 && c <= 0x327f) ||
 	(c >= 0xa960 && c <= 0xd7ff);
 
-exports.isWS = function(c, isType = false, isTerm = false) {
+exports.isWS = function(c, _isType = false, isTerm = false) {
 	return c >= (isTerm ? 0x2000 : 0x20a0) && c < 0x3000 && !(c >= 0x2e3a && c <= 0x2e3b);
 };
 
@@ -60,6 +60,8 @@ sanitizers.halfRight = function(glyph, gid) {
 
 function HalfCompN(n, forceFullWidth, forceHalfWidth) {
 	return function(glyph, gid, isType = false) {
+		const g1 = this.find.glyph$(this.find.gname.subst("fwid", gid));
+		Object.assign(glyph, g1);
 		const targetW = Math.min(
 			this.em * n,
 			Math.ceil(glyph.advanceWidth / this.em) *
@@ -84,11 +86,12 @@ const sanitizerTypes = {
 	"‘": "halfRight",
 	"’": "halfLeft",
 	"”": "halfLeft",
-	"—": "halfComp",
-	"\u2010": "halfComp",
-	"\u2011": "halfComp",
-	"\u2012": "halfComp",
+	"\u2010": "halfCompH",
+	"\u2011": "halfCompH",
+	"\u2012": "halfCompH",
 	"\u2013": "halfCompH",
+	"\u2014": "halfComp",
+	"\u2015": "halfComp",
 	"\u2e3a": "halfComp2",
 	"\u2e3b": "halfComp3"
 };
@@ -125,6 +128,7 @@ exports.removeUnusedFeatures = function(a, mono) {
 	removeUnusedFeature(a.GSUB, "qwid");
 
 	if (mono) {
+		removeUnusedFeature(a.GSUB, "aalt");
 		removeUnusedFeature(a.GSUB, "locl");
 		removeUnusedFeature(a.GPOS, "kern");
 		removeUnusedFeature(a.GPOS, "vkrn");
