@@ -17,8 +17,16 @@
 		"linebreak-style": ["error", "windows"],
 		"quotes": ["error", "double", { "allowTemplateLiterals": true }],
 		"semi": ["error", "always"],
-		"no-var":"error",
+		"no-var": "error",
 		"no-console": 0,
-		"no-constant-condition": ["error", { "checkLoops": false }]
+		"no-constant-condition": ["error", { "checkLoops": false }],
+		"no-unused-vars": [
+			"warn",
+			{
+				"varsIgnorePattern": "^_",
+				"argsIgnorePattern": "^_",
+				"caughtErrorsIgnorePattern": "^_"
+			}
+		]
 	}
 }

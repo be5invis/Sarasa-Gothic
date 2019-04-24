@@ -60,7 +60,6 @@
 			}
 		}
 	},
-
 	"styleOrder": [
 		"extralight",
 		"extralightitalic",
@@ -118,5 +117,22 @@
 		"CL": { "gbk": false, "big5": true, "jis": false, "korean": false }
 	},
 
-	"copyright": "Copyright 2015-2018, Belleve Invis (belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc."
+	"copyright": "Copyright 2015-2019, Belleve Invis (belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
+
+	"shsSourceMap": {
+		"region": {
+			"j": "SourceHanSans",
+			"cl": "SourceHanSansK",
+			"sc": "SourceHanSansSC",
+			"tc": "SourceHanSansTC",
+			"hc": "SourceHanSansHC"
+		},
+		"style": {
+			"extralight": "ExtraLight",
+			"light": "Light",
+			"regular": "Regular",
+			"medium": "Medium",
+			"bold": "Bold"
+		}
+	}
 }

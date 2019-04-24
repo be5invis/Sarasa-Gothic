@@ -45,7 +45,9 @@ async function sanitize(target, ttf) {
 	await run("ttx", "-o", tmpTTX, ttf);
 	await run("ttx", "-o", tmpTTF2, tmpTTX);
 	await run("ttfautohint", tmpTTF2, target);
-	await rm(ttf, tmpTTX, tmpTTF2);
+	await rm(ttf);
+	await rm(tmpTTX);
+	await rm(tmpTTF2);
 }
 
 function deItalizedNameOf(config, set) {
@@ -59,8 +61,13 @@ const Config = oracle("config", async () => {
 	return await fs.readJSON(__dirname + "/config.json");
 });
 
-const ShsOtd = files(`build/shs/*.otd`, async (t, { full, dir, $: [name] }) => {
-	const [, $1] = await t.need(de(dir), fu`sources/shs/${name}.otf`);
+const ShsOtd = files(`build/shs/*-*.otd`, async (t, { full, dir, $: [region, style] }) => {
+	const [config] = await t.need(Config);
+	const shsSourceMap = config.shsSourceMap;
+	const [, $1] = await t.need(
+		de(dir),
+		fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
+	);
 	await run(`otfccdump`, `-o`, full, $1.full);
 });
 
@@ -259,8 +266,8 @@ const HintedTTF = files(`build/kanji1/*.ttf`, async (t, { full, dir, name }) => 
 		HGCache`cache-hint-${gid}`,
 		de(dir)
 	);
-	
-	const otd = `${dir}/${name}.otd`
+
+	const otd = `${dir}/${name}.otd`;
 
 	await run(
 		...APPLYHGI,
@@ -272,7 +279,7 @@ const HintedTTF = files(`build/kanji1/*.ttf`, async (t, { full, dir, name }) => 
 		...(config.settings.fpgm_padding ? ["--FPGM_PADDING", config.settings.fpgm_padding] : []),
 		...(config.settings.use_VTTShell ? ["--padvtt"] : [])
 	);
-	
+
 	await run(`otfccbuild`, otd, `-o`, full, `--keep-average-char-width`);
 	await rm(otd);
 });
@@ -361,16 +368,26 @@ const TTCArchive = files(`out/sarasa-gothic-ttc-*.7z`, async (t, target) => {
 	);
 });
 const TTFArchive = files(`out/sarasa-gothic-ttf-*.7z`, async (t, target) => {
+	const [config] = await t.need(Config, de`out/ttf`);
 	await t.need(TTF);
-	await cd(`out/ttf`).run(
-		`7z`,
-		`a`,
-		`-t7z`,
-		`-mmt=on`,
-		`-m0=LZMA:a=0:d=1536m:fb=256`,
-		`../${target.name}.7z`,
-		`*.ttf`
-	);
+	await rm(target.full);
+
+	// StyleOrder is interlaced with "upright" and "italic"
+	// Compressing in this order reduces archive size
+	for (let j = 0; j < config.styleOrder.length; j += 2) {
+		const styleUpright = config.styleOrder[j];
+		const styleItalic = config.styleOrder[j + 1];
+		await cd(`out/ttf`).run(
+			`7z`,
+			`a`,
+			`-t7z`,
+			`-mmt=on`,
+			`-m0=LZMA:a=0:d=1536m:fb=256`,
+			`../${target.name}.7z`,
+			styleUpright ? `*-${styleUpright}.ttf` : null,
+			styleItalic ? `*-${styleItalic}.ttf` : null
+		);
+	}
 });
 
 phony("start", async t => {
