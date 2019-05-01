@@ -39,3 +39,7 @@ instead, the files would be in `out/ttc` directory.
 - Orthography dimension
   - `CL`: Classical orthography
   - `SC`, `TC`, `J`, `HC`: Regional orthography, following [Source Han Sans](https://github.com/adobe-fonts/source-han-sans) notations.
+  
+## Mirror
+
+腾讯云开发者平台: https://dev.tencent.com/u/gegb/p/Sarasa-Gothic
