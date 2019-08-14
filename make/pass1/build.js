@@ -51,10 +51,10 @@ async function pass(ctx, config, argv) {
 	await ctx.run(mergeBelow, "a", "a", "c", { mergeOTL: true });
 	await ctx.run(mergeAbove, "a", "a", "b", { mergeOTL: true });
 
-	await ctx.run(nameFont, "a", {
+	await ctx.run(nameFont, "a", globalConfig.nameTupleSelector[argv.subfamily], {
 		en_US: {
 			copyright: globalConfig.version,
-			version: packageConfig.version,
+			version: `Version ${packageConfig.version}`,
 			family: globalConfig.families[argv.family].naming.en_US + " " + argv.subfamily,
 			style: globalConfig.styles[argv.style].name
 		},
