@@ -58,16 +58,15 @@ function createNameTuple(nameTable, langID, family, style, localizedStyle) {
 		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_STYLE, style));
 	}
 	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, FAMILY, compat.family));
-	nameTable.push(
-		nameEntry(
-			WINDOWS,
-			UNICODE,
-			langID,
-			STYLE,
-			compat.standardFour ? localizedStyle : compat.style
-		)
-	);
-	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, FULL_NAME, `${family} ${style}`));
+	const compatStyle = compat.standardFour ? localizedStyle : compat.style;
+	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, STYLE, compatStyle));
+	if (compatStyle === "Regular") {
+		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, FULL_NAME, `${compat.family}`));
+	} else {
+		nameTable.push(
+			nameEntry(WINDOWS, UNICODE, langID, FULL_NAME, `${compat.family} ${compatStyle}`)
+		);
+	}
 	if (langID === langIDMap.en_US) {
 		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, UNIQUE_NAME, `${family} ${style}`));
 		nameTable.push(
@@ -76,7 +75,7 @@ function createNameTuple(nameTable, langID, family, style, localizedStyle) {
 	}
 }
 
-async function nameFont(ctx, demand, selectorList, namings) {
+async function nameFont(ctx, demand, selectorList, encodings, namings) {
 	const font = this.items[demand];
 	const nameTable = [];
 	const defaultNg = namings.en_US;
@@ -96,6 +95,30 @@ async function nameFont(ctx, demand, selectorList, namings) {
 		if (ng.designer) nameTable.push(nameEntry(WINDOWS, UNICODE, langID, DESIGNER, ng.designer));
 	}
 	font.name = nameTable;
+
+	// Set fsSelection
+	font.OS_2.fsSelection.useTypoMetrics = true;
+	font.OS_2.fsSelection.wws = false;
+	// clear achVendID
+	font.OS_2.achVendID = "????";
+	// Set encodings
+	font.OS_2.ulCodePageRange1 = {
+		...font.OS_2.ulCodePageRange1,
+		latin1: true,
+		latin2: true,
+		cyrillic: true,
+		greek: true,
+		turkish: true,
+		vietnamese: true,
+		macRoman: true,
+		...encodings
+	};
+	font.OS_2.ulCodePageRange2 = {
+		...font.OS_2.ulCodePageRange2,
+		cp852: true,
+		cp850: true,
+		ascii: true
+	};
 }
 
 exports.nameFont = nameFont;
