@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.8.1",
+	"version": "0.8.2",
 	"main": "./run",
 	"dependencies": {
 		"caryll-iddb": "^0.1.2",
