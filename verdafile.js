@@ -42,8 +42,8 @@ async function runBuildTask(recipe, args) {
 async function sanitize(target, ttf) {
 	const tmpTTX = `${ttf}.ttx`;
 	const tmpTTF2 = `${ttf}.2.ttf`;
-	await run("ttx", "-o", tmpTTX, ttf);
-	await run("ttx", "-o", tmpTTF2, tmpTTX);
+	await run("ttx", "-q", "-o", tmpTTX, ttf);
+	await run("ttx", "-q", "-o", tmpTTF2, tmpTTX);
 	await run("ttfautohint", tmpTTF2, target);
 	await rm(ttf);
 	await rm(tmpTTX);
