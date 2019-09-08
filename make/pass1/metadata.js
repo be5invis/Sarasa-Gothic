@@ -1,3 +1,5 @@
+"use strict";
+
 // Naming functions
 function nameEntry(p, e, l, n, str) {
 	return {
