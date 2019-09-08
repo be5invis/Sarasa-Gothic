@@ -67,8 +67,8 @@
 		"lightitalic",
 		"regular",
 		"italic",
-		"medium",
-		"mediumitalic",
+		"semibold",
+		"semibolditalic",
 		"bold",
 		"bolditalic"
 	],
@@ -88,10 +88,10 @@
 			"name": "Italic",
 			"uprightStyleMap": "regular"
 		},
-		"medium": { "name": "Medium" },
-		"mediumitalic": {
-			"name": "Medium Italic",
-			"uprightStyleMap": "medium"
+		"semibold": { "name": "Semibold" },
+		"semibolditalic": {
+			"name": "Semibold Italic",
+			"uprightStyleMap": "semibold"
 		},
 		"bold": { "name": "Bold" },
 		"bolditalic": {
@@ -136,7 +136,7 @@
 			"extralight": "ExtraLight",
 			"light": "Light",
 			"regular": "Regular",
-			"medium": "Medium",
+			"semibold": "Medium",
 			"bold": "Bold"
 		}
 	}

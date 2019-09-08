@@ -223,6 +223,7 @@ const GroupHint = tasks(`group-hint::*`, async (t, weight) => {
 		Chlorophytum,
 		`hint`,
 		[`-c`, hintParam.full],
+		[`-h`, `${HintDirPrefix}-${weight}/cache.gz`],
 		[`--jobs`, jHint],
 		[...HintParams([...kanjiOtds, ...pass1Otds])]
 	);
@@ -238,7 +239,6 @@ const GroupInstr = tasks(`group-instr::*`, async (t, weight) => {
 	const [config, hintParam] = await t.need(Config, fu(`hinting-params/${weight}.json`));
 	const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
 	const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
-	//await t.need(GroupHint`group-hint::${weight}`);
 	await t.need(HintAll);
 
 	await run(
