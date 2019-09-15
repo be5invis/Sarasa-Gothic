@@ -1,6 +1,7 @@
 {
 	"fontFormat": "@chlorophytum/font-format-otd",
 	"finalFormat": "@chlorophytum/final-hint-format-hltt",
+	"hintStoreProvider": "@chlorophytum/hint-store-provider-file",
 	"hintPasses": [
 		{
 			"plugin": "@chlorophytum/ideograph-shape-analyzer-1",

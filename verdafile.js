@@ -42,7 +42,11 @@ const Ttf = phony(`ttf`, async t => {
 	await t.need(TTFArchive`${OUT}/${PREFIX}-gothic-ttf-${version}.7z`);
 });
 
-const Version = oracle("version", async () => {
+const Dependencies = task(`dependencies`, async t => {
+	await t.need(fu`package.json`);
+});
+
+const Version = oracle("version", async t => {
 	return (await fs.readJson(path.resolve(__dirname, "package.json"))).version;
 });
 
@@ -358,6 +362,7 @@ const ScriptsStructure = oracle("scripts-dir-structure", target =>
 );
 
 const Scripts = task("scripts", async t => {
+	await t.need(Dependencies);
 	const [scriptList] = await t.need(ScriptsStructure);
 	await t.need(scriptList.map(fu));
 });
