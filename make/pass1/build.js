@@ -1,13 +1,6 @@
 "use strict";
 
-const {
-	rebase,
-	introduce,
-	setEncodings,
-	build,
-	gc,
-	merge: { above: mergeAbove, below: mergeBelow }
-} = require("megaminx");
+const { rebase, introduce, build, gc, merge } = require("megaminx");
 
 const italize = require("../common/italize");
 const { nameFont, setHintFlag } = require("./metadata.js");
@@ -48,8 +41,8 @@ async function pass(ctx, config, argv) {
 	if (argv.italize) italize(b, 10);
 
 	// merge and build
-	await ctx.run(mergeBelow, "a", "a", "c", { mergeOTL: true });
-	await ctx.run(mergeAbove, "a", "a", "b", { mergeOTL: true });
+	await ctx.run(merge.below, "a", "a", "c", { mergeOTL: true });
+	await ctx.run(merge.above, "a", "a", "b", { mergeOTL: true });
 
 	await ctx.run(setHintFlag, "a");
 	await ctx.run(

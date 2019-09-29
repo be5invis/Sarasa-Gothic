@@ -1,21 +1,8 @@
 "use strict";
 
-const {
-	quadify,
-	introduce,
-	build,
-	gc,
-	manip: { glyph: glyphManip }
-} = require("megaminx");
-const { isKanji } = require("caryll-iddb");
-const {
-	isWestern,
-	isWS,
-	isKorean,
-	sanitizeSymbols,
-	removeUnusedFeatures,
-	toPWID
-} = require("./common");
+const { quadify, introduce, build, gc, manip } = require("megaminx");
+const { isIdeograph, isWestern, isWS, isKorean } = require("../common/unicode-kind");
+const { sanitizeSymbols, removeUnusedFeatures, toPWID } = require("./common");
 
 module.exports = async function makeFont(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
@@ -27,7 +14,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 	a.cmap_uvs = null;
 	for (let c in a.cmap) {
 		if (
-			isKanji(c - 0) ||
+			isIdeograph(c - 0) ||
 			isWestern(c - 0) ||
 			isKorean(c - 0) ||
 			isWS(c - 0, argv.type, argv.term)
@@ -36,10 +23,10 @@ module.exports = async function makeFont(ctx, config, argv) {
 		}
 	}
 	if (argv.pwid) {
-		await ctx.run(glyphManip, "a", toPWID);
+		await ctx.run(manip.glyph, "a", toPWID);
 	}
 	if (argv.mono) {
-		await ctx.run(glyphManip, "a", sanitizeSymbols, argv.type);
+		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.type);
 	}
 	removeUnusedFeatures(ctx.items.a, argv.mono);
 	await ctx.run(gc, "a", { ignoreAltSub: true });
