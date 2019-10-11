@@ -1,7 +1,7 @@
 "use strict";
 
 const build = require("verda").create();
-const { task, tasks, files, oracle, phony } = build.ruleTypes;
+const { task, file, oracle, phony } = build.ruleTypes;
 const { de, fu } = build.rules;
 const { run, rm, cd } = build.actions;
 const { FileList } = build.predefinedFuncs;
@@ -34,12 +34,12 @@ const Start = phony("start", async t => {
 
 const Ttc = phony(`ttc`, async t => {
 	const version = await t.need(Version);
-	await t.need(TTCArchive`${OUT}/${PREFIX}-gothic-ttc-${version}.7z`);
+	await t.need(TTCArchive(version));
 });
 
 const Ttf = phony(`ttf`, async t => {
 	const version = await t.need(Version);
-	await t.need(TTFArchive`${OUT}/${PREFIX}-gothic-ttf-${version}.7z`);
+	await t.need(TTFArchive(version));
 });
 
 const Dependencies = task(`dependencies`, async t => {
@@ -50,53 +50,62 @@ const Version = oracle("version", async t => {
 	return (await fs.readJson(path.resolve(__dirname, "package.json"))).version;
 });
 
-const TTCArchive = files(`${OUT}/sarasa-gothic-ttc-*.7z`, async (t, target) => {
-	await t.need(TtcFontFiles);
-	await cd(`${OUT}/ttc`).run(
-		[SEVEN_ZIP, `a`],
-		[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
-		[`../${target.name}.7z`, `*.ttc`]
-	);
-});
-const TTFArchive = files(`${OUT}/sarasa-gothic-ttf-*.7z`, async (t, target) => {
-	const [config] = await t.need(Config, de`${OUT}/ttf`);
-	await t.need(TtfFontFiles);
-	await rm(target.full);
-
-	// StyleOrder is interlaced with "upright" and "italic"
-	// Compressing in this order reduces archive size
-	for (let j = 0; j < config.styleOrder.length; j += 2) {
-		const styleUpright = config.styleOrder[j];
-		const styleItalic = config.styleOrder[j + 1];
-		await cd(`${OUT}/ttf`).run(
-			[`7z`, `a`],
+const TTCArchive = file.make(
+	version => `${OUT}/sarasa-gothic-ttc-${version}.7z`,
+	async (t, target) => {
+		await t.need(TtcFontFiles);
+		await cd(`${OUT}/ttc`).run(
+			[SEVEN_ZIP, `a`],
 			[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
-			[
-				`../${target.name}.7z`,
-				styleUpright ? `*-${styleUpright}.ttf` : null,
-				styleItalic ? `*-${styleItalic}.ttf` : null
-			]
+			[`../${target.name}.7z`, `*.ttc`]
 		);
 	}
-});
+);
+const TTFArchive = file.make(
+	version => `${OUT}/sarasa-gothic-ttf-${version}.7z`,
+	async (t, target) => {
+		const [config] = await t.need(Config, de`${OUT}/ttf`);
+		await t.need(TtfFontFiles);
+		await rm(target.full);
+
+		// StyleOrder is interlaced with "upright" and "italic"
+		// Compressing in this order reduces archive size
+		for (let j = 0; j < config.styleOrder.length; j += 2) {
+			const styleUpright = config.styleOrder[j];
+			const styleItalic = config.styleOrder[j + 1];
+			await cd(`${OUT}/ttf`).run(
+				[`7z`, `a`],
+				[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
+				[
+					`../${target.name}.7z`,
+					styleUpright ? `*-${styleUpright}.ttf` : null,
+					styleItalic ? `*-${styleItalic}.ttf` : null
+				]
+			);
+		}
+	}
+);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTF Building
-const ShsOtd = files(`${BUILD}/shs/*-*.otd`, async (t, { full, dir, $: [region, style] }) => {
-	const [config] = await t.need(Config);
-	const shsSourceMap = config.shsSourceMap;
-	const [, $1] = await t.need(
-		de(dir),
-		fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
-	);
-	await run(OTFCCDUMP, `-o`, full, $1.full);
-});
+const ShsOtd = file.make(
+	(region, style) => `${BUILD}/shs/${region}-${style}.otd`,
+	async (t, { full, dir }, region, style) => {
+		const [config] = await t.need(Config);
+		const shsSourceMap = config.shsSourceMap;
+		const [, $1] = await t.need(
+			de(dir),
+			fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
+		);
+		await run(OTFCCDUMP, `-o`, full, $1.full);
+	}
+);
 
-const WS0 = files(
-	`${BUILD}/ws0/*-*-*.ttf`,
-	async (t, { full, dir, name, $: [family, region, style] }) => {
+const WS0 = file.make(
+	(family, region, style) => `${BUILD}/ws0/${family}-${region}-${style}.ttf`,
+	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), ShsOtd`${BUILD}/shs/${region}-${style}.otd`);
+		const [, $1] = await t.need(de(dir), ShsOtd(region, style));
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/punct/ws.js", {
 			main: $1.full,
@@ -110,11 +119,11 @@ const WS0 = files(
 	}
 );
 
-const AS0 = files(
-	`${BUILD}/as0/*-*-*.ttf`,
-	async (t, { full, dir, name, $: [family, region, style] }) => {
+const AS0 = file.make(
+	(family, region, style) => `${BUILD}/as0/${family}-${region}-${style}.ttf`,
+	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), ShsOtd`${BUILD}/shs/${region}-${style}.otd`);
+		const [, $1] = await t.need(de(dir), ShsOtd(region, style));
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/punct/as.js", {
 			main: $1.full,
@@ -128,16 +137,16 @@ const AS0 = files(
 	}
 );
 
-const Pass1 = files(
-	`${BUILD}/pass1/*-*-*.ttf`,
-	async (t, { full, dir, name, $: [family, region, style] }) => {
+const Pass1 = file.make(
+	(family, region, style) => `${BUILD}/pass1/${family}-${region}-${style}.ttf`,
+	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
 		const latinFamily = config.families[family].latinGroup;
 		const [, $1, $2, $3] = await t.need(
 			de(dir),
 			fu`sources/${latinFamily}/${latinFamily}-${style}.ttf`,
-			AS0`${BUILD}/as0/${family}-${region}-${deItalizedNameOf(config, style)}.ttf`,
-			WS0`${BUILD}/ws0/${family}-${region}-${deItalizedNameOf(config, style)}.ttf`
+			AS0(family, region, deItalizedNameOf(config, style)),
+			WS0(family, region, deItalizedNameOf(config, style))
 		);
 		await RunFontBuildTask("make/pass1/build.js", {
 			main: $1.full,
@@ -154,26 +163,29 @@ const Pass1 = files(
 	}
 );
 
-const Kanji0 = files(`${BUILD}/kanji0/*.ttf`, async (t, { full, dir, name }) => {
-	await t.need(Config, Scripts);
-	const [$1] = await t.need(ShsOtd`${BUILD}/shs/${name}.otd`, de(dir));
-	const tmpOTD = `${dir}/${name}.otd`;
-	await RunFontBuildTask("make/kanji/build.js", {
-		main: $1.full,
-		o: tmpOTD
-	});
-	await OtfccBuildAsIs(tmpOTD, full);
-});
+const Kanji0 = file.make(
+	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
+	async (t, { full, dir, name }, region, style) => {
+		await t.need(Config, Scripts);
+		const [$1] = await t.need(ShsOtd(region, style), de(dir));
+		const tmpOTD = `${dir}/${name}.otd`;
+		await RunFontBuildTask("make/kanji/build.js", {
+			main: $1.full,
+			o: tmpOTD
+		});
+		await OtfccBuildAsIs(tmpOTD, full);
+	}
+);
 
-const Prod = files(
-	`${OUT}/ttf/${PREFIX}-*-*-*.ttf`,
-	async (t, { full, dir, name, $: [family, region, style] }) => {
+const Prod = file.make(
+	(family, region, style) => `${OUT}/ttf/${PREFIX}-${family}-${region}-${style}.ttf`,
+	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts, Version);
 		const weight = deItalizedNameOf(config, style);
 		const [, $1, $2] = await t.need(
 			de(dir),
-			HfoTtf`${HintDirOutPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
-			HfoTtf`${HintDirOutPrefix}-${weight}/kanji-${region}-${weight}.ttf`
+			HfoPass1(weight, family, region, style),
+			HfoKanji(weight, region, weight)
 		);
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/pass2/build.js", {
@@ -198,65 +210,81 @@ const HintDirPrefix = `${BUILD}/hf`;
 const HintDirOutPrefix = `${BUILD}/hfo`;
 
 const JHint = oracle("hinting-jobs", async () => os.cpus().length);
-const KanjiInOTD = files(
-	`${HintDirPrefix}-*/kanji-*.otd`,
-	async (t, { dir, name, $: [style, sf] }) => {
-		const [k0ttf] = await t.need(Kanji0`${BUILD}/kanji0/${sf}.ttf`, de(dir));
+const KanjiInOTD = file.make(
+	(weight, region, style) => `${HintDirPrefix}-${weight}/kanji-${region}-${style}.otd`,
+	async (t, { dir, name }, weight, region, style) => {
+		const [k0ttf] = await t.need(Kanji0(region, style), de(dir));
 		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
 	}
 );
-const Pass1OTD = files(
-	`${HintDirPrefix}-*/pass1-*-*-*.otd`,
-	async (t, { dir, name, $: [weight, f, sf, style] }) => {
-		const [k0ttf] = await t.need(Pass1`${BUILD}/pass1/${f}-${sf}-${style}.ttf`, de(dir));
+const Pass1OTD = file.make(
+	(weight, family, region, style) =>
+		`${HintDirPrefix}-${weight}/pass1-${family}-${region}-${style}.otd`,
+	async (t, { dir, name }, weight, family, region, style) => {
+		const [k0ttf] = await t.need(Pass1(family, region, style), de(dir));
 		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
 	}
 );
 
-const GroupHint = tasks(`group-hint::*`, async (t, weight) => {
-	const [config, jHint, hintParam] = await t.need(
-		Config,
-		JHint,
-		fu(`hinting-params/${weight}.json`)
-	);
+const GroupHint = task.make(
+	weight => `group-hint::${weight}`,
+	async (t, weight) => {
+		const [config, jHint, hintParam] = await t.need(
+			Config,
+			JHint,
+			fu`hinting-params/${weight}.json`
+		);
 
-	const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
-	const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
+		const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
+		const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
 
-	await run(
-		Chlorophytum,
-		`hint`,
-		[`-c`, hintParam.full],
-		[`-h`, `${HintDirPrefix}-${weight}/cache.gz`],
-		[`--jobs`, jHint],
-		[...HintParams([...kanjiOtds, ...pass1Otds])]
-	);
-});
+		await run(
+			Chlorophytum,
+			`hint`,
+			[`-c`, hintParam.full],
+			[`-h`, `${HintDirPrefix}-${weight}/cache.gz`],
+			[`--jobs`, jHint],
+			[...HintParams([...kanjiOtds, ...pass1Otds])]
+		);
+	}
+);
 const HintAll = task(`hint-all`, async t => {
 	const [config] = await t.need(Config);
 	for (const style in config.styles) {
 		if (config.styles[style].uprightStyleMap) continue;
-		await t.need(GroupHint`group-hint::${style}`);
+		await t.need(GroupHint(style));
 	}
 });
-const GroupInstr = tasks(`group-instr::*`, async (t, weight) => {
-	const [config, hintParam] = await t.need(Config, fu(`hinting-params/${weight}.json`));
-	const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
-	const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
-	await t.need(HintAll);
+const GroupInstr = task.make(
+	weight => `group-instr::${weight}`,
+	async (t, weight) => {
+		const [config, hintParam] = await t.need(Config, fu`hinting-params/${weight}.json`);
+		const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
+		const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
+		await t.need(HintAll);
 
-	await run(
-		Chlorophytum,
-		`instruct`,
-		[`-c`, hintParam.full],
-		[...InstrParams([...kanjiOtds, ...pass1Otds])]
-	);
-});
-const HfoTtf = files(`${HintDirOutPrefix}-*/*.ttf`, async (t, { full, dir, name, $: [weight] }) => {
+		await run(
+			Chlorophytum,
+			`instruct`,
+			[`-c`, hintParam.full],
+			[...InstrParams([...kanjiOtds, ...pass1Otds])]
+		);
+	}
+);
+const HfoKanji = file.make(
+	(weight, region, style) => `${HintDirOutPrefix}-${weight}/kanji-${region}-${style}.ttf`,
+	OutTtfMain
+);
+const HfoPass1 = file.make(
+	(weight, family, region, style) =>
+		`${HintDirOutPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
+	OutTtfMain
+);
+async function OutTtfMain(t, { full, dir, name }, weight) {
 	const [hintParam] = await t.need(
-		fu(`hinting-params/${weight}.json`),
-		GroupInstr`group-instr::${weight}`,
-		de(`${HintDirOutPrefix}-${weight}`)
+		fu`hinting-params/${weight}.json`,
+		GroupInstr(weight),
+		de`${HintDirOutPrefix}-${weight}`
 	);
 	await run(
 		Chlorophytum,
@@ -269,13 +297,13 @@ const HfoTtf = files(`${HintDirOutPrefix}-*/*.ttf`, async (t, { full, dir, name,
 		]
 	);
 	await OtfccBuildAsIs(`${HintDirOutPrefix}-${weight}/${name}.otd`, full);
-});
+}
 
 // Support functions
 function OtdDeps(config, weight) {
 	const kanjiDeps = [];
 	for (let sf of config.subfamilyOrder) {
-		kanjiDeps.push(KanjiInOTD`${HintDirPrefix}-${weight}/kanji-${sf}-${weight}.otd`);
+		kanjiDeps.push(KanjiInOTD(weight, sf, weight));
 	}
 
 	const pass1Deps = [];
@@ -283,7 +311,7 @@ function OtdDeps(config, weight) {
 		for (let sf of config.subfamilyOrder) {
 			for (const style in config.styles) {
 				if (deItalizedNameOf(config, style) !== weight) continue;
-				pass1Deps.push(Pass1OTD`${HintDirPrefix}-${weight}/pass1-${f}-${sf}-${style}.otd`);
+				pass1Deps.push(Pass1OTD(weight, f, sf, style));
 			}
 		}
 	}
@@ -306,42 +334,45 @@ function* InstrParams(otds) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTC building
-const TTCFile = files(`${OUT}/ttc/${PREFIX}-*.ttc`, async (t, { full, dir, $: [style] }) => {
-	const [config] = await t.need(Config, de`${OUT}/ttc`);
+const TTCFile = file.make(
+	style => `${OUT}/ttc/${PREFIX}-${style}.ttc`,
+	async (t, { full, dir }, style) => {
+		const [config] = await t.need(Config, de`${OUT}/ttc`);
 
-	let requirements = [],
-		n = 0;
-	for (let f of config.familyOrder) {
-		for (let sf of config.subfamilyOrder) {
-			requirements.push({
-				from: Prod`${OUT}/ttf/${PREFIX}-${f}-${sf}-${style}.ttf`,
-				otd: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.otd`,
-				ttf: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.ttf`
-			});
-			n++;
+		let requirements = [],
+			n = 0;
+		for (let family of config.familyOrder) {
+			for (let region of config.subfamilyOrder) {
+				requirements.push({
+					from: Prod(family, region, style),
+					otd: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.otd`,
+					ttf: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.ttf`
+				});
+				n++;
+			}
 		}
-	}
 
-	const [$$] = await t.need(requirements.map(t => t.from));
-	const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
-	await run(
-		ttcize,
-		["--prefix", `${OUT}/ttc/${PREFIX}-${style}-parts`],
-		[...$$.map(t => t.full)],
-		["-k", "-h"]
-	);
+		const [$$] = await t.need(requirements.map(t => t.from));
+		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
+		await run(
+			ttcize,
+			["--prefix", `${OUT}/ttc/${PREFIX}-${style}-parts`],
+			[...$$.map(t => t.full)],
+			["-k", "-h"]
+		);
 
-	for (const { otd, ttf } of requirements) {
-		await OtfccBuildAsIs(otd, ttf);
+		for (const { otd, ttf } of requirements) {
+			await OtfccBuildAsIs(otd, ttf);
+		}
+		await run(`otf2otc`, ["-o", full], requirements.map(t => t.ttf));
+		for (const { ttf } of requirements) await rm(ttf);
 	}
-	await run(`otf2otc`, ["-o", full], requirements.map(t => t.ttf));
-	for (const { ttf } of requirements) await rm(ttf);
-});
+);
 
 const TtcFontFiles = task("ttcFontFiles", async t => {
 	const [config] = await t.need(Config, de`${OUT}/ttc`);
 
-	await t.need(config.styleOrder.map(st => TTCFile`${OUT}/ttc/${PREFIX}-${st}.ttc`));
+	await t.need(config.styleOrder.map(st => TTCFile(st)));
 });
 
 const TtfFontFiles = task("ttfFontFiles", async t => {
@@ -350,7 +381,7 @@ const TtfFontFiles = task("ttfFontFiles", async t => {
 	for (let f of config.familyOrder)
 		for (let sf of config.subfamilyOrder)
 			for (let st of config.styleOrder) {
-				reqs.push(Prod`${OUT}/ttf/${PREFIX}-${f}-${sf}-${st}.ttf`);
+				reqs.push(Prod(f, sf, st));
 			}
 	await t.need(...reqs);
 });

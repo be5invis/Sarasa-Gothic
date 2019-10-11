@@ -5,7 +5,7 @@
 	"hintPasses": [
 		{
 			"plugin": "@chlorophytum/ideograph-shape-analyzer-1",
-			"options": { "CANONICAL_STEM_WIDTH": 0.067, "STEM_SIDE_MIN_DIST_DESCENT": 0.067 }
+			"options": { "CANONICAL_STEM_WIDTH": 0.067 }
 		}
 	]
 }
