@@ -11,7 +11,7 @@ const path = require("path");
 const os = require("os");
 
 build.setJournal(`build/.verda-build-journal`);
-//build.setSelfTracking();
+build.setSelfTracking();
 module.exports = build;
 
 // Directories
