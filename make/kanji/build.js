@@ -1,7 +1,7 @@
 "use strict";
 
 const { quadify, introduce, build, gc } = require("megaminx");
-const { isIdeograph } = require("../common/unicode-kind");
+const { isIdeograph, filterUnicodeRange } = require("../common/unicode-kind");
 
 async function pass(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
@@ -9,9 +9,7 @@ async function pass(ctx, config, argv) {
 		prefix: "a",
 		ignoreHints: true
 	});
-	for (let c in a.cmap) {
-		if (!isIdeograph(c - 0)) a.cmap[c] = null;
-	}
+	filterUnicodeRange(a, isIdeograph);
 	await ctx.run(quadify, "a");
 	a.cvt_ = [];
 	a.fpgm = [];

@@ -9,7 +9,8 @@
 				"zh_CN": "更纱黑体",
 				"zh_TW": "更紗黑體",
 				"zh_HK": "更紗黑體",
-				"ja_JP": "更紗ゴシック"
+				"ja_JP": "更紗ゴシック",
+				"ko_KR": "사라사 고딕"
 			}
 		},
 		"ui": {
@@ -21,7 +22,8 @@
 				"zh_CN": "更纱黑体 UI",
 				"zh_TW": "更紗黑體 UI",
 				"zh_HK": "更紗黑體 UI",
-				"ja_JP": "更紗ゴシック UI"
+				"ja_JP": "更紗ゴシック UI",
+				"ko_KR": "사라사 고딕 UI"
 			}
 		},
 		"mono": {
@@ -32,7 +34,8 @@
 				"zh_CN": "等距更纱黑体",
 				"zh_TW": "等距更紗黑體",
 				"zh_HK": "等距更紗黑體",
-				"ja_JP": "更紗等幅ゴシック"
+				"ja_JP": "更紗等幅ゴシック",
+				"ko_KR": "사라사 고정 폭고딕"
 			}
 		},
 		"monoT": {
@@ -44,7 +47,8 @@
 				"zh_CN": "等距更纱黑体 T",
 				"zh_TW": "等距更紗黑體 T",
 				"zh_HK": "等距更紗黑體 T",
-				"ja_JP": "更紗等幅ゴシック T"
+				"ja_JP": "更紗等幅ゴシック T",
+				"ko_KR": "사라사 고정 폭고딕 T"
 			}
 		},
 		"term": {
@@ -56,7 +60,8 @@
 				"zh_CN": "Sarasa Term",
 				"zh_TW": "Sarasa Term",
 				"zh_HK": "Sarasa Term",
-				"ja_JP": "Sarasa Term"
+				"ja_JP": "Sarasa Term",
+				"ko_KR": "Sarasa Term"
 			}
 		}
 	},
@@ -100,33 +105,37 @@
 		}
 	},
 
-	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j"],
+	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j", "k"],
 	"subfamilies": {
 		"cl": { "name": "CL" },
 		"sc": { "name": "SC" },
 		"tc": { "name": "TC" },
 		"hc": { "name": "HC" },
-		"j": { "name": "J" }
+		"j": { "name": "J" },
+		"k": { "name": "K" }
 	},
 	"os2encodings": {
 		"J": { "gbk": false, "big5": false, "jis": true, "korean": false },
 		"SC": { "gbk": true, "big5": false, "jis": false, "korean": false },
 		"TC": { "gbk": false, "big5": true, "jis": false, "korean": false },
 		"HC": { "gbk": false, "big5": true, "jis": false, "korean": false },
-		"CL": { "gbk": false, "big5": true, "jis": false, "korean": false }
+		"CL": { "gbk": false, "big5": true, "jis": false, "korean": false },
+		"k": { "gbk": false, "big5": false, "jis": false, "korean": true }
 	},
 	"nameTupleSelector": {
 		"J": ["en_US", "ja_JP"],
+		"K": ["en_US", "ko_KR"],
 		"SC": ["en_US", "zh_CN"],
 		"TC": ["en_US", "zh_TW"],
 		"HC": ["en_US", "zh_HK"],
 		"CL": ["en_US", "zh_TW"]
 	},
-	"copyright": "Copyright 2015-2019, Belleve Invis (belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
+	"copyright": "Copyright 2015-2019, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
 
 	"shsSourceMap": {
 		"region": {
 			"j": "SourceHanSans",
+			"k": "SourceHanSansK",
 			"cl": "SourceHanSansK",
 			"sc": "SourceHanSansSC",
 			"tc": "SourceHanSansTC",
