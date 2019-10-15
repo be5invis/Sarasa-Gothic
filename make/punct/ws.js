@@ -1,7 +1,13 @@
 "use strict";
 
 const { quadify, introduce, build, gc, manip } = require("megaminx");
-const { isIdeograph, isWestern, isWS, isKorean } = require("../common/unicode-kind");
+const {
+	isIdeograph,
+	isWestern,
+	isWS,
+	isKorean,
+	filterUnicodeRange
+} = require("../common/unicode-kind");
 const { sanitizeSymbols, removeUnusedFeatures, toPWID } = require("./common");
 
 module.exports = async function makeFont(ctx, config, argv) {
@@ -12,16 +18,15 @@ module.exports = async function makeFont(ctx, config, argv) {
 	});
 	await ctx.run(quadify, "a");
 	a.cmap_uvs = null;
-	for (let c in a.cmap) {
-		if (
-			isIdeograph(c - 0) ||
-			isWestern(c - 0) ||
-			isKorean(c - 0) ||
-			!isWS(c - 0, argv.type, argv.term)
-		) {
-			a.cmap[c] = null;
-		}
-	}
+	filterUnicodeRange(
+		a,
+		c =>
+			!isIdeograph(c - 0) &&
+			!isWestern(c - 0) &&
+			!isKorean(c - 0) &&
+			isWS(c - 0, argv.type, argv.term)
+	);
+
 	if (argv.pwid) {
 		await ctx.run(manip.glyph, "a", toPWID);
 	}

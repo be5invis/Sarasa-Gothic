@@ -27,7 +27,7 @@ const OTFCCBUILD = `otfccbuild`;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
-const Start = phony("start", async t => {
+const Start = phony("all", async t => {
 	await t.need(Ttf);
 	await t.need(Ttc);
 });
@@ -176,21 +176,36 @@ const Kanji0 = file.make(
 		await OtfccBuildAsIs(tmpOTD, full);
 	}
 );
+const Hangul0 = file.make(
+	(region, style) => `${BUILD}/hangul0/${region}-${style}.ttf`,
+	async (t, { full, dir, name }, region, style) => {
+		await t.need(Config, Scripts);
+		const [$1] = await t.need(ShsOtd(region, style), de(dir));
+		const tmpOTD = `${dir}/${name}.otd`;
+		await RunFontBuildTask("make/hangul/build.js", {
+			main: $1.full,
+			o: tmpOTD
+		});
+		await OtfccBuildAsIs(tmpOTD, full);
+	}
+);
 
 const Prod = file.make(
 	(family, region, style) => `${OUT}/ttf/${PREFIX}-${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts, Version);
 		const weight = deItalizedNameOf(config, style);
-		const [, $1, $2] = await t.need(
+		const [, $1, $2, $3] = await t.need(
 			de(dir),
 			HfoPass1(weight, family, region, style),
-			HfoKanji(weight, region, weight)
+			HfoKanji(weight, region, weight),
+			HfoHangul(weight, region, weight)
 		);
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/pass2/build.js", {
 			main: $1.full,
 			kanji: $2.full,
+			hangul: $3.full,
 			o: tmpOTD,
 			italize: weight === style ? false : true
 		});
@@ -214,6 +229,13 @@ const KanjiInOTD = file.make(
 	(weight, region, style) => `${HintDirPrefix}-${weight}/kanji-${region}-${style}.otd`,
 	async (t, { dir, name }, weight, region, style) => {
 		const [k0ttf] = await t.need(Kanji0(region, style), de(dir));
+		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
+	}
+);
+const HangulInOTD = file.make(
+	(weight, region, style) => `${HintDirPrefix}-${weight}/hangul-${region}-${style}.otd`,
+	async (t, { dir, name }, weight, region, style) => {
+		const [k0ttf] = await t.need(Hangul0(region, style), de(dir));
 		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
 	}
 );
@@ -275,6 +297,10 @@ const HfoKanji = file.make(
 	(weight, region, style) => `${HintDirOutPrefix}-${weight}/kanji-${region}-${style}.ttf`,
 	OutTtfMain
 );
+const HfoHangul = file.make(
+	(weight, region, style) => `${HintDirOutPrefix}-${weight}/hangul-${region}-${style}.ttf`,
+	OutTtfMain
+);
 const HfoPass1 = file.make(
 	(weight, family, region, style) =>
 		`${HintDirOutPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
@@ -304,6 +330,7 @@ function OtdDeps(config, weight) {
 	const kanjiDeps = [];
 	for (let sf of config.subfamilyOrder) {
 		kanjiDeps.push(KanjiInOTD(weight, sf, weight));
+		kanjiDeps.push(HangulInOTD(weight, sf, weight));
 	}
 
 	const pass1Deps = [];
@@ -354,18 +381,7 @@ const TTCFile = file.make(
 
 		const [$$] = await t.need(requirements.map(t => t.from));
 		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
-		await run(
-			ttcize,
-			["--prefix", `${OUT}/ttc/${PREFIX}-${style}-parts`],
-			[...$$.map(t => t.full)],
-			["-k", "-h"]
-		);
-
-		for (const { otd, ttf } of requirements) {
-			await OtfccBuildAsIs(otd, ttf);
-		}
-		await run(`otf2otc`, ["-o", full], requirements.map(t => t.ttf));
-		for (const { ttf } of requirements) await rm(ttf);
+		await run(ttcize, ["-o", full], [...$$.map(t => t.full)], ["-x"]);
 	}
 );
 
