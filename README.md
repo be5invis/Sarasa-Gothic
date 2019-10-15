@@ -26,7 +26,7 @@ npm run build ttc
 
 instead, the files would be in `out/ttc` directory.
 
-Please note tnat you will need *a lot of* memory to create TTCs, due to the huge quantity of subfamily-orthography combinations.
+Please note that you will need *a lot of* memory to create TTCs, due to the huge quantity of subfamily-orthography combinations.
 
 ## What are the names?
 

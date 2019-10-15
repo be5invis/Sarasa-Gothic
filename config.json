@@ -120,7 +120,7 @@
 		"TC": { "gbk": false, "big5": true, "jis": false, "korean": false },
 		"HC": { "gbk": false, "big5": true, "jis": false, "korean": false },
 		"CL": { "gbk": false, "big5": true, "jis": false, "korean": false },
-		"k": { "gbk": false, "big5": false, "jis": false, "korean": true }
+		"K": { "gbk": false, "big5": false, "jis": false, "korean": true }
 	},
 	"nameTupleSelector": {
 		"J": ["en_US", "ja_JP"],
