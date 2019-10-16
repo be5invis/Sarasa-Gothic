@@ -381,7 +381,12 @@ const TTCFile = file.make(
 
 		const [$$] = await t.need(requirements.map(t => t.from));
 		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
-		await run(ttcize, ["-o", full], [...$$.map(t => t.full)], ["-x"]);
+		await run(
+			ttcize,
+			["-x", "--common-width", 1000, "--common-height", 1000],
+			["-o", full],
+			[...$$.map(t => t.full)]
+		);
 	}
 );
 
