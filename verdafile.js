@@ -56,7 +56,7 @@ const TTCArchive = file.make(
 		await t.need(TtcFontFiles);
 		await cd(`${OUT}/ttc`).run(
 			[SEVEN_ZIP, `a`],
-			[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
+			[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=256m:fb=256`],
 			[`../${target.name}.7z`, `*.ttc`]
 		);
 	}
@@ -75,7 +75,7 @@ const TTFArchive = file.make(
 			const styleItalic = config.styleOrder[j + 1];
 			await cd(`${OUT}/ttf`).run(
 				[`7z`, `a`],
-				[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
+				[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=256m:fb=256`],
 				[
 					`../${target.name}.7z`,
 					styleUpright ? `*-${styleUpright}.ttf` : null,
