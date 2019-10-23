@@ -7,7 +7,7 @@
 		"@chlorophytum/final-hint-format-hltt": "^0.3.0",
 		"@chlorophytum/font-format-otd": "^0.3.0",
 		"@chlorophytum/hint-store-provider-file": "^0.3.0",
-		"@chlorophytum/ideograph-shape-analyzer-1": "^0.3.4",
+		"@chlorophytum/ideograph-shape-analyzer-1": "^0.3.6",
 		"colors": "^1.1.2",
 		"fs-extra": "^3.0.1",
 		"megaminx": "^0.6.3",
