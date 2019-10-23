@@ -1,6 +1,6 @@
 "use strict";
 
-const { quadify, introduce, build, gc } = require("megaminx");
+const { introduce, build, gc } = require("megaminx");
 const { isKorean, filterUnicodeRange } = require("../common/unicode-kind");
 
 async function pass(ctx, config, argv) {
@@ -10,7 +10,6 @@ async function pass(ctx, config, argv) {
 		ignoreHints: true
 	});
 	filterUnicodeRange(a, isKorean);
-	await ctx.run(quadify, "a");
 	a.cvt_ = [];
 	a.fpgm = [];
 	a.prep = [];

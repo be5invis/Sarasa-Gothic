@@ -1,6 +1,6 @@
 "use strict";
 
-const { quadify, introduce, build, gc, manip } = require("megaminx");
+const { introduce, build, gc, manip } = require("megaminx");
 const {
 	isIdeograph,
 	isWestern,
@@ -16,7 +16,6 @@ module.exports = async function makeFont(ctx, config, argv) {
 		prefix: "a",
 		ignoreHints: true
 	});
-	await ctx.run(quadify, "a");
 	a.cmap_uvs = null;
 	filterUnicodeRange(
 		a,
