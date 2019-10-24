@@ -56,7 +56,7 @@ const TTCArchive = file.make(
 	async (t, target) => {
 		await t.need(TtcFontFiles);
 		await rm(target.full);
-		await SevenZipCompress(target, `*.ttc`);
+		await SevenZipCompress(`${OUT}/ttc`, target, `*.ttc`);
 	}
 );
 const TTFArchive = file.make(
@@ -72,6 +72,7 @@ const TTFArchive = file.make(
 			const styleUpright = config.styleOrder[j];
 			const styleItalic = config.styleOrder[j + 1];
 			await SevenZipCompress(
+				`${OUT}/ttf`,
 				target,
 				styleUpright ? `*-${styleUpright}.ttf` : null,
 				styleItalic ? `*-${styleItalic}.ttf` : null
@@ -80,8 +81,8 @@ const TTFArchive = file.make(
 	}
 );
 
-function SevenZipCompress(target, ...inputs) {
-	return cd(`${OUT}/ttf`).run(
+function SevenZipCompress(dir, target, ...inputs) {
+	return cd(dir).run(
 		[SEVEN_ZIP, `a`],
 		[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=256m:fb=256`],
 		[`../${target.name}.7z`, ...inputs]
