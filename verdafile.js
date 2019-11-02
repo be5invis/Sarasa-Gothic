@@ -142,6 +142,10 @@ const AS0 = file.make(
 	}
 );
 
+task("as-mono-sc-regular", async $ => {
+	await $.need(AS0("mono", "sc", "regular"));
+});
+
 const Pass1 = file.make(
 	(family, region, style) => `${BUILD}/pass1/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
@@ -220,12 +224,7 @@ const Prod = file.make(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // HINTING
-const Chlorophytum = [
-	NODEJS,
-	`--experimental-worker`,
-	`--max-old-space-size=8192`,
-	`./node_modules/@chlorophytum/cli/lib/index.js`
-];
+const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/lib/index.js`];
 const HintDirPrefix = `${BUILD}/hf`;
 const HintDirOutPrefix = `${BUILD}/hfo`;
 

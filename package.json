@@ -17,7 +17,7 @@
 		"yargs": "^9.0.0"
 	},
 	"engines": {
-		"node": ">=8.5.0"
+		"node": ">=12.13.0"
 	},
 	"scripts": {
 		"install": "node checkenv",
