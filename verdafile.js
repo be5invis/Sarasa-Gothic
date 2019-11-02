@@ -26,6 +26,10 @@ const OTFCCDUMP = `otfccdump`;
 const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
 
+const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
+const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
+const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
 const Start = phony("all", async t => {
@@ -106,11 +110,25 @@ const ShsOtd = file.make(
 	}
 );
 
+const NonKanji = file.make(
+	(region, style) => `${BUILD}/non-kanji0/${region}-${style}.ttf`,
+	async (t, { full, dir, name }, region, style) => {
+		await t.need(Config, Scripts);
+		const [$1] = await t.need(ShsOtd(region, style), de(dir));
+		const tmpOTD = `${dir}/${name}.otd`;
+		await RunFontBuildTask("make/non-kanji/build.js", {
+			main: $1.full,
+			o: tmpOTD
+		});
+		await OtfccBuildAsIs(tmpOTD, full);
+	}
+);
+
 const WS0 = file.make(
 	(family, region, style) => `${BUILD}/ws0/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), ShsOtd(region, style));
+		const [, $1] = await t.need(de(dir), NonKanji(region, style));
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/punct/ws.js", {
 			main: $1.full,
@@ -128,7 +146,7 @@ const AS0 = file.make(
 	(family, region, style) => `${BUILD}/as0/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), ShsOtd(region, style));
+		const [, $1] = await t.need(de(dir), NonKanji(region, style));
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/punct/as.js", {
 			main: $1.full,
@@ -224,7 +242,7 @@ const Prod = file.make(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // HINTING
-const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/lib/index.js`];
+
 const HintDirPrefix = `${BUILD}/hf`;
 const HintDirOutPrefix = `${BUILD}/hfo`;
 
@@ -384,9 +402,8 @@ const TTCFile = file.make(
 		}
 
 		const [$$] = await t.need(requirements.map(t => t.from));
-		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
 		await run(
-			ttcize,
+			TTCIZE,
 			["-x", "--common-width", 1000, "--common-height", 1000],
 			["-o", full],
 			[...$$.map(t => t.full)]
