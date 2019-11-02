@@ -24,6 +24,7 @@ const NODEJS = `node`;
 const SEVEN_ZIP = `7z`;
 const OTFCCDUMP = `otfccdump`;
 const OTFCCBUILD = `otfccbuild`;
+const OTF2TTF = `otf2ttf`;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
@@ -54,11 +55,8 @@ const TTCArchive = file.make(
 	version => `${OUT}/sarasa-gothic-ttc-${version}.7z`,
 	async (t, target) => {
 		await t.need(TtcFontFiles);
-		await cd(`${OUT}/ttc`).run(
-			[SEVEN_ZIP, `a`],
-			[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
-			[`../${target.name}.7z`, `*.ttc`]
-		);
+		await rm(target.full);
+		await SevenZipCompress(`${OUT}/ttc`, target, `*.ttc`);
 	}
 );
 const TTFArchive = file.make(
@@ -66,38 +64,45 @@ const TTFArchive = file.make(
 	async (t, target) => {
 		const [config] = await t.need(Config, de`${OUT}/ttf`);
 		await t.need(TtfFontFiles);
-		await rm(target.full);
 
 		// StyleOrder is interlaced with "upright" and "italic"
 		// Compressing in this order reduces archive size
+		await rm(target.full);
 		for (let j = 0; j < config.styleOrder.length; j += 2) {
 			const styleUpright = config.styleOrder[j];
 			const styleItalic = config.styleOrder[j + 1];
-			await cd(`${OUT}/ttf`).run(
-				[`7z`, `a`],
-				[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=1536m:fb=256`],
-				[
-					`../${target.name}.7z`,
-					styleUpright ? `*-${styleUpright}.ttf` : null,
-					styleItalic ? `*-${styleItalic}.ttf` : null
-				]
+			await SevenZipCompress(
+				`${OUT}/ttf`,
+				target,
+				styleUpright ? `*-${styleUpright}.ttf` : null,
+				styleItalic ? `*-${styleItalic}.ttf` : null
 			);
 		}
 	}
 );
 
+function SevenZipCompress(dir, target, ...inputs) {
+	return cd(dir).run(
+		[SEVEN_ZIP, `a`],
+		[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=256m:fb=256`],
+		[`../${target.name}.7z`, ...inputs]
+	);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTF Building
 const ShsOtd = file.make(
 	(region, style) => `${BUILD}/shs/${region}-${style}.otd`,
-	async (t, { full, dir }, region, style) => {
+	async (t, output, region, style) => {
 		const [config] = await t.need(Config);
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
-			de(dir),
+			de(output.dir),
 			fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
 		);
-		await run(OTFCCDUMP, `-o`, full, $1.full);
+		const temp = `${output.dir}/${output.name}.tmp.ttf`;
+		await run(OTF2TTF, [`-o`, temp], $1.full);
+		await run(OTFCCDUMP, `-o`, output.full, temp);
 	}
 );
 
@@ -381,7 +386,12 @@ const TTCFile = file.make(
 
 		const [$$] = await t.need(requirements.map(t => t.from));
 		const ttcize = "node_modules/.bin/otfcc-ttcize" + (os.platform() === "win32" ? ".cmd" : "");
-		await run(ttcize, ["-o", full], [...$$.map(t => t.full)], ["-x"]);
+		await run(
+			ttcize,
+			["-x", "--common-width", 1000, "--common-height", 1000],
+			["-o", full],
+			[...$$.map(t => t.full)]
+		);
 	}
 );
 
