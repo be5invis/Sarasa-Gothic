@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.9.2",
+	"version": "0.10.1",
 	"main": "./run",
 	"dependencies": {
 		"@chlorophytum/cli": "^0.3.0",
