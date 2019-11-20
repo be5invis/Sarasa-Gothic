@@ -4,7 +4,7 @@
 	"hintStoreProvider": "@chlorophytum/hint-store-provider-file",
 	"hintPasses": [
 		{
-			"plugin": "@chlorophytum/ideograph-shape-analyzer-1",
+			"plugin": "@chlorophytum/hm-ideograph",
 			"options": { "CANONICAL_STEM_WIDTH": 0.067 }
 		}
 	]
