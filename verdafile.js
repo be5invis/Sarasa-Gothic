@@ -3,7 +3,7 @@
 const build = require("verda").create();
 const { task, file, oracle, phony } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, rm, cd } = build.actions;
+const { run, rm, cd, mv } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 const fs = require("fs-extra");
@@ -18,6 +18,7 @@ module.exports = build;
 const PREFIX = `sarasa`;
 const BUILD = `build`;
 const OUT = `out`;
+const SOURCES = `sources`;
 
 // Command line
 const NODEJS = `node`;
@@ -25,6 +26,7 @@ const SEVEN_ZIP = `7z`;
 const OTFCCDUMP = `otfccdump`;
 const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
+const OTC2OTF = `otc2otf`;
 
 const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
 const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
@@ -95,14 +97,35 @@ function SevenZipCompress(dir, target, ...inputs) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTF Building
+
+const BreakShsTtc = task.make(
+	weight => `break-ttc::${weight}`,
+	async ($, weight) => {
+		const [config] = await $.need(Config, de(`${BUILD}/shs`));
+		const shsSourceMap = config.shsSourceMap;
+		await run(
+			OTC2OTF,
+			`${SOURCES}/shs/${shsSourceMap.defaultRegion}-${shsSourceMap.style[weight]}.ttc`
+		);
+		for (const regionID in shsSourceMap.region) {
+			const region = shsSourceMap.region[regionID];
+			const partName = `${region}-${shsSourceMap.style[weight]}.otf`;
+			if (await fs.pathExists(`${SOURCES}/shs/${partName}`)) {
+				await rm(`${BUILD}/shs/${partName}`);
+				await mv(`${SOURCES}/shs/${partName}`, `${BUILD}/shs/${partName}`);
+			}
+		}
+	}
+);
+
 const ShsOtd = file.make(
-	(region, style) => `${BUILD}/shs/${region}-${style}.otd`,
-	async (t, output, region, style) => {
-		const [config] = await t.need(Config);
+	(region, weight) => `${BUILD}/shs/${region}-${weight}.otd`,
+	async (t, output, region, weight) => {
+		const [config] = await t.need(Config, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
 			de(output.dir),
-			fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
+			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
 		);
 		const temp = `${output.dir}/${output.name}.tmp.ttf`;
 		await run(OTF2TTF, [`-o`, temp], $1.full);

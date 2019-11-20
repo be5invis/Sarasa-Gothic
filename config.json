@@ -133,13 +133,20 @@
 	"copyright": "Copyright 2015-2019, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
 
 	"shsSourceMap": {
+		"defaultRegion": "SourceHanSans",
 		"region": {
 			"j": "SourceHanSans",
 			"k": "SourceHanSansK",
 			"cl": "SourceHanSansK",
 			"sc": "SourceHanSansSC",
 			"tc": "SourceHanSansTC",
-			"hc": "SourceHanSansHC"
+			"hc": "SourceHanSansHC",
+			"j-hw": "SourceHanSansHW",
+			"k-hw": "SourceHanSansHWK",
+			"cl-hw": "SourceHanSansHWK",
+			"sc-hw": "SourceHanSansHWSC",
+			"tc-hw": "SourceHanSansHWTC",
+			"hc-hw": "SourceHanSansHWHC"
 		},
 		"style": {
 			"extralight": "ExtraLight",
