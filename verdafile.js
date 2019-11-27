@@ -49,8 +49,15 @@ const Ttf = phony(`ttf`, async t => {
 	await t.need(TTFArchive(version));
 });
 
-const Dependencies = task(`dependencies`, async t => {
-	await t.need(fu`package.json`);
+const Dependencies = oracle("oracles::dependencies", async () => {
+	const pkg = await fs.readJSON(__dirname + "/package.json");
+	const depJson = {};
+	for (const pkgName in pkg.dependencies) {
+		const depPkg = await fs.readJSON(__dirname + "/node_modules/" + pkgName + "/package.json");
+		const depVer = depPkg.version;
+		depJson[pkgName] = depVer;
+	}
+	return { requirements: pkg.dependencies, actual: depJson };
 });
 
 const Version = oracle("version", async t => {
