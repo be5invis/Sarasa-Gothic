@@ -63,6 +63,31 @@
 				"ja_JP": "Sarasa Term",
 				"ko_KR": "Sarasa Term"
 			}
+		},
+		"mono-slab": {
+			"isMono": true,
+			"latinGroup": "iosevka-slab",
+			"naming": {
+				"en_US": "Sarasa Mono Slab",
+				"zh_CN": "等距更纱黑体 Slab",
+				"zh_TW": "等距更紗黑體 Slab",
+				"zh_HK": "等距更紗黑體 Slab",
+				"ja_JP": "更紗等幅ゴシック Slab",
+				"ko_KR": "사라사 고정 폭고딕 Slab"
+			}
+		},
+		"term-slab": {
+			"isMono": true,
+			"latinGroup": "iosevka-term-slab",
+			"isTerm": true,
+			"naming": {
+				"en_US": "Sarasa Term Slab",
+				"zh_CN": "Sarasa Term Slab",
+				"zh_TW": "Sarasa Term Slab",
+				"zh_HK": "Sarasa Term Slab",
+				"ja_JP": "Sarasa Term Slab",
+				"ko_KR": "Sarasa Term Slab"
+			}
 		}
 	},
 	"styleOrder": [
