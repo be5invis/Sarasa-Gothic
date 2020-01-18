@@ -3,7 +3,7 @@
 const build = require("verda").create();
 const { task, file, oracle, phony } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, rm, cd, mv } = build.actions;
+const { run, rm, cd, mv, cp } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 const fs = require("fs-extra");
@@ -135,7 +135,10 @@ const ShsOtd = file.make(
 			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
 		);
 		const temp = `${output.dir}/${output.name}.tmp.ttf`;
+		// I hope SHS' HMTX LSBs are correct
 		await run(OTF2TTF, [`-o`, temp], $1.full);
+		// ... if not, use this instead
+		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
 		await run(OTFCCDUMP, `-o`, output.full, temp);
 	}
 );
@@ -194,6 +197,26 @@ task("as-mono-sc-regular", async $ => {
 	await $.need(AS0("mono", "sc", "regular"));
 });
 
+const LatinSource = file.make(
+	(group, style) => `${BUILD}/latin-${group}/${group}-${style}.ttf`,
+	async (t, out, group, style) => {
+		const [config] = await t.need(Config, Scripts, de(out.dir));
+		const latinCfg = config.latinGroups[group] || {};
+		let sourceStyle = style;
+		if (latinCfg.styleToFileSuffixMap) {
+			sourceStyle = latinCfg.styleToFileSuffixMap[style] || style;
+		}
+		const isCff = latinCfg.isCff;
+		const sourceFile = `sources/${group}/${group}-${sourceStyle}` + (isCff ? ".otf" : ".ttf");
+		const [source] = await t.need(fu(sourceFile));
+		if (isCff) {
+			await RunFontBuildTask("make/quadify/index.js", { main: source.full, o: out.full });
+		} else {
+			await cp(source.full, out.full);
+		}
+	}
+);
+
 const Pass1 = file.make(
 	(family, region, style) => `${BUILD}/pass1/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
@@ -201,7 +224,7 @@ const Pass1 = file.make(
 		const latinFamily = config.families[family].latinGroup;
 		const [, $1, $2, $3] = await t.need(
 			de(dir),
-			fu`sources/${latinFamily}/${latinFamily}-${style}.ttf`,
+			LatinSource(latinFamily, style),
 			AS0(family, region, deItalizedNameOf(config, style)),
 			WS0(family, region, deItalizedNameOf(config, style))
 		);
@@ -216,7 +239,7 @@ const Pass1 = file.make(
 			style: style,
 			italize: deItalizedNameOf(config, name) === name ? false : true
 		});
-		await SanitizeTTF(full, full + ".tmp.ttf");
+		await SanitizeTTF(full, full + ".tmp.ttf", true);
 	}
 );
 
@@ -358,7 +381,7 @@ const HfoPass1 = file.make(
 		`${HintDirOutPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
 	OutTtfMain
 );
-async function OutTtfMain(t, { full, dir, name }, weight) {
+async function OutTtfMain(t, { full, name }, weight) {
 	const [hintParam] = await t.need(
 		fu`hinting-params/${weight}.json`,
 		GroupInstr(weight),
@@ -504,12 +527,16 @@ function objToArgs(o) {
 	return a;
 }
 
-async function SanitizeTTF(target, ttf) {
+async function SanitizeTTF(target, ttf, fHint) {
 	const tmpTTX = `${ttf}.ttx`;
 	const tmpTTF2 = `${ttf}.2.ttf`;
 	await run("ttx", "-q", "-o", tmpTTX, ttf);
 	await run("ttx", "-q", "-o", tmpTTF2, tmpTTX);
-	await run("ttfautohint", tmpTTF2, target);
+	if (fHint) {
+		await run("ttfautohint", tmpTTF2, target);
+	} else {
+		await cp(tmpTTF2, target);
+	}
 	await rm(ttf);
 	await rm(tmpTTX);
 	await rm(tmpTTF2);

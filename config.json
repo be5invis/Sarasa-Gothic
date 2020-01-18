@@ -1,9 +1,9 @@
 {
-	"familyOrder": ["gothic", "ui", "mono", "monoT", "term"],
+	"familyOrder": ["gothic", "ui", "mono", "monoT", "mono-slab", "term", "term-slab"],
 	"families": {
 		"gothic": {
 			"isMono": false,
-			"latinGroup": "noto-sans",
+			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa Gothic",
 				"zh_CN": "更纱黑体",
@@ -16,7 +16,7 @@
 		"ui": {
 			"isPWID": true,
 			"isMono": false,
-			"latinGroup": "noto-sans",
+			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa UI",
 				"zh_CN": "更纱黑体 UI",
@@ -102,32 +102,35 @@
 		"bold",
 		"bolditalic"
 	],
+
+	"latinGroups": {
+		"Inter": {
+			"isCff": true,
+			"styleToFileSuffixMap": {
+				"extralight": "ExtraLight",
+				"extralightitalic": "ExtraLightItalic",
+				"light": "Light",
+				"lightitalic": "LightItalic",
+				"regular": "Regular",
+				"italic": "Italic",
+				"semibold": "SemiBold",
+				"semibolditalic": "SemiBoldItalic",
+				"bold": "Bold",
+				"bolditalic": "BoldItalic"
+			}
+		}
+	},
 	"styles": {
 		"extralight": { "name": "Extralight" },
-		"extralightitalic": {
-			"name": "Extralight Italic",
-			"uprightStyleMap": "extralight"
-		},
+		"extralightitalic": { "name": "Extralight Italic", "uprightStyleMap": "extralight" },
 		"light": { "name": "Light" },
-		"lightitalic": {
-			"name": "Light Italic",
-			"uprightStyleMap": "light"
-		},
+		"lightitalic": { "name": "Light Italic", "uprightStyleMap": "light" },
 		"regular": { "name": "Regular" },
-		"italic": {
-			"name": "Italic",
-			"uprightStyleMap": "regular"
-		},
+		"italic": { "name": "Italic", "uprightStyleMap": "regular" },
 		"semibold": { "name": "Semibold" },
-		"semibolditalic": {
-			"name": "Semibold Italic",
-			"uprightStyleMap": "semibold"
-		},
+		"semibolditalic": { "name": "Semibold Italic", "uprightStyleMap": "semibold" },
 		"bold": { "name": "Bold" },
-		"bolditalic": {
-			"name": "Bold Italic",
-			"uprightStyleMap": "bold"
-		}
+		"bolditalic": { "name": "Bold Italic", "uprightStyleMap": "bold" }
 	},
 
 	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j", "k"],

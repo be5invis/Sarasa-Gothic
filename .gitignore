@@ -21,3 +21,4 @@ preview/test-fonts
 **/*.packed.js
 ns-proof-page/fonts
 package-lock.json
+.private*
