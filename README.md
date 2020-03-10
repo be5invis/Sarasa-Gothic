@@ -31,7 +31,7 @@ Please note that you will need *a lot of* memory to create TTCs, due to the huge
 ## What are the names?
 
 - Style dimension
-  - Latin/Greek/Cyrillic character set being Noto Sans
+  - Latin/Greek/Cyrillic character set being Inter
     - Quotes (`“”`) are full width —— Gothic
     - Quotes (`“”`) are narrow —— UI
   - Latin/Greek/Cyrillic character set being Iosevka

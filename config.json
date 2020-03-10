@@ -158,7 +158,7 @@
 		"HC": ["en_US", "zh_HK"],
 		"CL": ["en_US", "zh_TW"]
 	},
-	"copyright": "Copyright 2015-2019, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
+	"copyright": "Copyright 2015-2020, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2017-2020 Rasmus Andersson.",
 
 	"shsSourceMap": {
 		"defaultRegion": "SourceHanSans",
