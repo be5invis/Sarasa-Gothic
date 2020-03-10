@@ -13,7 +13,8 @@ const {
 	removeUnusedFeatures,
 	toPWID,
 	removeDashCcmp,
-	buildNexusDash
+	buildNexusDash,
+	aliasFeatMap
 } = require("./common");
 
 module.exports = async function makeFont(ctx, config, argv) {
@@ -41,6 +42,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 		await ctx.run(manip.glyph, "a", buildNexusDash);
 	}
 	removeUnusedFeatures(ctx.items.a, argv.mono);
+	aliasFeatMap(ctx.items.a, "vert", [[0x2014, 0x2015]]);
 	await ctx.run(gc, "a", { ignoreAltSub: true });
 
 	await ctx.run(build, "a", { to: argv.o, optimize: true });

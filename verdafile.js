@@ -3,7 +3,7 @@
 const build = require("verda").create();
 const { task, file, oracle, phony } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, rm, cd } = build.actions;
+const { run, rm, cd, mv, cp } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 const fs = require("fs-extra");
@@ -18,6 +18,7 @@ module.exports = build;
 const PREFIX = `sarasa`;
 const BUILD = `build`;
 const OUT = `out`;
+const SOURCES = `sources`;
 
 // Command line
 const NODEJS = `node`;
@@ -25,6 +26,7 @@ const SEVEN_ZIP = `7z`;
 const OTFCCDUMP = `otfccdump`;
 const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
+const OTC2OTF = `otc2otf`;
 
 const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
 const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
@@ -47,8 +49,15 @@ const Ttf = phony(`ttf`, async t => {
 	await t.need(TTFArchive(version));
 });
 
-const Dependencies = task(`dependencies`, async t => {
-	await t.need(fu`package.json`);
+const Dependencies = oracle("oracles::dependencies", async () => {
+	const pkg = await fs.readJSON(__dirname + "/package.json");
+	const depJson = {};
+	for (const pkgName in pkg.dependencies) {
+		const depPkg = await fs.readJSON(__dirname + "/node_modules/" + pkgName + "/package.json");
+		const depVer = depPkg.version;
+		depJson[pkgName] = depVer;
+	}
+	return { requirements: pkg.dependencies, actual: depJson };
 });
 
 const Version = oracle("version", async t => {
@@ -95,17 +104,41 @@ function SevenZipCompress(dir, target, ...inputs) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTF Building
+
+const BreakShsTtc = task.make(
+	weight => `break-ttc::${weight}`,
+	async ($, weight) => {
+		const [config] = await $.need(Config, de(`${BUILD}/shs`));
+		const shsSourceMap = config.shsSourceMap;
+		await run(
+			OTC2OTF,
+			`${SOURCES}/shs/${shsSourceMap.defaultRegion}-${shsSourceMap.style[weight]}.ttc`
+		);
+		for (const regionID in shsSourceMap.region) {
+			const region = shsSourceMap.region[regionID];
+			const partName = `${region}-${shsSourceMap.style[weight]}.otf`;
+			if (await fs.pathExists(`${SOURCES}/shs/${partName}`)) {
+				await rm(`${BUILD}/shs/${partName}`);
+				await mv(`${SOURCES}/shs/${partName}`, `${BUILD}/shs/${partName}`);
+			}
+		}
+	}
+);
+
 const ShsOtd = file.make(
-	(region, style) => `${BUILD}/shs/${region}-${style}.otd`,
-	async (t, output, region, style) => {
-		const [config] = await t.need(Config);
+	(region, weight) => `${BUILD}/shs/${region}-${weight}.otd`,
+	async (t, output, region, weight) => {
+		const [config] = await t.need(Config, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
 			de(output.dir),
-			fu`sources/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[style]}.otf`
+			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
 		);
 		const temp = `${output.dir}/${output.name}.tmp.ttf`;
+		// I hope SHS' HMTX LSBs are correct
 		await run(OTF2TTF, [`-o`, temp], $1.full);
+		// ... if not, use this instead
+		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
 		await run(OTFCCDUMP, `-o`, output.full, temp);
 	}
 );
@@ -164,6 +197,26 @@ task("as-mono-sc-regular", async $ => {
 	await $.need(AS0("mono", "sc", "regular"));
 });
 
+const LatinSource = file.make(
+	(group, style) => `${BUILD}/latin-${group}/${group}-${style}.ttf`,
+	async (t, out, group, style) => {
+		const [config] = await t.need(Config, Scripts, de(out.dir));
+		const latinCfg = config.latinGroups[group] || {};
+		let sourceStyle = style;
+		if (latinCfg.styleToFileSuffixMap) {
+			sourceStyle = latinCfg.styleToFileSuffixMap[style] || style;
+		}
+		const isCff = latinCfg.isCff;
+		const sourceFile = `sources/${group}/${group}-${sourceStyle}` + (isCff ? ".otf" : ".ttf");
+		const [source] = await t.need(fu(sourceFile));
+		if (isCff) {
+			await RunFontBuildTask("make/quadify/index.js", { main: source.full, o: out.full });
+		} else {
+			await cp(source.full, out.full);
+		}
+	}
+);
+
 const Pass1 = file.make(
 	(family, region, style) => `${BUILD}/pass1/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
@@ -171,7 +224,7 @@ const Pass1 = file.make(
 		const latinFamily = config.families[family].latinGroup;
 		const [, $1, $2, $3] = await t.need(
 			de(dir),
-			fu`sources/${latinFamily}/${latinFamily}-${style}.ttf`,
+			LatinSource(latinFamily, style),
 			AS0(family, region, deItalizedNameOf(config, style)),
 			WS0(family, region, deItalizedNameOf(config, style))
 		);
@@ -186,7 +239,7 @@ const Pass1 = file.make(
 			style: style,
 			italize: deItalizedNameOf(config, name) === name ? false : true
 		});
-		await SanitizeTTF(full, full + ".tmp.ttf");
+		await SanitizeTTF(full, full + ".tmp.ttf", true);
 	}
 );
 
@@ -328,7 +381,7 @@ const HfoPass1 = file.make(
 		`${HintDirOutPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
 	OutTtfMain
 );
-async function OutTtfMain(t, { full, dir, name }, weight) {
+async function OutTtfMain(t, { full, name }, weight) {
 	const [hintParam] = await t.need(
 		fu`hinting-params/${weight}.json`,
 		GroupInstr(weight),
@@ -474,12 +527,16 @@ function objToArgs(o) {
 	return a;
 }
 
-async function SanitizeTTF(target, ttf) {
+async function SanitizeTTF(target, ttf, fHint) {
 	const tmpTTX = `${ttf}.ttx`;
 	const tmpTTF2 = `${ttf}.2.ttf`;
 	await run("ttx", "-q", "-o", tmpTTX, ttf);
 	await run("ttx", "-q", "-o", tmpTTF2, tmpTTX);
-	await run("ttfautohint", tmpTTF2, target);
+	if (fHint) {
+		await run("ttfautohint", tmpTTF2, target);
+	} else {
+		await cp(tmpTTF2, target);
+	}
 	await rm(ttf);
 	await rm(tmpTTX);
 	await rm(tmpTTF2);

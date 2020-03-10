@@ -1,9 +1,9 @@
 {
-	"familyOrder": ["gothic", "ui", "mono", "monoT", "term"],
+	"familyOrder": ["gothic", "ui", "mono", "monoT", "mono-slab", "term", "term-slab"],
 	"families": {
 		"gothic": {
 			"isMono": false,
-			"latinGroup": "noto-sans",
+			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa Gothic",
 				"zh_CN": "更纱黑体",
@@ -16,7 +16,7 @@
 		"ui": {
 			"isPWID": true,
 			"isMono": false,
-			"latinGroup": "noto-sans",
+			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa UI",
 				"zh_CN": "更纱黑体 UI",
@@ -63,6 +63,31 @@
 				"ja_JP": "Sarasa Term",
 				"ko_KR": "Sarasa Term"
 			}
+		},
+		"mono-slab": {
+			"isMono": true,
+			"latinGroup": "iosevka-slab",
+			"naming": {
+				"en_US": "Sarasa Mono Slab",
+				"zh_CN": "等距更纱黑体 Slab",
+				"zh_TW": "等距更紗黑體 Slab",
+				"zh_HK": "等距更紗黑體 Slab",
+				"ja_JP": "更紗等幅ゴシック Slab",
+				"ko_KR": "사라사 고정 폭고딕 Slab"
+			}
+		},
+		"term-slab": {
+			"isMono": true,
+			"latinGroup": "iosevka-term-slab",
+			"isTerm": true,
+			"naming": {
+				"en_US": "Sarasa Term Slab",
+				"zh_CN": "Sarasa Term Slab",
+				"zh_TW": "Sarasa Term Slab",
+				"zh_HK": "Sarasa Term Slab",
+				"ja_JP": "Sarasa Term Slab",
+				"ko_KR": "Sarasa Term Slab"
+			}
 		}
 	},
 	"styleOrder": [
@@ -77,32 +102,35 @@
 		"bold",
 		"bolditalic"
 	],
+
+	"latinGroups": {
+		"Inter": {
+			"isCff": true,
+			"styleToFileSuffixMap": {
+				"extralight": "ExtraLight",
+				"extralightitalic": "ExtraLightItalic",
+				"light": "Light",
+				"lightitalic": "LightItalic",
+				"regular": "Regular",
+				"italic": "Italic",
+				"semibold": "SemiBold",
+				"semibolditalic": "SemiBoldItalic",
+				"bold": "Bold",
+				"bolditalic": "BoldItalic"
+			}
+		}
+	},
 	"styles": {
 		"extralight": { "name": "Extralight" },
-		"extralightitalic": {
-			"name": "Extralight Italic",
-			"uprightStyleMap": "extralight"
-		},
+		"extralightitalic": { "name": "Extralight Italic", "uprightStyleMap": "extralight" },
 		"light": { "name": "Light" },
-		"lightitalic": {
-			"name": "Light Italic",
-			"uprightStyleMap": "light"
-		},
+		"lightitalic": { "name": "Light Italic", "uprightStyleMap": "light" },
 		"regular": { "name": "Regular" },
-		"italic": {
-			"name": "Italic",
-			"uprightStyleMap": "regular"
-		},
+		"italic": { "name": "Italic", "uprightStyleMap": "regular" },
 		"semibold": { "name": "Semibold" },
-		"semibolditalic": {
-			"name": "Semibold Italic",
-			"uprightStyleMap": "semibold"
-		},
+		"semibolditalic": { "name": "Semibold Italic", "uprightStyleMap": "semibold" },
 		"bold": { "name": "Bold" },
-		"bolditalic": {
-			"name": "Bold Italic",
-			"uprightStyleMap": "bold"
-		}
+		"bolditalic": { "name": "Bold Italic", "uprightStyleMap": "bold" }
 	},
 
 	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j", "k"],
@@ -133,13 +161,20 @@
 	"copyright": "Copyright 2015-2019, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2012 Google Inc.",
 
 	"shsSourceMap": {
+		"defaultRegion": "SourceHanSans",
 		"region": {
 			"j": "SourceHanSans",
 			"k": "SourceHanSansK",
 			"cl": "SourceHanSansK",
 			"sc": "SourceHanSansSC",
 			"tc": "SourceHanSansTC",
-			"hc": "SourceHanSansHC"
+			"hc": "SourceHanSansHC",
+			"j-hw": "SourceHanSansHW",
+			"k-hw": "SourceHanSansHWK",
+			"cl-hw": "SourceHanSansHWK",
+			"sc-hw": "SourceHanSansHWSC",
+			"tc-hw": "SourceHanSansHWTC",
+			"hc-hw": "SourceHanSansHWHC"
 		},
 		"style": {
 			"extralight": "ExtraLight",
