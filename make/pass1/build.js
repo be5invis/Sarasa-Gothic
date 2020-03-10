@@ -4,6 +4,7 @@ const { rebase, introduce, build, gc, merge } = require("megaminx");
 
 const italize = require("../common/italize");
 const { nameFont, setHintFlag } = require("./metadata.js");
+const { crossTransfer } = require("./cross-transfer");
 
 const fs = require("fs-extra");
 const path = require("path");
@@ -39,6 +40,17 @@ async function pass(ctx, config, argv) {
 
 	// italize
 	if (argv.italize) italize(b, 10);
+
+	crossTransfer(ctx.items.a, ctx.items.b, [
+		0x2010,
+		0x2011,
+		0x2012,
+		0x2013,
+		0x2014,
+		0x2015,
+		0x2e3a,
+		0x2e3b
+	]);
 
 	// merge and build
 	await ctx.run(merge.below, "a", "a", "c", { mergeOTL: true });
