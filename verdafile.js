@@ -35,6 +35,8 @@ const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
 const Start = phony("all", async t => {
+	await t.need(TtfFontFiles);
+	await t.need(TtcFontFiles);
 	await t.need(Ttf, Ttc);
 });
 
