@@ -1,5 +1,5 @@
 {
-	"familyOrder": ["gothic", "ui", "mono", "monoT", "mono-slab", "term", "term-slab"],
+	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab", "fixed", "fixed-slab"],
 	"families": {
 		"gothic": {
 			"isMono": false,
@@ -28,6 +28,7 @@
 		},
 		"mono": {
 			"isMono": true,
+			"isType": true,
 			"latinGroup": "iosevka",
 			"naming": {
 				"en_US": "Sarasa Mono",
@@ -36,19 +37,6 @@
 				"zh_HK": "等距更紗黑體",
 				"ja_JP": "更紗等幅ゴシック",
 				"ko_KR": "사라사 고정 폭고딕"
-			}
-		},
-		"monoT": {
-			"isMono": true,
-			"isType": true,
-			"latinGroup": "iosevka",
-			"naming": {
-				"en_US": "Sarasa Mono T",
-				"zh_CN": "等距更纱黑体 T",
-				"zh_TW": "等距更紗黑體 T",
-				"zh_HK": "等距更紗黑體 T",
-				"ja_JP": "更紗等幅ゴシック T",
-				"ko_KR": "사라사 고정 폭고딕 T"
 			}
 		},
 		"term": {
@@ -62,6 +50,19 @@
 				"zh_HK": "Sarasa Term",
 				"ja_JP": "Sarasa Term",
 				"ko_KR": "Sarasa Term"
+			}
+		},
+		"fixed": {
+			"isMono": true,
+			"latinGroup": "iosevka-fixed",
+			"isTerm": true,
+			"naming": {
+				"en_US": "Sarasa Fixed",
+				"zh_CN": "Sarasa Fixed",
+				"zh_TW": "Sarasa Fixed",
+				"zh_HK": "Sarasa Fixed",
+				"ja_JP": "Sarasa Fixed",
+				"ko_KR": "Sarasa Fixed"
 			}
 		},
 		"mono-slab": {
@@ -88,6 +89,19 @@
 				"ja_JP": "Sarasa Term Slab",
 				"ko_KR": "Sarasa Term Slab"
 			}
+		},
+		"fixed-slab": {
+			"isMono": true,
+			"latinGroup": "iosevka-fixed-slab",
+			"isTerm": true,
+			"naming": {
+				"en_US": "Sarasa Fixed Slab",
+				"zh_CN": "Sarasa Fixed Slab",
+				"zh_TW": "Sarasa Fixed Slab",
+				"zh_HK": "Sarasa Fixed Slab",
+				"ja_JP": "Sarasa Fixed Slab",
+				"ko_KR": "Sarasa Fixed Slab"
+			}
 		}
 	},
 	"styleOrder": [
@@ -102,7 +116,6 @@
 		"bold",
 		"bolditalic"
 	],
-
 	"latinGroups": {
 		"Inter": {
 			"isCff": true,
@@ -121,34 +134,100 @@
 		}
 	},
 	"styles": {
-		"extralight": { "name": "Extralight" },
-		"extralightitalic": { "name": "Extralight Italic", "uprightStyleMap": "extralight" },
-		"light": { "name": "Light" },
-		"lightitalic": { "name": "Light Italic", "uprightStyleMap": "light" },
-		"regular": { "name": "Regular" },
-		"italic": { "name": "Italic", "uprightStyleMap": "regular" },
-		"semibold": { "name": "Semibold" },
-		"semibolditalic": { "name": "Semibold Italic", "uprightStyleMap": "semibold" },
-		"bold": { "name": "Bold" },
-		"bolditalic": { "name": "Bold Italic", "uprightStyleMap": "bold" }
+		"extralight": {
+			"name": "Extralight"
+		},
+		"extralightitalic": {
+			"name": "Extralight Italic",
+			"uprightStyleMap": "extralight"
+		},
+		"light": {
+			"name": "Light"
+		},
+		"lightitalic": {
+			"name": "Light Italic",
+			"uprightStyleMap": "light"
+		},
+		"regular": {
+			"name": "Regular"
+		},
+		"italic": {
+			"name": "Italic",
+			"uprightStyleMap": "regular"
+		},
+		"semibold": {
+			"name": "Semibold"
+		},
+		"semibolditalic": {
+			"name": "Semibold Italic",
+			"uprightStyleMap": "semibold"
+		},
+		"bold": {
+			"name": "Bold"
+		},
+		"bolditalic": {
+			"name": "Bold Italic",
+			"uprightStyleMap": "bold"
+		}
 	},
-
 	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j", "k"],
 	"subfamilies": {
-		"cl": { "name": "CL" },
-		"sc": { "name": "SC" },
-		"tc": { "name": "TC" },
-		"hc": { "name": "HC" },
-		"j": { "name": "J" },
-		"k": { "name": "K" }
+		"cl": {
+			"name": "CL"
+		},
+		"sc": {
+			"name": "SC"
+		},
+		"tc": {
+			"name": "TC"
+		},
+		"hc": {
+			"name": "HC"
+		},
+		"j": {
+			"name": "J"
+		},
+		"k": {
+			"name": "K"
+		}
 	},
 	"os2encodings": {
-		"J": { "gbk": false, "big5": false, "jis": true, "korean": false },
-		"SC": { "gbk": true, "big5": false, "jis": false, "korean": false },
-		"TC": { "gbk": false, "big5": true, "jis": false, "korean": false },
-		"HC": { "gbk": false, "big5": true, "jis": false, "korean": false },
-		"CL": { "gbk": false, "big5": true, "jis": false, "korean": false },
-		"K": { "gbk": false, "big5": false, "jis": false, "korean": true }
+		"J": {
+			"gbk": false,
+			"big5": false,
+			"jis": true,
+			"korean": false
+		},
+		"SC": {
+			"gbk": true,
+			"big5": false,
+			"jis": false,
+			"korean": false
+		},
+		"TC": {
+			"gbk": false,
+			"big5": true,
+			"jis": false,
+			"korean": false
+		},
+		"HC": {
+			"gbk": false,
+			"big5": true,
+			"jis": false,
+			"korean": false
+		},
+		"CL": {
+			"gbk": false,
+			"big5": true,
+			"jis": false,
+			"korean": false
+		},
+		"K": {
+			"gbk": false,
+			"big5": false,
+			"jis": false,
+			"korean": true
+		}
 	},
 	"nameTupleSelector": {
 		"J": ["en_US", "ja_JP"],
@@ -159,7 +238,6 @@
 		"CL": ["en_US", "zh_TW"]
 	},
 	"copyright": "Copyright 2015-2020, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2017-2020 Rasmus Andersson.",
-
 	"shsSourceMap": {
 		"defaultRegion": "SourceHanSans",
 		"region": {

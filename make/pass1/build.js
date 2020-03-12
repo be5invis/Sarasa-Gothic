@@ -5,6 +5,7 @@ const { rebase, introduce, build, gc, merge } = require("megaminx");
 const italize = require("../common/italize");
 const { nameFont, setHintFlag } = require("./metadata.js");
 const { crossTransfer } = require("./cross-transfer");
+const { knockoucSymbols } = require("./knockout-symbols");
 
 const fs = require("fs-extra");
 const path = require("path");
@@ -40,6 +41,8 @@ async function pass(ctx, config, argv) {
 
 	// italize
 	if (argv.italize) italize(b, 10);
+
+	knockoucSymbols(a, { enclosedAlphaNumerics: !argv.mono });
 
 	crossTransfer(ctx.items.a, ctx.items.b, [
 		0x2010,

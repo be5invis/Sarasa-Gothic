@@ -1,7 +1,7 @@
 "use strict";
 
 const build = require("verda").create();
-const { task, file, oracle, phony } = build.ruleTypes;
+const { task, file, oracle, phony, computed } = build.ruleTypes;
 const { de, fu } = build.rules;
 const { run, rm, cd, mv, cp } = build.actions;
 const { FileList } = build.predefinedFuncs;
@@ -35,8 +35,7 @@ const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
 const Start = phony("all", async t => {
-	await t.need(Ttf);
-	await t.need(Ttc);
+	await t.need(Ttf, Ttc);
 });
 
 const Ttc = phony(`ttc`, async t => {
@@ -60,7 +59,7 @@ const Dependencies = oracle("oracles::dependencies", async () => {
 	return { requirements: pkg.dependencies, actual: depJson };
 });
 
-const Version = oracle("version", async t => {
+const Version = oracle("oracles::version", async t => {
 	return (await fs.readJson(path.resolve(__dirname, "package.json"))).version;
 });
 
@@ -237,7 +236,12 @@ const Pass1 = file.make(
 			family: family,
 			subfamily: config.subfamilies[region].name,
 			style: style,
-			italize: deItalizedNameOf(config, name) === name ? false : true
+			italize: deItalizedNameOf(config, name) === name ? false : true,
+
+			mono: config.families[family].isMono || false,
+			type: config.families[family].isType || false,
+			pwid: config.families[family].isPWID || false,
+			term: config.families[family].isTerm || false
 		});
 		await SanitizeTTF(full, full + ".tmp.ttf", true);
 	}
@@ -323,8 +327,18 @@ const Pass1OTD = file.make(
 	}
 );
 
-const GroupHint = task.make(
-	weight => `group-hint::${weight}`,
+const GroupHintStyleList = computed(`group-hint-style-list`, async t => {
+	const [config] = await t.need(Config);
+	const results = [];
+	for (const style in config.styles) {
+		if (config.styles[style].uprightStyleMap) continue;
+		await results.push(style);
+	}
+	return results;
+});
+
+const GroupHintSelf = task.make(
+	weight => `group-hint-self::${weight}`,
 	async (t, weight) => {
 		const [config, jHint, hintParam] = await t.need(
 			Config,
@@ -345,20 +359,24 @@ const GroupHint = task.make(
 		);
 	}
 );
-const HintAll = task(`hint-all`, async t => {
-	const [config] = await t.need(Config);
-	for (const style in config.styles) {
-		if (config.styles[style].uprightStyleMap) continue;
-		await t.need(GroupHint(style));
+
+const GroupHintDependent = task.make(
+	weight => `group-hint-dependent::${weight}`,
+	async (t, weight) => {
+		const [styleList] = await t.need(GroupHintStyleList);
+		const weightIndex = styleList.indexOf(weight);
+		if (weightIndex > 0) await t.need(GroupHintDependent(styleList[weightIndex - 1]));
+		await t.need(GroupHintSelf(weight));
 	}
-});
+);
+
 const GroupInstr = task.make(
 	weight => `group-instr::${weight}`,
 	async (t, weight) => {
 		const [config, hintParam] = await t.need(Config, fu`hinting-params/${weight}.json`);
 		const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
 		const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
-		await t.need(HintAll);
+		await t.need(GroupHintDependent(weight));
 
 		await run(
 			Chlorophytum,
@@ -464,13 +482,13 @@ const TTCFile = file.make(
 	}
 );
 
-const TtcFontFiles = task("ttcFontFiles", async t => {
+const TtcFontFiles = task("intermediate::ttcFontFiles", async t => {
 	const [config] = await t.need(Config, de`${OUT}/ttc`);
 
 	await t.need(config.styleOrder.map(st => TTCFile(st)));
 });
 
-const TtfFontFiles = task("ttfFontFiles", async t => {
+const TtfFontFiles = task("intermediate::ttfFontFiles", async t => {
 	const [config] = await t.need(Config, de`${OUT}/ttf`);
 	let reqs = [];
 	for (let f of config.familyOrder)
@@ -483,17 +501,17 @@ const TtfFontFiles = task("ttfFontFiles", async t => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Build Scripts & Config
-const ScriptsStructure = oracle("scripts-dir-structure", target =>
+const ScriptsStructure = oracle("dep::scripts-dir-structure", target =>
 	FileList({ under: `make`, pattern: `**/*.js` })(target)
 );
 
-const Scripts = task("scripts", async t => {
+const Scripts = task("dep::scripts", async t => {
 	await t.need(Dependencies);
 	const [scriptList] = await t.need(ScriptsStructure);
 	await t.need(scriptList.map(fu));
 });
 
-const Config = oracle("config", async () => {
+const Config = oracle("dep::config", async () => {
 	return await fs.readJSON(__dirname + "/config.json");
 });
 

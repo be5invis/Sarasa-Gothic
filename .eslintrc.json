@@ -20,13 +20,6 @@
 		"no-var": "error",
 		"no-console": 0,
 		"no-constant-condition": ["error", { "checkLoops": false }],
-		"no-unused-vars": [
-			"warn",
-			{
-				"varsIgnorePattern": "^_",
-				"argsIgnorePattern": "^_",
-				"caughtErrorsIgnorePattern": "^_"
-			}
-		]
+		"no-unused-vars": "off"
 	}
 }
