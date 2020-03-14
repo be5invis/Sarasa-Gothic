@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(b, degrees) {
+exports.italize = function(b, degrees) {
 	for (let g in b.glyf) {
 		if (!b.glyf[g] || !b.glyf[g].contours) continue;
 		const glyph = b.glyf[g];

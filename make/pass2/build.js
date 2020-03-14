@@ -1,7 +1,7 @@
 "use strict";
 
 const { introduce, build, gc, merge } = require("megaminx");
-const italize = require("../common/italize");
+const { italize } = require("../common/italize");
 
 module.exports = async function makeFont(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {

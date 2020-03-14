@@ -194,10 +194,6 @@ const AS0 = file.make(
 	}
 );
 
-task("as-mono-sc-regular", async $ => {
-	await $.need(AS0("mono", "sc", "regular"));
-});
-
 const LatinSource = file.make(
 	(group, style) => `${BUILD}/latin-${group}/${group}-${style}.ttf`,
 	async (t, out, group, style) => {
@@ -245,7 +241,8 @@ const Pass1 = file.make(
 			pwid: config.families[family].isPWID || false,
 			term: config.families[family].isTerm || false
 		});
-		await SanitizeTTF(full, full + ".tmp.ttf", true);
+		await run("ttfautohint", full + ".tmp.ttf", full);
+		await rm(full + ".tmp.ttf");
 	}
 );
 
@@ -545,21 +542,6 @@ function objToArgs(o) {
 		}
 	}
 	return a;
-}
-
-async function SanitizeTTF(target, ttf, fHint) {
-	const tmpTTX = `${ttf}.ttx`;
-	const tmpTTF2 = `${ttf}.2.ttf`;
-	await run("ttx", "-q", "-o", tmpTTX, ttf);
-	await run("ttx", "-q", "-o", tmpTTF2, tmpTTX);
-	if (fHint) {
-		await run("ttfautohint", tmpTTF2, target);
-	} else {
-		await cp(tmpTTF2, target);
-	}
-	await rm(ttf);
-	await rm(tmpTTX);
-	await rm(tmpTTF2);
 }
 
 function deItalizedNameOf(config, set) {
