@@ -41,3 +41,7 @@ Please note that you will need *a lot of* memory to create TTCs, due to the huge
 - Orthography dimension
   - `CL`: Classical orthography
   - `SC`, `TC`, `J`, `K`, `HC`: Regional orthography, following [Source Han Sans](https://github.com/adobe-fonts/source-han-sans) notations.
+
+## Mirrors
+
+- TUNA (CN): https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis/Sarasa-Gothic
