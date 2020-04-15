@@ -5,7 +5,7 @@
 	"dependencies": {
 		"@chlorophytum/cli": "^0.7.0",
 		"@chlorophytum/final-hint-format-hltt": "^0.7.0",
-		"@chlorophytum/font-format-otd": "^0.7.0",
+		"@chlorophytum/font-format-ttf": "^0.7.0",
 		"@chlorophytum/hint-store-provider-file": "^0.7.0",
 		"@chlorophytum/hm-ideograph": "^0.8.1",
 		"colors": "^1.4.0",

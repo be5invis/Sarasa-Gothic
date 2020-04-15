@@ -303,26 +303,26 @@ const HintDirPrefix = `${BUILD}/hf`;
 const HintDirOutPrefix = `${BUILD}/hfo`;
 
 const JHint = oracle("hinting-jobs", async () => os.cpus().length);
-const KanjiInOTD = file.make(
-	(weight, region, style) => `${HintDirPrefix}-${weight}/kanji-${region}-${style}.otd`,
-	async (t, { dir, name }, weight, region, style) => {
-		const [k0ttf] = await t.need(Kanji0(region, style), de(dir));
-		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
+const KanjiInTtf = file.make(
+	(weight, region, style) => `${HintDirPrefix}-${weight}/kanji-${region}-${style}.ttf`,
+	async (t, out, weight, region, style) => {
+		const [k0ttf] = await t.need(Kanji0(region, style), de(out.dir));
+		await cp(k0ttf.full, out.full);
 	}
 );
-const HangulInOTD = file.make(
-	(weight, region, style) => `${HintDirPrefix}-${weight}/hangul-${region}-${style}.otd`,
-	async (t, { dir, name }, weight, region, style) => {
-		const [k0ttf] = await t.need(Hangul0(region, style), de(dir));
-		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
+const HangulInTtf = file.make(
+	(weight, region, style) => `${HintDirPrefix}-${weight}/hangul-${region}-${style}.ttf`,
+	async (t, out, weight, region, style) => {
+		const [k0ttf] = await t.need(Hangul0(region, style), de(out.dir));
+		await cp(k0ttf.full, out.full);
 	}
 );
-const Pass1OTD = file.make(
+const Pass1Ttf = file.make(
 	(weight, family, region, style) =>
-		`${HintDirPrefix}-${weight}/pass1-${family}-${region}-${style}.otd`,
-	async (t, { dir, name }, weight, family, region, style) => {
-		const [k0ttf] = await t.need(Pass1(family, region, style), de(dir));
-		await run(OTFCCDUMP, k0ttf.full, "-o", `${dir}/${name}.otd`);
+		`${HintDirPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
+	async (t, out, weight, family, region, style) => {
+		const [k0ttf] = await t.need(Pass1(family, region, style), de(out.dir));
+		await cp(k0ttf.full, out.full);
 	}
 );
 
@@ -345,8 +345,8 @@ const GroupHintSelf = task.make(
 			fu`hinting-params/${weight}.json`
 		);
 
-		const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
-		const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
+		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
+		const [kanjiTtfs, pass1Ttfs] = await t.need(kanjiDeps, pass1Deps);
 
 		await run(
 			Chlorophytum,
@@ -354,7 +354,7 @@ const GroupHintSelf = task.make(
 			[`-c`, hintParam.full],
 			[`-h`, `${HintDirPrefix}-${weight}/cache.gz`],
 			[`--jobs`, jHint],
-			[...HintParams([...kanjiOtds, ...pass1Otds])]
+			[...HintParams([...kanjiTtfs, ...pass1Ttfs])]
 		);
 	}
 );
@@ -373,18 +373,23 @@ const GroupInstr = task.make(
 	weight => `group-instr::${weight}`,
 	async (t, weight) => {
 		const [config, hintParam] = await t.need(Config, fu`hinting-params/${weight}.json`);
-		const [kanjiDeps, pass1Deps] = OtdDeps(config, weight);
-		const [kanjiOtds, pass1Otds] = await t.need(kanjiDeps, pass1Deps);
+		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
+		const [kanjiTtfs, pass1Ttfs] = await t.need(kanjiDeps, pass1Deps);
 		await t.need(GroupHintDependent(weight));
 
 		await run(
 			Chlorophytum,
 			`instruct`,
 			[`-c`, hintParam.full],
-			[...InstrParams([...kanjiOtds, ...pass1Otds])]
+			[...InstrParams([...kanjiTtfs, ...pass1Ttfs])]
 		);
 	}
 );
+const GroupInstrAll = task(`group-instr-all`, async t => {
+	const [styleList] = await t.need(GroupHintStyleList);
+	await t.need(styleList.map(w => GroupInstr(w)));
+});
+
 const HfoKanji = file.make(
 	(weight, region, style) => `${HintDirOutPrefix}-${weight}/kanji-${region}-${style}.ttf`,
 	OutTtfMain
@@ -398,31 +403,30 @@ const HfoPass1 = file.make(
 		`${HintDirOutPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
 	OutTtfMain
 );
-async function OutTtfMain(t, { full, name }, weight) {
+async function OutTtfMain(t, out, weight) {
 	const [hintParam] = await t.need(
 		fu`hinting-params/${weight}.json`,
-		GroupInstr(weight),
-		de`${HintDirOutPrefix}-${weight}`
+		de`${HintDirOutPrefix}-${weight}`,
+		GroupInstrAll
 	);
 	await run(
 		Chlorophytum,
 		`integrate`,
 		[`-c`, hintParam.full],
 		[
-			`${HintDirPrefix}-${weight}/${name}.instr.gz`,
-			`${HintDirPrefix}-${weight}/${name}.otd`,
-			`${HintDirOutPrefix}-${weight}/${name}.otd`
+			`${HintDirPrefix}-${weight}/${out.name}.instr.gz`,
+			`${HintDirPrefix}-${weight}/${out.name}.ttf`,
+			out.full
 		]
 	);
-	await OtfccBuildAsIs(`${HintDirOutPrefix}-${weight}/${name}.otd`, full);
 }
 
 // Support functions
-function OtdDeps(config, weight) {
+function HintingDeps(config, weight) {
 	const kanjiDeps = [];
 	for (let sf of config.subfamilyOrder) {
-		kanjiDeps.push(KanjiInOTD(weight, sf, weight));
-		kanjiDeps.push(HangulInOTD(weight, sf, weight));
+		kanjiDeps.push(KanjiInTtf(weight, sf, weight));
+		kanjiDeps.push(HangulInTtf(weight, sf, weight));
 	}
 
 	const pass1Deps = [];
@@ -430,7 +434,7 @@ function OtdDeps(config, weight) {
 		for (let sf of config.subfamilyOrder) {
 			for (const style in config.styles) {
 				if (deItalizedNameOf(config, style) !== weight) continue;
-				pass1Deps.push(Pass1OTD(weight, f, sf, style));
+				pass1Deps.push(Pass1Ttf(weight, f, sf, style));
 			}
 		}
 	}
