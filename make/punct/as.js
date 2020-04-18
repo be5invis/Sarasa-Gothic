@@ -1,6 +1,6 @@
 "use strict";
 
-const { introduce, build, gc, manip } = require("megaminx");
+const { introduce, build, manip } = require("megaminx");
 const {
 	isIdeograph,
 	isWestern,
@@ -41,7 +41,6 @@ module.exports = async function makeFont(ctx, config, argv) {
 	}
 	removeUnusedFeatures(ctx.items.a, argv.mono);
 	aliasFeatMap(ctx.items.a, "vert", [[0x2014, 0x2015]]);
-	await ctx.run(gc, "a", { ignoreAltSub: true });
 
 	await ctx.run(build, "a", { to: argv.o, optimize: true });
 	ctx.remove("a");

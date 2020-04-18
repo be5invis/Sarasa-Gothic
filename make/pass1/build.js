@@ -1,12 +1,13 @@
 "use strict";
 
-const { rebase, introduce, build, gc, merge, manip } = require("megaminx");
+const { rebase, introduce, build, merge, manip } = require("megaminx");
 
 const { italize } = require("../common/italize");
 const { nameFont, setHintFlag } = require("./metadata.js");
 const { crossTransfer } = require("./cross-transfer");
 const { knockoutSymbols } = require("./knockout-symbols");
 const { buildNexusDash } = require("./nexus-dash");
+const gc = require("../common/gc");
 
 const fs = require("fs-extra");
 const path = require("path");
@@ -46,7 +47,7 @@ async function pass(ctx, config, argv) {
 		italize(c, -10);
 	}
 
-	knockoutSymbols(a, { enclosedAlphaNumerics: !argv.mono });
+	knockoutSymbols(a, { enclosedAlphaNumerics: !argv.mono, pua: !argv.mono });
 
 	crossTransfer(ctx.items.a, ctx.items.b, [
 		0x2010,
@@ -97,7 +98,7 @@ async function pass(ctx, config, argv) {
 	);
 
 	if (argv.italize) italize(a, +10);
-	await ctx.run(gc, "a");
+	gc(ctx.items.a);
 	await ctx.run(build, "a", { to: config.o, optimize: true });
 }
 

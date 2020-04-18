@@ -1,6 +1,6 @@
 "use strict";
 
-const { introduce, build, gc, manip } = require("megaminx");
+const { introduce, build, manip } = require("megaminx");
 const {
 	isIdeograph,
 	isWestern,
@@ -33,7 +33,6 @@ module.exports = async function makeFont(ctx, config, argv) {
 		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.type);
 	}
 	removeUnusedFeatures(ctx.items.a);
-	await ctx.run(gc, "a", { ignoreAltSub: true });
 
 	await ctx.run(build, "a", { to: argv.o, optimize: true });
 	ctx.remove("a");
