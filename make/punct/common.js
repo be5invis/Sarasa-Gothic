@@ -13,7 +13,7 @@ function deleteGPOS(font, gid) {
 }
 
 const sanitizers = {};
-sanitizers.auto = function(glyph) {
+sanitizers.auto = function (glyph) {
 	const targetW = Math.min(
 		this.em,
 		Math.ceil(glyph.advanceWidth / (this.em / 2)) * (this.em / 2)
@@ -24,7 +24,7 @@ sanitizers.auto = function(glyph) {
 	glyph.advanceWidth = targetW;
 	return glyph;
 };
-sanitizers.half = function(glyph) {
+sanitizers.half = function (glyph) {
 	const targetW = this.em / 2;
 	const shift = (targetW - glyph.advanceWidth) / 2;
 	if (!glyph.contours) return glyph;
@@ -32,13 +32,13 @@ sanitizers.half = function(glyph) {
 	glyph.advanceWidth = targetW;
 	return glyph;
 };
-sanitizers.halfLeft = function(glyph, gid) {
+sanitizers.halfLeft = function (glyph, gid) {
 	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
 	Object.assign(glyph, g1);
 	deleteGPOS(this.font, gid);
 	return glyph;
 };
-sanitizers.halfRight = function(glyph, gid) {
+sanitizers.halfRight = function (glyph, gid) {
 	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
 	Object.assign(glyph, g1);
 	deleteGPOS(this.font, gid);
@@ -46,7 +46,7 @@ sanitizers.halfRight = function(glyph, gid) {
 };
 
 function HalfCompN(n, forceFullWidth, forceHalfWidth) {
-	return function(glyph, gid, isType = false) {
+	return function (glyph, gid, isType = false) {
 		const g1 = this.find.glyph$(this.find.gname.subst("fwid", gid));
 		Object.assign(glyph, g1);
 		const targetW = Math.min(
@@ -107,7 +107,7 @@ function removeUnusedFeature(table, tag) {
 	}
 }
 
-exports.removeUnusedFeatures = function(a, mono) {
+exports.removeUnusedFeatures = function (a, mono) {
 	removeUnusedFeature(a.GSUB, "pwid");
 	removeUnusedFeature(a.GSUB, "fwid");
 	removeUnusedFeature(a.GSUB, "hwid");
@@ -124,7 +124,7 @@ exports.removeUnusedFeatures = function(a, mono) {
 	}
 };
 
-exports.removeDashCcmp = function(a) {
+exports.removeDashCcmp = function (a) {
 	if (!a.GSUB || !a.GSUB.features || !a.GSUB.lookups) return;
 
 	let affectedLookups = new Set();
@@ -156,7 +156,7 @@ function removeDashCcmpLookup(lookup, cmap) {
 	}
 }
 
-exports.toPWID = async function() {
+exports.toPWID = async function () {
 	const font = this.font;
 	for (let c in font.cmap) {
 		if (!font.cmap[c]) continue;
@@ -165,7 +165,7 @@ exports.toPWID = async function() {
 	}
 };
 
-exports.aliasFeatMap = function(a, feat, aliases) {
+exports.aliasFeatMap = function (a, feat, aliases) {
 	if (!a.GSUB || !a.GSUB.features || !a.GSUB.lookups) return;
 	for (const [uFrom, uTo] of aliases) {
 		const gidFrom = a.cmap[uFrom],
