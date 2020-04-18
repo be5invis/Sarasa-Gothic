@@ -9,7 +9,12 @@ function mark(font, cfg) {
 	let sink = new Set();
 	let glyphCount = 0;
 
-	sink.add(".notdef", ".null");
+	if (font.glyph_order) {
+		for (let idx = 0; idx < font.glyph_order.length; idx++) {
+			const g = font.glyph_order[idx];
+			if (idx === 0 || /\.notdef$/.test(g)) sink.add(g);
+		}
+	}
 
 	if (font.cmap) {
 		for (const k in font.cmap) {
