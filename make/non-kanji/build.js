@@ -1,7 +1,8 @@
 "use strict";
 
-const { introduce, build, gc } = require("megaminx");
+const { introduce, build } = require("megaminx");
 const { isIdeograph, isKorean, filterUnicodeRange } = require("../common/unicode-kind");
+const gc = require("../common/gc");
 
 async function pass(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
@@ -13,9 +14,8 @@ async function pass(ctx, config, argv) {
 	a.cvt_ = [];
 	a.fpgm = [];
 	a.prep = [];
-	await ctx.run(gc, "a");
+	gc(ctx.items.a);
 	await ctx.run(build, "a", { to: config.o, optimize: true });
-	ctx.remove("a");
 }
 
 module.exports = async function makeFont(ctx, config, argv) {

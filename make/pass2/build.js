@@ -1,8 +1,9 @@
 "use strict";
 
-const { introduce, build, gc, merge } = require("megaminx");
+const { introduce, build, merge } = require("megaminx");
 const { italize } = require("../common/italize");
 const { shareFeatures } = require("./share-features");
+const gc = require("../common/gc");
 
 module.exports = async function makeFont(ctx, config, argv) {
 	await ctx.run(introduce, "a", {
@@ -28,7 +29,6 @@ module.exports = async function makeFont(ctx, config, argv) {
 	await ctx.run(merge.below, "a", "a", "c", { mergeOTL: true });
 	shareFeatures(ctx.items.a.GSUB);
 	shareFeatures(ctx.items.a.GPOS);
-	await ctx.run(gc, "a");
-
+	gc(ctx.items.a);
 	await ctx.run(build, "a", { to: argv.o, optimize: true });
 };
