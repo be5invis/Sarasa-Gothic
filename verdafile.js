@@ -246,6 +246,9 @@ const Pass1 = file.make(
 	}
 );
 
+task("pass1-mono-sc-regular", t => t.need(Pass1("mono", "sc", "regular")));
+task("pass1-gothic-sc-regular", t => t.need(Pass1("gothic", "sc", "regular")));
+
 const Kanji0 = file.make(
 	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
 	async (t, { full, dir, name }, region, style) => {
@@ -459,27 +462,22 @@ function* InstrParams(otds) {
 // TTC building
 const TTCFile = file.make(
 	style => `${OUT}/ttc/${PREFIX}-${style}.ttc`,
-	async (t, { full, dir }, style) => {
+	async (t, out, style) => {
 		const [config] = await t.need(Config, de`${OUT}/ttc`);
 
-		let requirements = [],
-			n = 0;
+		let requirements = [];
 		for (let family of config.familyOrder) {
 			for (let region of config.subfamilyOrder) {
-				requirements.push({
-					from: Prod(family, region, style),
-					otd: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.otd`,
-					ttf: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.ttf`
-				});
-				n++;
+				requirements.push(Prod(family, region, style));
 			}
 		}
 
-		const [$$] = await t.need(requirements.map(t => t.from));
+		const [$$] = await t.need(requirements);
+		await rm(out.full);
 		await run(
 			TTCIZE,
 			["-x", "--common-width", 1000, "--common-height", 1000],
-			["-o", full],
+			["-o", out.full],
 			[...$$.map(t => t.full)]
 		);
 	}

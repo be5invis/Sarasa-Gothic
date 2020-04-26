@@ -1,6 +1,8 @@
 "use strict";
 
 module.exports = function gcFont(font, cfg) {
+	markSweepOtl(font.GSUB);
+	markSweepOtl(font.GPOS);
 	const sink = mark(font, cfg);
 	sweep(font, sink);
 };
@@ -55,6 +57,55 @@ function mark(font, cfg) {
 		if (glyphCount1 === glyphCount) break;
 	} while (true);
 	return sink;
+}
+
+function markSweepOtl(table) {
+	if (!table || !table.features || !table.lookups) return;
+	const accessibleLookupsIds = new Set();
+	markLookups(table, accessibleLookupsIds);
+
+	let lookups1 = {};
+	for (const l in table.lookups) {
+		if (accessibleLookupsIds.has(l)) lookups1[l] = table.lookups[l];
+	}
+	table.lookups = lookups1;
+
+	let features1 = {};
+	for (let f in table.features) {
+		const feature = table.features[f];
+		if (!feature) continue;
+		const featureFiltered = [];
+		for (const l of feature) if (accessibleLookupsIds.has(l)) featureFiltered.push(l);
+		if (!featureFiltered.length) continue;
+		features1[f] = featureFiltered;
+	}
+	table.features = features1;
+}
+function markLookups(gsub, sink) {
+	if (!gsub || !gsub.features) return;
+	for (let f in gsub.features) {
+		const feature = gsub.features[f];
+		if (!feature) continue;
+		for (const l of feature) sink.add(l);
+	}
+	let loop = 0,
+		lookupSetChanged = false;
+	do {
+		lookupSetChanged = false;
+		let sizeBefore = sink.size;
+		for (const l of Array.from(sink)) {
+			const lookup = gsub.lookups[l];
+			if (!lookup || !lookup.subtables) continue;
+			if (lookup.type === "gsub_chaining" || lookup.type === "gpos_chaining") {
+				for (let st of lookup.subtables) {
+					if (!st || !st.apply) continue;
+					for (const app of st.apply) sink.add(app.lookup);
+				}
+			}
+		}
+		loop++;
+		lookupSetChanged = sizeBefore !== sink.size;
+	} while (loop < 0xff && lookupSetChanged);
 }
 
 function markSubtable(sink, type, st, cfg) {
