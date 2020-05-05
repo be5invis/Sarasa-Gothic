@@ -246,9 +246,6 @@ const Pass1 = file.make(
 	}
 );
 
-task("pass1-mono-sc-regular", t => t.need(Pass1("mono", "sc", "regular")));
-task("pass1-gothic-sc-regular", t => t.need(Pass1("gothic", "sc", "regular")));
-
 const Kanji0 = file.make(
 	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
 	async (t, { full, dir, name }, region, style) => {

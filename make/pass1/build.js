@@ -98,7 +98,7 @@ async function pass(ctx, config, argv) {
 	);
 
 	if (argv.italize) italize(a, +10);
-	gc(ctx.items.a);
+	ctx.items.a.glyph_order = gc(ctx.items.a);
 	await ctx.run(build, "a", { to: config.o });
 }
 
