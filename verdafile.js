@@ -3,7 +3,7 @@
 const build = require("verda").create();
 const { task, file, oracle, phony, computed } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, rm, cd, mv, cp } = build.actions;
+const { run, node, rm, cd, mv, cp } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 const fs = require("fs-extra");
@@ -526,24 +526,8 @@ async function OtfccBuildAsIs(from, to) {
 	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
 }
-
 async function RunFontBuildTask(recipe, args) {
-	return await run(NODEJS, "run", "--recipe", recipe, ...objToArgs(args));
-}
-function objToArgs(o) {
-	let a = [];
-	for (let k in o) {
-		if (o[k] === false) continue;
-		if (k.length === 1) {
-			a.push("-" + k);
-		} else {
-			a.push("--" + k);
-		}
-		if (o[k] !== true) {
-			a.push("" + o[k]);
-		}
-	}
-	return a;
+	return await node("./run", recipe, args);
 }
 
 function deItalizedNameOf(config, set) {

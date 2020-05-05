@@ -99,7 +99,7 @@ async function pass(ctx, config, argv) {
 
 	if (argv.italize) italize(a, +10);
 	gc(ctx.items.a);
-	await ctx.run(build, "a", { to: config.o, optimize: true });
+	await ctx.run(build, "a", { to: config.o });
 }
 
 module.exports = async function makeFont(ctx, config, argv) {
