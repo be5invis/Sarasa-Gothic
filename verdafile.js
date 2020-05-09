@@ -3,7 +3,7 @@
 const build = require("verda").create();
 const { task, file, oracle, phony, computed } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, rm, cd, mv, cp } = build.actions;
+const { run, node, rm, cd, mv, cp } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 const fs = require("fs-extra");
@@ -459,27 +459,22 @@ function* InstrParams(otds) {
 // TTC building
 const TTCFile = file.make(
 	style => `${OUT}/ttc/${PREFIX}-${style}.ttc`,
-	async (t, { full, dir }, style) => {
+	async (t, out, style) => {
 		const [config] = await t.need(Config, de`${OUT}/ttc`);
 
-		let requirements = [],
-			n = 0;
+		let requirements = [];
 		for (let family of config.familyOrder) {
 			for (let region of config.subfamilyOrder) {
-				requirements.push({
-					from: Prod(family, region, style),
-					otd: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.otd`,
-					ttf: `${OUT}/ttc/${PREFIX}-${style}-parts.${n}.ttf`
-				});
-				n++;
+				requirements.push(Prod(family, region, style));
 			}
 		}
 
-		const [$$] = await t.need(requirements.map(t => t.from));
+		const [$$] = await t.need(requirements);
+		await rm(out.full);
 		await run(
 			TTCIZE,
 			["-x", "--common-width", 1000, "--common-height", 1000],
-			["-o", full],
+			["-o", out.full],
 			[...$$.map(t => t.full)]
 		);
 	}
@@ -528,24 +523,8 @@ async function OtfccBuildAsIs(from, to) {
 	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
 }
-
 async function RunFontBuildTask(recipe, args) {
-	return await run(NODEJS, "run", "--recipe", recipe, ...objToArgs(args));
-}
-function objToArgs(o) {
-	let a = [];
-	for (let k in o) {
-		if (o[k] === false) continue;
-		if (k.length === 1) {
-			a.push("-" + k);
-		} else {
-			a.push("--" + k);
-		}
-		if (o[k] !== true) {
-			a.push("" + o[k]);
-		}
-	}
-	return a;
+	return await node("./run", recipe, args);
 }
 
 function deItalizedNameOf(config, set) {

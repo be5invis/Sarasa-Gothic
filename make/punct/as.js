@@ -15,6 +15,7 @@ const {
 	removeDashCcmp,
 	aliasFeatMap
 } = require("./common");
+const gc = require("../common/gc");
 
 module.exports = async function makeFont(ctx, config, argv) {
 	const a = await ctx.run(introduce, "a", {
@@ -41,6 +42,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 	}
 	removeUnusedFeatures(ctx.items.a, argv.mono);
 	aliasFeatMap(ctx.items.a, "vert", [[0x2014, 0x2015]]);
+	gc(ctx.items.a);
 
 	await ctx.run(build, "a", { to: argv.o, optimize: true });
 	ctx.remove("a");

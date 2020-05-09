@@ -15,7 +15,6 @@
 	"rules": {
 		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"linebreak-style": ["error", "windows"],
-		"quotes": ["error", "double", { "allowTemplateLiterals": true }],
 		"semi": ["error", "always"],
 		"no-var": "error",
 		"no-console": 0,

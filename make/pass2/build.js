@@ -29,6 +29,10 @@ module.exports = async function makeFont(ctx, config, argv) {
 	await ctx.run(merge.below, "a", "a", "c", { mergeOTL: true });
 	shareFeatures(ctx.items.a.GSUB);
 	shareFeatures(ctx.items.a.GPOS);
-	gc(ctx.items.a);
-	await ctx.run(build, "a", { to: argv.o, optimize: true });
+
+	// This will make the order of glyphs in TTC less mangled
+	ctx.items.a.glyf.__glyf_pad__ = { advanceWidth: 0, contours: [[{ x: 0, y: 0, on: true }]] };
+	ctx.items.a.glyph_order = gc(ctx.items.a, { rankMap: [["__glyf_pad__", 1]] });
+
+	await ctx.run(build, "a", { to: argv.o });
 };
