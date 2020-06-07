@@ -2,10 +2,17 @@
 	"fontFormat": "@chlorophytum/font-format-ttf",
 	"finalFormat": "@chlorophytum/final-hint-format-hltt",
 	"hintStoreProvider": "@chlorophytum/hint-store-provider-file",
-	"hintPasses": [
-		{
-			"plugin": "@chlorophytum/hm-ideograph",
-			"options": { "CANONICAL_STEM_WIDTH": 0.097, "STEM_SIDE_MIN_DIST_DESCENT": 0.072 }
-		}
-	]
+
+	"hintPlugin": "@chlorophytum/hm-combine",
+	"hintOptions": {
+		"passes": [
+			{
+				"hintPlugin": "@chlorophytum/hm-ideograph",
+				"hintOptions": {
+					"CANONICAL_STEM_WIDTH": 0.097,
+					"STEM_SIDE_MIN_DIST_DESCENT": 0.072
+				}
+			}
+		]
+	}
 }

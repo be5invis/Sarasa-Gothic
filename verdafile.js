@@ -27,6 +27,7 @@ const OTFCCDUMP = `otfccdump`;
 const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
 const OTC2OTF = `otc2otf`;
+const TTX = `ttx`;
 
 const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
 const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
@@ -473,7 +474,7 @@ const TTCFile = file.make(
 		await rm(out.full);
 		await run(
 			TTCIZE,
-			["-x", "--common-width", 1000, "--common-height", 1000],
+			["--ttx-loop", "-x", "--common-width", 1000, "--common-height", 1000],
 			["-o", out.full],
 			[...$$.map(t => t.full)]
 		);
@@ -516,8 +517,14 @@ const Config = oracle("dep::config", async () => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // CLI wrappers
 async function OtfccBuildOptimize(from, to) {
-	await run(OTFCCBUILD, from, [`-o`, to], [`-O3`, `-s`, `--keep-average-char-width`, `-q`]);
+	const tmpTo = to + ".tmp.otf";
+	const tmpTtx = to + ".tmp.ttx";
+	await run(OTFCCBUILD, from, [`-o`, tmpTo], [`-O3`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
+	await run(TTX, "-q", ["-o", tmpTtx], tmpTo);
+	await rm(tmpTo);
+	await run(TTX, "-q", ["-o", to], tmpTtx);
+	await rm(tmpTtx);
 }
 async function OtfccBuildAsIs(from, to) {
 	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
