@@ -162,7 +162,7 @@ function markSubtable(glyphSink, type, st, cfg) {
 		case "gsub_single":
 			for (const k in st) if (glyphSink.has(k) && st[k]) simplyAdd(glyphSink, st[k]);
 			break;
-		case "gsub_multi":
+		case "gsub_multiple":
 			for (const k in st)
 				if (glyphSink.has(k) && st[k]) {
 					for (const gTo of st[k]) simplyAdd(glyphSink, gTo);

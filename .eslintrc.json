@@ -11,9 +11,8 @@
 			"experimentalObjectRestSpread": true
 		}
 	},
-	"extends": "eslint:recommended",
+	"extends": ["eslint:recommended", "prettier"],
 	"rules": {
-		"indent": ["error", "tab", { "SwitchCase": 1 }],
 		"linebreak-style": ["error", "windows"],
 		"semi": ["error", "always"],
 		"no-var": "error",
