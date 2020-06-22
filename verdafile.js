@@ -293,7 +293,7 @@ const Prod = file.make(
 			o: tmpOTD,
 			italize: weight === style ? false : true
 		});
-		await OtfccBuildOptimize(tmpOTD, full);
+		await OtfccBuildOptimize(config, tmpOTD, full);
 	}
 );
 
@@ -471,13 +471,7 @@ const TTCFile = file.make(
 		}
 
 		const [$$] = await t.need(requirements);
-		await rm(out.full);
-		await run(
-			TTCIZE,
-			["--ttx-loop", "-x", "--common-width", 1000, "--common-height", 1000],
-			["-o", out.full],
-			[...$$.map(t => t.full)]
-		);
+		await OtfccTtcize(config, [...$$.map(t => t.full)], out.full);
 	}
 );
 
@@ -511,24 +505,53 @@ const Scripts = task("dep::scripts", async t => {
 });
 
 const Config = oracle("dep::config", async () => {
-	return await fs.readJSON(__dirname + "/config.json");
+	const configPath = __dirname + "/config.json";
+	const privateConfigPath = __dirname + "/config.private.json";
+	const config = await fs.readJSON(configPath);
+	if (fs.existsSync(privateConfigPath)) {
+		const privateConfig = await fs.readJSON(privateConfigPath);
+		config.buildOptions = Object.assign(
+			{},
+			config.buildOptions || {},
+			privateConfig.buildOptions || {}
+		);
+	}
+	return config;
 });
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // CLI wrappers
-async function OtfccBuildOptimize(from, to) {
+async function OtfccBuildOptimize(config, from, to) {
 	const tmpTo = to + ".tmp.otf";
 	const tmpTtx = to + ".tmp.ttx";
 	await run(OTFCCBUILD, from, [`-o`, tmpTo], [`-O3`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
-	await run(TTX, "-q", ["-o", tmpTtx], tmpTo);
-	await rm(tmpTo);
-	await run(TTX, "-q", ["-o", to], tmpTtx);
-	await rm(tmpTtx);
+	if (config.buildOptions.optimizeWithFilter) {
+		const filterArgs = config.buildOptions.optimizeWithFilter.split(/ +/g);
+		await run(filterArgs, tmpTo, to);
+		await rm(tmpTo);
+	} else if (config.buildOptions.optimizeWithTtx) {
+		await run(TTX, "-q", ["-o", tmpTtx], tmpTo);
+		await rm(tmpTo);
+		await run(TTX, "-q", ["-o", to], tmpTtx);
+		await rm(tmpTtx);
+	} else {
+		await mv(tmpTo, to);
+	}
 }
 async function OtfccBuildAsIs(from, to) {
 	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
+}
+async function OtfccTtcize(config, from, to) {
+	const optimization = config.buildOptions.optimizeWithFilter
+		? ["--filter-loop", config.buildOptions.optimizeWithFilter]
+		: config.buildOptions.optimizeWithTtx
+		? ["--ttx-loop"]
+		: [];
+	const ttcizeArgs = ["-x", "--common-width", 1000, "--common-height", 1000];
+	await rm(to);
+	await run(TTCIZE, optimization, ttcizeArgs, ["-o", to], from);
 }
 async function RunFontBuildTask(recipe, args) {
 	return await node("./run", recipe, args);
