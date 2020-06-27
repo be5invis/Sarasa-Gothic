@@ -162,19 +162,14 @@ function markSubtable(glyphSink, type, st, cfg) {
 		case "gsub_single":
 			for (const k in st) if (glyphSink.has(k) && st[k]) simplyAdd(glyphSink, st[k]);
 			break;
+		case "gsub_alternate":
+			if (cfg && cfg.ignoreAltSub) break;
+		// falls through
 		case "gsub_multiple":
 			for (const k in st)
 				if (glyphSink.has(k) && st[k]) {
 					for (const gTo of st[k]) simplyAdd(glyphSink, gTo);
 				}
-			break;
-		case "gsub_alternate":
-			if (!cfg || !cfg.ignoreAltSub) {
-				for (const k in st)
-					if (glyphSink.has(k) && st[k]) {
-						for (const gTo of st[k]) simplyAdd(glyphSink, gTo);
-					}
-			}
 			break;
 		case "gsub_ligature":
 			for (const sub of st.substitutions) {
@@ -228,22 +223,108 @@ function sweepOtl(gsub, glyphSink) {
 	}
 }
 
-function sweepSubtable(st, type, glyphSink) {
+function sweepSubtable(st, type, gs) {
 	switch (type) {
-		case "gsub_ligature": {
-			if (!st.substitutions) return false;
-			let newSubst = [];
-			for (const rule of st.substitutions) {
-				let include = true;
-				if (!glyphSink.has(rule.to)) include = false;
-				for (const from of rule.from) if (!glyphSink.has(from)) include = false;
-				if (include) newSubst.push(rule);
-			}
-			st.substitutions = newSubst;
+		case "gsub_single":
+			return sweep_GsubSingle(st, gs);
+		case "gsub_multiple":
+		case "gsub_alternate":
+			return sweep_GsubMultiple(st, gs);
+		case "gsub_ligature":
+			return sweep_GsubLigature(st, gs);
+		case "gsub_chaining":
+			return sweep_GsubChaining(st, gs);
+		case "gsub_reverse":
+			return sweep_gsubReverse(st, gs);
+		default:
 			return true;
-		}
-		default: {
-			return true;
+	}
+}
+
+function sweep_GsubSingle(st, gs) {
+	let nonEmpty = false;
+	let from = Object.keys(st);
+	for (const gidFrom of from) {
+		if (!gs.has(gidFrom) || !gs.has(st[gidFrom])) {
+			delete st[gidFrom];
+		} else {
+			nonEmpty = true;
 		}
 	}
+	return nonEmpty;
+}
+
+function sweep_GsubMultiple(st, gs) {
+	let nonEmpty = false;
+	let from = Object.keys(st);
+	for (const gidFrom of from) {
+		let include = gs.has(gidFrom);
+		if (st[gidFrom]) {
+			for (const gidTo of st[gidFrom]) {
+				include = include && gs.has(gidTo);
+			}
+		} else {
+			include = false;
+		}
+		if (!include) {
+			delete st[gidFrom];
+		} else {
+			nonEmpty = true;
+		}
+	}
+	return nonEmpty;
+}
+
+function sweep_GsubLigature(st, gs) {
+	if (!st.substitutions) return false;
+	let newSubst = [];
+	for (const rule of st.substitutions) {
+		let include = true;
+		if (!gs.has(rule.to)) include = false;
+		for (const from of rule.from) if (!gs.has(from)) include = false;
+		if (include) newSubst.push(rule);
+	}
+	st.substitutions = newSubst;
+	return true;
+}
+
+function sweep_GsubChaining(st, gs) {
+	const newMatch = [];
+	for (let j = 0; j < st.match.length; j++) {
+		newMatch[j] = [];
+		for (let k = 0; k < st.match[j].length; k++) {
+			const gidFrom = st.match[j][k];
+			if (gs.has(gidFrom)) {
+				newMatch[j].push(gidFrom);
+			}
+		}
+		if (!newMatch[j].length) return false;
+	}
+	st.match = newMatch;
+	return true;
+}
+
+function sweep_gsubReverse(st, gs) {
+	const newMatch = [],
+		newTo = [];
+	for (let j = 0; j < st.match.length; j++) {
+		newMatch[j] = [];
+		for (let k = 0; k < st.match[j].length; k++) {
+			const gidFrom = st.match[j][k];
+			let include = gs.has(gidFrom);
+			if (j === st.inputIndex) {
+				include = include && gs.has(st.to[k]);
+				if (include) {
+					newMatch[j].push(gidFrom);
+					newTo.push(st.to[k]);
+				}
+			} else {
+				if (include) newMatch[j].push(gidFrom);
+			}
+		}
+		if (!newMatch[j].length) return false;
+	}
+	st.match = newMatch;
+	st.to = newTo;
+	return true;
 }
