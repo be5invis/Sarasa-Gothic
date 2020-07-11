@@ -36,19 +36,19 @@ const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
 const Start = phony("all", async t => {
+	const version = await t.need(Version);
 	await t.need(TtfFontFiles);
 	await t.need(TtcFontFiles);
-	await t.need(Ttf, Ttc);
+	await t.need(TTCArchive(version), TTFArchive(version));
 });
 
 const Ttc = phony(`ttc`, async t => {
-	const version = await t.need(Version);
-	await t.need(TTCArchive(version));
+	await t.need(TtfFontFiles);
+	await t.need(TtcFontFiles);
 });
 
 const Ttf = phony(`ttf`, async t => {
-	const version = await t.need(Version);
-	await t.need(TTFArchive(version));
+	await t.need(TtfFontFiles);
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
@@ -142,6 +142,26 @@ const ShsOtd = file.make(
 		// ... if not, use this instead
 		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
 		await run(OTFCCDUMP, `-o`, output.full, temp);
+		await rm(temp);
+	}
+);
+
+const ShsCassicalOverrideOtd = file.make(
+	weight => `${BUILD}/shs-classical-override/${weight}.otd`,
+	async (t, output, weight) => {
+		const [config] = await t.need(Config);
+		const shsSourceMap = config.shsSourceMap;
+		const [, $1] = await t.need(
+			de(output.dir),
+			fu`${SOURCES}/shs-classical-override/${shsSourceMap.classicalOverridePrefix}-${shsSourceMap.classicalOverrideSuffix[weight]}.otf`
+		);
+		const temp = `${output.dir}/${output.name}.tmp.ttf`;
+		// I hope SHS' HMTX LSBs are correct
+		await run(OTF2TTF, [`-o`, temp], $1.full);
+		// ... if not, use this instead
+		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
+		await run(OTFCCDUMP, `-o`, output.full, temp);
+		await rm(temp);
 	}
 );
 
@@ -250,16 +270,22 @@ const Pass1 = file.make(
 const Kanji0 = file.make(
 	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
 	async (t, { full, dir, name }, region, style) => {
-		await t.need(Config, Scripts);
+		const [config] = await t.need(Config, Scripts);
 		const [$1] = await t.need(ShsOtd(region, style), de(dir));
+		let $2 = null;
+		if (region === config.shsSourceMap.classicalRegion) {
+			[$2] = await t.need(ShsCassicalOverrideOtd(style));
+		}
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/kanji/build.js", {
 			main: $1.full,
+			classicalOverride: $2 ? $2.full : null,
 			o: tmpOTD
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
 	}
 );
+
 const Hangul0 = file.make(
 	(region, style) => `${BUILD}/hangul0/${region}-${style}.ttf`,
 	async (t, { full, dir, name }, region, style) => {
@@ -477,7 +503,6 @@ const TTCFile = file.make(
 
 const TtcFontFiles = task("intermediate::ttcFontFiles", async t => {
 	const [config] = await t.need(Config, de`${OUT}/ttc`);
-
 	await t.need(config.styleOrder.map(st => TTCFile(st)));
 });
 
