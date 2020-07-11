@@ -36,19 +36,19 @@ const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
 const Start = phony("all", async t => {
+	const version = await t.need(Version);
 	await t.need(TtfFontFiles);
 	await t.need(TtcFontFiles);
-	await t.need(Ttf, Ttc);
+	await t.need(TTCArchive(version), TTFArchive(version));
 });
 
 const Ttc = phony(`ttc`, async t => {
-	const version = await t.need(Version);
-	await t.need(TTCArchive(version));
+	await t.need(TtfFontFiles);
+	await t.need(TtcFontFiles);
 });
 
 const Ttf = phony(`ttf`, async t => {
-	const version = await t.need(Version);
-	await t.need(TTFArchive(version));
+	await t.need(TtfFontFiles);
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
@@ -503,7 +503,6 @@ const TTCFile = file.make(
 
 const TtcFontFiles = task("intermediate::ttcFontFiles", async t => {
 	const [config] = await t.need(Config, de`${OUT}/ttc`);
-
 	await t.need(config.styleOrder.map(st => TTCFile(st)));
 });
 
