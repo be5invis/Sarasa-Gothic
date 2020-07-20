@@ -25,8 +25,8 @@
 					],
 					"trackFeatures": ["vert", "palt", "pkna", "hkna", "vkna"],
 					"trackScripts": ["kana"],
-					"SLOPE_FUZZ": 0.06,
-					"SLOPE_FUZZ_NEG": 0.06,
+					"SLOPE_FUZZ": 0.175,
+					"SLOPE_FUZZ_NEG": 0.175,
 					"CANONICAL_STEM_WIDTH": 0.097,
 					"STEM_SIDE_MIN_DIST_DESCENT": 0.072
 				}
