@@ -1,21 +1,21 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.12.11",
+	"version": "0.12.12",
 	"main": "./run",
 	"dependencies": {
-		"@chlorophytum/cli": "^0.8.0",
-		"@chlorophytum/final-hint-format-hltt": "^0.8.0",
-		"@chlorophytum/font-format-ttf": "^0.8.0",
-		"@chlorophytum/hint-store-provider-file": "^0.8.0",
-		"@chlorophytum/hm-combine": "^0.8.0",
-		"@chlorophytum/hm-ideograph": "^0.9.0",
+		"@chlorophytum/cli": "^0.10.0",
+		"@chlorophytum/final-hint-format-hltt": "^0.10.0",
+		"@chlorophytum/font-format-ttf": "^0.10.0",
+		"@chlorophytum/hint-store-provider-file": "^0.10.0",
+		"@chlorophytum/hm-combine": "^0.10.0",
+		"@chlorophytum/hm-ideograph": "^0.10.1",
 		"colors": "^1.4.0",
-		"fs-extra": "^8.1.0",
+		"fs-extra": "^9.0.1",
 		"megaminx": "^0.9.0",
 		"otfcc-ttcize": "^0.10.2",
-		"verda": "^1.0.0-10",
+		"verda": "^1.1.0",
 		"which": "^2.0.2",
-		"yargs": "^15.3.0"
+		"yargs": "^15.4.1"
 	},
 	"engines": {
 		"node": ">=12.0.0"
@@ -25,8 +25,8 @@
 		"build": "verda -f verdafile.js"
 	},
 	"devDependencies": {
-		"eslint": "^6.8.0",
-		"eslint-config-prettier": "^6.10.0",
+		"eslint": "^7.6.0",
+		"eslint-config-prettier": "^6.11.0",
 		"prettier": "^2.0.5"
 	}
 }

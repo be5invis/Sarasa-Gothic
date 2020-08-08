@@ -55,10 +55,8 @@ const langIDMap = {
 
 function createNameTuple(nameTable, langID, family, style, localizedStyle) {
 	const compat = compatibilityName(family, style);
-	if (!compat.standardFour) {
-		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_FAMILY, family));
-		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_STYLE, style));
-	}
+	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_FAMILY, family));
+	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_STYLE, style));
 	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, FAMILY, compat.family));
 	const compatStyle = compat.standardFour ? localizedStyle : compat.style;
 	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, STYLE, compatStyle));
@@ -77,7 +75,7 @@ function createNameTuple(nameTable, langID, family, style, localizedStyle) {
 	}
 }
 
-async function nameFont(ctx, demand, selectorList, encodings, namings) {
+async function nameFont(ctx, demand, fMono, selectorList, encodings, namings) {
 	const font = this.items[demand];
 	const nameTable = [];
 	const defaultNg = namings.en_US;
@@ -121,6 +119,19 @@ async function nameFont(ctx, demand, selectorList, encodings, namings) {
 		cp850: true,
 		ascii: true
 	};
+	// Set Panose bits
+	font.OS_2.panose = [
+		2,
+		0,
+		(1 + font.OS_2.usWeightClass / 100) | 0,
+		fMono ? 9 : 0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	];
 }
 
 exports.nameFont = nameFont;
