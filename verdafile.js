@@ -399,7 +399,12 @@ const GroupHintDependent = task.make(
 const GroupInstr = task.make(
 	weight => `group-instr::${weight}`,
 	async (t, weight) => {
-		const [config, hintParam] = await t.need(Config, fu`hinting-params/${weight}.json`);
+		const outDir = `${HintDirOutPrefix}-${weight}`;
+		const [config, hintParam] = await t.need(
+			Config,
+			fu`hinting-params/${weight}.json`,
+			de(outDir)
+		);
 		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
 		const [kanjiTtfs, pass1Ttfs] = await t.need(kanjiDeps, pass1Deps);
 		await t.need(GroupHintDependent(weight));
@@ -408,7 +413,7 @@ const GroupInstr = task.make(
 			Chlorophytum,
 			`instruct`,
 			[`-c`, hintParam.full],
-			[...InstrParams([...kanjiTtfs, ...pass1Ttfs])]
+			[...InstrParams(outDir, [...kanjiTtfs, ...pass1Ttfs])]
 		);
 	}
 );
@@ -431,21 +436,7 @@ const HfoPass1 = file.make(
 	OutTtfMain
 );
 async function OutTtfMain(t, out, weight) {
-	const [hintParam] = await t.need(
-		fu`hinting-params/${weight}.json`,
-		de`${HintDirOutPrefix}-${weight}`,
-		GroupInstrAll
-	);
-	await run(
-		Chlorophytum,
-		`integrate`,
-		[`-c`, hintParam.full],
-		[
-			`${HintDirPrefix}-${weight}/${out.name}.instr.gz`,
-			`${HintDirPrefix}-${weight}/${out.name}.ttf`,
-			out.full
-		]
-	);
+	await t.need(GroupInstrAll);
 }
 
 // Support functions
@@ -474,11 +465,11 @@ function* HintParams(otds) {
 		yield `${otd.dir}/${otd.name}.hint.gz`;
 	}
 }
-function* InstrParams(otds) {
+function* InstrParams(toDir, otds) {
 	for (const otd of otds) {
 		yield otd.full;
 		yield `${otd.dir}/${otd.name}.hint.gz`;
-		yield `${otd.dir}/${otd.name}.instr.gz`;
+		yield `${toDir}/${otd.name}.ttf`;
 	}
 }
 

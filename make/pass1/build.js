@@ -69,11 +69,12 @@ async function pass(ctx, config, argv) {
 	await ctx.run(
 		nameFont,
 		"a",
+		!!argv.mono,
 		globalConfig.nameTupleSelector[argv.subfamily],
 		ENCODINGS[argv.subfamily],
 		{
 			en_US: {
-				copyright: globalConfig.version,
+				copyright: globalConfig.copyright,
 				version: `Version ${packageConfig.version}`,
 				family: globalConfig.families[argv.family].naming.en_US + " " + argv.subfamily,
 				style: globalConfig.styles[argv.style].name

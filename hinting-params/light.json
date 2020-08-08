@@ -8,7 +8,11 @@
 		"passes": [
 			{
 				"hintPlugin": "@chlorophytum/hm-ideograph",
-				"hintOptions": { "CANONICAL_STEM_WIDTH": 0.04 }
+				"hintOptions": {
+					"CANONICAL_STEM_WIDTH": 0.04,
+					"SLOPE_FUZZ_POS": 0.16,
+					"SLOPE_FUZZ_POST": 0.27
+				}
 			},
 			{
 				"hintPlugin": "@chlorophytum/hm-ideograph",
@@ -23,6 +27,8 @@
 					"trackFeatures": ["vert", "palt", "pkna", "hkna", "vkna"],
 					"trackScripts": ["kana"],
 					"SLOPE_FUZZ": 0.175,
+					"SLOPE_FUZZ_POS": 0.175,
+					"SLOPE_FUZZ_POST": 0.175,
 					"SLOPE_FUZZ_NEG": 0.175,
 					"CANONICAL_STEM_WIDTH": 0.04
 				}
@@ -39,8 +45,10 @@
 					],
 					"trackFeatures": ["vert", "palt", "pkna", "hkna", "vkna"],
 					"trackScripts": ["kana"],
-					"SLOPE_FUZZ": 0.06,
-					"SLOPE_FUZZ_NEG": 0.06,
+					"SLOPE_FUZZ": 0.03,
+					"SLOPE_FUZZ_POS": 0.03,
+					"SLOPE_FUZZ_POST": 0.03,
+					"SLOPE_FUZZ_NEG": 0.03,
 					"CANONICAL_STEM_WIDTH": 0.04
 				}
 			}
