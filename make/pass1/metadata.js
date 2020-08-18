@@ -33,6 +33,10 @@ function compatibilityName(family, style) {
 	if (style === "Regular" || style === "Bold" || style === "Italic" || style === "Bold Italic") {
 		return { family, style, standardFour: true };
 	} else {
+		if (/^Extra/.test(style)) {
+			// Prevent name overflow
+			style = style.replace(/^Extra/, "X");
+		}
 		if (/Italic/.test(style)) {
 			return {
 				family: family + " " + style.replace(/Italic/, "").trim(),
