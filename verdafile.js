@@ -191,6 +191,7 @@ const WS0 = file.make(
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
+			tnum: config.families[family].isTNUM || false,
 			term: config.families[family].isTerm || false
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
@@ -209,6 +210,7 @@ const AS0 = file.make(
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
+			tnum: config.families[family].isTNUM || false,
 			term: config.families[family].isTerm || false
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
@@ -260,6 +262,7 @@ const Pass1 = file.make(
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
+			tnum: config.families[family].isTNUM || false,
 			term: config.families[family].isTerm || false
 		});
 		await run("ttfautohint", full + ".tmp.ttf", full);
@@ -559,6 +562,7 @@ async function OtfccBuildAsIs(from, to) {
 	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
 }
+
 async function OtfccTtcize(config, from, to) {
 	const optimization = config.buildOptions.optimizeWithFilter
 		? ["--filter-loop", config.buildOptions.optimizeWithFilter]
@@ -569,6 +573,7 @@ async function OtfccTtcize(config, from, to) {
 	await rm(to);
 	await run(TTCIZE, optimization, ttcizeArgs, ["-o", to], from);
 }
+
 async function RunFontBuildTask(recipe, args) {
 	return await node("./run", recipe, args);
 }

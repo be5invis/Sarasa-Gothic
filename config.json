@@ -4,6 +4,7 @@
 	"families": {
 		"gothic": {
 			"isMono": false,
+			"isTNUM": true,
 			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa Gothic",
@@ -16,6 +17,7 @@
 		},
 		"ui": {
 			"isPWID": true,
+			"isTNUM": true,
 			"isMono": false,
 			"latinGroup": "Inter",
 			"naming": {

@@ -7,6 +7,7 @@ const { nameFont, setHintFlag } = require("./metadata.js");
 const { crossTransfer } = require("./cross-transfer");
 const { knockoutSymbols } = require("./knockout-symbols");
 const { buildNexusDash } = require("./nexus-dash");
+const { toTNUM } = require("./tnum");
 const gc = require("../common/gc");
 
 const fs = require("fs-extra");
@@ -33,6 +34,11 @@ async function pass(ctx, config, argv) {
 		prefix: "c",
 		ignoreHints: true
 	});
+
+	// tnum
+	if (argv.tnum) {
+		await ctx.run(manip.glyph, "a", toTNUM);
+	}
 
 	// vhea
 	a.vhea = b.vhea;
