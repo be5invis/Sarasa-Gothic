@@ -10,13 +10,9 @@ const fs = require("fs-extra");
 const path = require("path");
 const os = require("os");
 
-build.setJournal(`build/.verda-build-journal`);
-build.setSelfTracking();
-module.exports = build;
-
 // Directories
 const PREFIX = `sarasa`;
-const BUILD = `build`;
+const BUILD = `.build`;
 const OUT = `out`;
 const SOURCES = `sources`;
 
@@ -32,6 +28,10 @@ const TTX = `ttx`;
 const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
 const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
 const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
+
+build.setJournal(`${BUILD}/.verda-build-journal`);
+build.setSelfTracking();
+module.exports = build;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
@@ -536,6 +536,17 @@ const Config = oracle("dep::config", async () => {
 		);
 	}
 	return config;
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Cleanup
+phony(`clean`, async () => {
+	build.deleteJournal();
+});
+phony(`full-clean`, async () => {
+	await rm(BUILD);
+	await rm(OUT);
+	build.deleteJournal();
 });
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
