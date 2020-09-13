@@ -9,9 +9,7 @@
 			{
 				"hintPlugin": "@chlorophytum/hm-ideograph",
 				"hintOptions": {
-					"CANONICAL_STEM_WIDTH": 0.067,
-					"SLOPE_FUZZ_POS": 0.16,
-					"SLOPE_FUZZ_POST": 0.27
+					"CANONICAL_STEM_WIDTH": 0.067
 				}
 			},
 			{

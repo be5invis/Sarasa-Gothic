@@ -10,13 +10,9 @@ const fs = require("fs-extra");
 const path = require("path");
 const os = require("os");
 
-build.setJournal(`build/.verda-build-journal`);
-build.setSelfTracking();
-module.exports = build;
-
 // Directories
 const PREFIX = `sarasa`;
-const BUILD = `build`;
+const BUILD = `.build`;
 const OUT = `out`;
 const SOURCES = `sources`;
 
@@ -32,6 +28,10 @@ const TTX = `ttx`;
 const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
 const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
 const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
+
+build.setJournal(`${BUILD}/.verda-build-journal`);
+build.setSelfTracking();
+module.exports = build;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
@@ -191,6 +191,7 @@ const WS0 = file.make(
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
+			tnum: config.families[family].isTNUM || false,
 			term: config.families[family].isTerm || false
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
@@ -209,6 +210,7 @@ const AS0 = file.make(
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
+			tnum: config.families[family].isTNUM || false,
 			term: config.families[family].isTerm || false
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
@@ -260,6 +262,7 @@ const Pass1 = file.make(
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,
 			pwid: config.families[family].isPWID || false,
+			tnum: config.families[family].isTNUM || false,
 			term: config.families[family].isTerm || false
 		});
 		await run("ttfautohint", full + ".tmp.ttf", full);
@@ -536,6 +539,17 @@ const Config = oracle("dep::config", async () => {
 });
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Cleanup
+phony(`clean`, async () => {
+	build.deleteJournal();
+});
+phony(`full-clean`, async () => {
+	await rm(BUILD);
+	await rm(OUT);
+	build.deleteJournal();
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // CLI wrappers
 async function OtfccBuildOptimize(config, from, to) {
 	const tmpTo = to + ".tmp.otf";
@@ -559,6 +573,7 @@ async function OtfccBuildAsIs(from, to) {
 	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
 	await rm(from);
 }
+
 async function OtfccTtcize(config, from, to) {
 	const optimization = config.buildOptions.optimizeWithFilter
 		? ["--filter-loop", config.buildOptions.optimizeWithFilter]
@@ -569,6 +584,7 @@ async function OtfccTtcize(config, from, to) {
 	await rm(to);
 	await run(TTCIZE, optimization, ttcizeArgs, ["-o", to], from);
 }
+
 async function RunFontBuildTask(recipe, args) {
 	return await node("./run", recipe, args);
 }
