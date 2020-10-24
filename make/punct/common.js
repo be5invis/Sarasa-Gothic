@@ -107,7 +107,7 @@ function removeUnusedFeature(table, tag) {
 	}
 }
 
-exports.removeUnusedFeatures = function (a, mono) {
+exports.removeUnusedFeatures = function (a, kind, mono) {
 	removeUnusedFeature(a.GSUB, "aalt");
 	removeUnusedFeature(a.GSUB, "pwid");
 	removeUnusedFeature(a.GSUB, "fwid");
@@ -121,6 +121,10 @@ exports.removeUnusedFeatures = function (a, mono) {
 		removeUnusedFeature(a.GPOS, "vkrn");
 		removeUnusedFeature(a.GPOS, "palt");
 		removeUnusedFeature(a.GPOS, "vpal");
+	}
+
+	if (mono && kind === "WS") {
+		removeUnusedFeature(a.GSUB, "ccmp");
 	}
 };
 

@@ -40,7 +40,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.type);
 		removeDashCcmp(ctx.items.a, argv.mono);
 	}
-	removeUnusedFeatures(ctx.items.a, argv.mono);
+	removeUnusedFeatures(ctx.items.a, "AS", argv.mono);
 	aliasFeatMap(ctx.items.a, "vert", [[0x2014, 0x2015]]);
 	gc(ctx.items.a);
 
