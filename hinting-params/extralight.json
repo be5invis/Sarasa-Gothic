@@ -1,6 +1,5 @@
 {
 	"fontFormat": "@chlorophytum/font-format-ttf",
-	"finalFormat": "@chlorophytum/final-hint-format-hltt",
 	"hintStoreProvider": "@chlorophytum/hint-store-provider-file",
 
 	"hintPlugin": "@chlorophytum/hm-combine",

@@ -33,7 +33,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 	if (argv.mono) {
 		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.type);
 	}
-	removeUnusedFeatures(ctx.items.a);
+	removeUnusedFeatures(ctx.items.a, "WS", argv.mono);
 	gc(ctx.items.a);
 
 	await ctx.run(build, "a", { to: argv.o, optimize: true });
