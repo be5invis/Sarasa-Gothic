@@ -6,6 +6,7 @@ const {
 	isWestern,
 	isWS,
 	isKorean,
+	isLongDash,
 	filterUnicodeRange
 } = require("../common/unicode-kind");
 const { sanitizeSymbols, removeUnusedFeatures, toPWID } = require("./common");
@@ -24,6 +25,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 			!isIdeograph(c - 0) &&
 			!isWestern(c - 0) &&
 			!isKorean(c - 0) &&
+			!isLongDash(c - 0, argv.term) &&
 			isWS(c - 0, argv.type, argv.term)
 	);
 
