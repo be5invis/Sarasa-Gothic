@@ -55,16 +55,7 @@ async function pass(ctx, config, argv) {
 
 	knockoutSymbols(a, { enclosedAlphaNumerics: !argv.mono, pua: !argv.mono });
 
-	crossTransfer(ctx.items.a, ctx.items.b, [
-		0x2010,
-		0x2011,
-		0x2012,
-		0x2013,
-		0x2014,
-		0x2015,
-		0x2e3a,
-		0x2e3b
-	]);
+	crossTransfer(ctx.items.a, ctx.items.b, [0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015]);
 
 	// merge and build
 	await ctx.run(merge.below, "a", "a", "c", { mergeOTL: true });
