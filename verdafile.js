@@ -202,10 +202,16 @@ const AS0 = file.make(
 	(family, region, style) => `${BUILD}/as0/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), NonKanji(region, style));
+		const latinFamily = config.families[family].latinGroup;
+		const [, $1, $2] = await t.need(
+			de(dir),
+			NonKanji(region, style),
+			LatinSource(latinFamily, style)
+		);
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/punct/as.js", {
 			main: $1.full,
+			lgc: $2.full,
 			o: tmpOTD,
 			mono: config.families[family].isMono || false,
 			type: config.families[family].isType || false,

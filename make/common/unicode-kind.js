@@ -25,7 +25,7 @@ exports.isKorean = c =>
 	(c >= 0xd7b0 && c <= 0xd7ff);
 
 exports.isWS = function (c, _isType = false, isTerm = false) {
-	return c >= (isTerm ? 0x2000 : 0x20a0) && c < 0x3000 && !(c >= 0x2e3a && c <= 0x2e3b);
+	return c >= 0x20a0 && c < 0x3000 && !(c >= 0x2e3a && c <= 0x2e3b);
 };
 
 exports.isLongDash = function (c, isTerm) {

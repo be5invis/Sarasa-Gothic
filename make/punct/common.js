@@ -168,29 +168,3 @@ exports.toPWID = async function () {
 		font.cmap[c] = this.find.gname.subst("pwid", font.cmap[c]);
 	}
 };
-
-exports.aliasFeatMap = function (a, feat, aliases) {
-	if (!a.GSUB || !a.GSUB.features || !a.GSUB.lookups) return;
-	for (const [uFrom, uTo] of aliases) {
-		const gidFrom = a.cmap[uFrom],
-			gidTo = a.cmap[uTo];
-		if (!gidFrom || !gidTo) continue;
-
-		let affectedLookups = new Set();
-		for (const fid in a.GSUB.features) {
-			if (fid.slice(0, 4) === feat) {
-				const feature = a.GSUB.features[fid];
-				if (!feature) continue;
-				for (const lid of feature) affectedLookups.add(lid);
-			}
-		}
-
-		for (const lid of affectedLookups) {
-			const lookup = a.GSUB.lookups[lid];
-			if (lookup.type !== "gsub_single") continue;
-			for (const subtable of lookup.subtables) {
-				subtable[gidFrom] = subtable[gidTo];
-			}
-		}
-	}
-};
