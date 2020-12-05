@@ -23,7 +23,7 @@ module.exports = async function makeFont(ctx, config, argv) {
 			!isWestern(c - 0) &&
 			!isKorean(c - 0) &&
 			!isLongDash(c - 0, argv.term) &&
-			!isWS(c - 0, argv.type, argv.term)
+			!isWS(c - 0)
 	);
 
 	if (argv.pwid) {
@@ -33,7 +33,11 @@ module.exports = async function makeFont(ctx, config, argv) {
 		await ctx.run(manip.glyph, "b", unlinkRefsOfSymbols, argv.term);
 		transferMonoGeometry(ctx.items.a, ctx.items.b);
 		await ctx.run(manip.glyph, "a", populatePwidOfMono);
-		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.type);
+	}
+	if (!argv.pwid) {
+		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.goth, !argv.pwid && !argv.term);
+	}
+	if (argv.mono) {
 		removeDashCcmp(ctx.items.a, argv.mono);
 	}
 	removeUnusedFeatures(ctx.items.a, "AS", argv.mono);

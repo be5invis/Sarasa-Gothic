@@ -32,27 +32,33 @@ sanitizers.half = function (glyph) {
 	glyph.advanceWidth = targetW;
 	return glyph;
 };
-sanitizers.halfLeft = function (glyph, gid) {
+sanitizers.halfLeft = function (glyph, gid, isGothic) {
 	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
 	Object.assign(glyph, g1);
 	deleteGPOS(this.font, gid);
+	if (isGothic) glyph.advanceWidth = this.em;
 	return glyph;
 };
-sanitizers.halfRight = function (glyph, gid) {
+sanitizers.halfRight = function (glyph, gid, isGothic) {
 	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
 	Object.assign(glyph, g1);
 	deleteGPOS(this.font, gid);
+	if (isGothic) {
+		glyph.advanceWidth = this.em;
+		for (let c of glyph.contours) for (let z of c) z.x += this.em / 2;
+	}
 	return glyph;
 };
 
 function HalfCompN(n, forceFullWidth, forceHalfWidth) {
-	return function (glyph, gid, isType = false) {
+	return function (glyph, gid, isGothic, isType) {
 		const g1 = this.find.glyph$(this.find.gname.subst("fwid", gid));
 		Object.assign(glyph, g1);
 		const targetW = Math.min(
 			this.em * n,
 			Math.ceil(glyph.advanceWidth / this.em) *
-				(this.em * (forceHalfWidth ? 1 / 2 : isType || forceFullWidth ? 1 : 1 / 2))
+				(this.em *
+					(forceHalfWidth ? 1 / 2 : isGothic || isType || forceFullWidth ? 1 : 1 / 2))
 		);
 		if (glyph.contours) {
 			for (let c of glyph.contours) for (let z of c) z.x *= targetW / glyph.advanceWidth;
@@ -83,7 +89,7 @@ const sanitizerTypes = {
 	"\u2e3b": "halfComp3"
 };
 
-exports.sanitizeSymbols = async function sanitizeSymbols(isType) {
+exports.sanitizeSymbols = async function sanitizeSymbols(isGothic, isType) {
 	let san = new Map();
 	for (let c in this.font.cmap) {
 		if (!this.font.cmap[c]) continue;
@@ -94,7 +100,7 @@ exports.sanitizeSymbols = async function sanitizeSymbols(isType) {
 		let sanitizer = sanitizers[san.has(g) ? san.get(g) : "auto"];
 		const glyph = this.font.glyf[g];
 		if (!glyph) continue;
-		sanitizer.call(this, glyph, g, isType);
+		sanitizer.call(this, glyph, g, isGothic, isType);
 	}
 };
 

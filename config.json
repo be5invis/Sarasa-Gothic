@@ -3,8 +3,8 @@
 	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab", "fixed", "fixed-slab"],
 	"families": {
 		"gothic": {
-			"isMono": false,
 			"isTNUM": true,
+			"isGothic": true,
 			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa Gothic",
@@ -16,9 +16,8 @@
 			}
 		},
 		"ui": {
-			"isPWID": true,
 			"isTNUM": true,
-			"isMono": false,
+			"isPWID": true,
 			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa UI",
@@ -31,7 +30,6 @@
 		},
 		"mono": {
 			"isMono": true,
-			"isType": true,
 			"latinGroup": "iosevka",
 			"naming": {
 				"en_US": "Sarasa Mono",
@@ -44,8 +42,8 @@
 		},
 		"term": {
 			"isMono": true,
-			"latinGroup": "iosevka-term",
 			"isTerm": true,
+			"latinGroup": "iosevka-term",
 			"naming": {
 				"en_US": "Sarasa Term",
 				"zh_CN": "Sarasa Term",
@@ -57,8 +55,8 @@
 		},
 		"fixed": {
 			"isMono": true,
-			"latinGroup": "iosevka-fixed",
 			"isTerm": true,
+			"latinGroup": "iosevka-fixed",
 			"naming": {
 				"en_US": "Sarasa Fixed",
 				"zh_CN": "Sarasa Fixed",
