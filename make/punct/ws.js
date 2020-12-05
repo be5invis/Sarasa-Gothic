@@ -26,14 +26,14 @@ module.exports = async function makeFont(ctx, config, argv) {
 			!isWestern(c - 0) &&
 			!isKorean(c - 0) &&
 			!isLongDash(c - 0, argv.term) &&
-			isWS(c - 0, argv.type, argv.term)
+			isWS(c - 0)
 	);
 
 	if (argv.pwid) {
 		await ctx.run(manip.glyph, "a", toPWID);
 	}
 	if (argv.mono) {
-		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.type);
+		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.goth, !argv.pwid && !argv.term);
 	}
 	removeUnusedFeatures(ctx.items.a, "WS", argv.mono);
 	gc(ctx.items.a);

@@ -179,6 +179,16 @@ const NonKanji = file.make(
 	}
 );
 
+function flagsOfFamily(config, family) {
+	return {
+		goth: config.families[family].isGothic || false,
+		mono: config.families[family].isMono || false,
+		pwid: config.families[family].isPWID || false,
+		tnum: config.families[family].isTNUM || false,
+		term: config.families[family].isTerm || false
+	};
+}
+
 const WS0 = file.make(
 	(family, region, style) => `${BUILD}/ws0/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
@@ -188,11 +198,7 @@ const WS0 = file.make(
 		await RunFontBuildTask("make/punct/ws.js", {
 			main: $1.full,
 			o: tmpOTD,
-			mono: config.families[family].isMono || false,
-			type: config.families[family].isType || false,
-			pwid: config.families[family].isPWID || false,
-			tnum: config.families[family].isTNUM || false,
-			term: config.families[family].isTerm || false
+			...flagsOfFamily(config, family)
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
 	}
@@ -202,16 +208,18 @@ const AS0 = file.make(
 	(family, region, style) => `${BUILD}/as0/${family}-${region}-${style}.ttf`,
 	async (t, { full, dir, name }, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), NonKanji(region, style));
+		const latinFamily = config.families[family].latinGroup;
+		const [, $1, $2] = await t.need(
+			de(dir),
+			NonKanji(region, style),
+			LatinSource(latinFamily, style)
+		);
 		const tmpOTD = `${dir}/${name}.otd`;
 		await RunFontBuildTask("make/punct/as.js", {
 			main: $1.full,
+			lgc: $2.full,
 			o: tmpOTD,
-			mono: config.families[family].isMono || false,
-			type: config.families[family].isType || false,
-			pwid: config.families[family].isPWID || false,
-			tnum: config.families[family].isTNUM || false,
-			term: config.families[family].isTerm || false
+			...flagsOfFamily(config, family)
 		});
 		await OtfccBuildAsIs(tmpOTD, full);
 	}
@@ -259,11 +267,7 @@ const Pass1 = file.make(
 			style: style,
 			italize: deItalizedNameOf(config, name) === name ? false : true,
 
-			mono: config.families[family].isMono || false,
-			type: config.families[family].isType || false,
-			pwid: config.families[family].isPWID || false,
-			tnum: config.families[family].isTNUM || false,
-			term: config.families[family].isTerm || false
+			...flagsOfFamily(config, family)
 		});
 		await run("ttfautohint", full + ".tmp.ttf", full);
 		await rm(full + ".tmp.ttf");
