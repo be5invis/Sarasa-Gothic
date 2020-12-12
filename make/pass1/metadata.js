@@ -79,8 +79,7 @@ function createNameTuple(nameTable, langID, family, style, localizedStyle) {
 	}
 }
 
-async function nameFont(ctx, demand, fMono, selectorList, encodings, namings) {
-	const font = this.items[demand];
+function nameFont(font, fMono, selectorList, encodings, namings) {
 	const nameTable = [];
 	const defaultNg = namings.en_US;
 	const selector = new Set(selectorList);
@@ -140,8 +139,7 @@ async function nameFont(ctx, demand, fMono, selectorList, encodings, namings) {
 
 exports.nameFont = nameFont;
 
-async function setHintFlag(ctx, demand) {
-	const font = this.items[demand];
+function setHintFlag(font) {
 	font.head.flags.baselineAtY_0 = true;
 	font.head.flags.lsbAtX_0 = true;
 	font.head.flags.alwaysUseIntegerSize = true;

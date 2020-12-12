@@ -1,11 +1,12 @@
 "use strict";
 
-const { introduce, build } = require("megaminx");
+const introFont = require("../common/intro-font");
+const buildFont = require("../common/build-font");
 const { isKorean, filterUnicodeRange } = require("../common/unicode-kind");
 const gc = require("../common/gc");
 
-async function pass(ctx, config, argv) {
-	const a = await ctx.run(introduce, "a", {
+module.exports = async function pass(argv) {
+	const a = await introFont({
 		from: argv.main,
 		prefix: "a",
 		ignoreHints: true
@@ -14,7 +15,7 @@ async function pass(ctx, config, argv) {
 	a.cvt_ = [];
 	a.fpgm = [];
 	a.prep = [];
-	gc(ctx.items.a);
+	gc(a);
 
 	// Rectify advance width
 	const em = a.head.unitsPerEm;
@@ -31,9 +32,5 @@ async function pass(ctx, config, argv) {
 			for (let c of glyph.contours) for (let z of c) z.x -= (em - commonHangulWidth) / 2;
 		}
 	}
-	await ctx.run(build, "a", { to: config.o, optimize: true });
-}
-
-module.exports = async function makeFont(ctx, config, argv) {
-	await pass(ctx, { o: argv.o }, argv);
+	await buildFont(a, { to: argv.o, optimize: true });
 };

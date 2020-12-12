@@ -1,6 +1,7 @@
 "use strict";
 
-const { introduce, build, manip } = require("megaminx");
+const introFont = require("../common/intro-font");
+const buildFont = require("../common/build-font");
 const {
 	isIdeograph,
 	isWestern,
@@ -12,12 +13,8 @@ const {
 const { sanitizeSymbols, removeUnusedFeatures, toPWID } = require("./common");
 const gc = require("../common/gc");
 
-module.exports = async function makeFont(ctx, config, argv) {
-	const a = await ctx.run(introduce, "a", {
-		from: argv.main,
-		prefix: "a",
-		ignoreHints: true
-	});
+module.exports = async function makeFont(argv) {
+	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
 	a.cmap_uvs = null;
 	filterUnicodeRange(
 		a,
@@ -29,15 +26,11 @@ module.exports = async function makeFont(ctx, config, argv) {
 			isWS(c - 0)
 	);
 
-	if (argv.pwid) {
-		await ctx.run(manip.glyph, "a", toPWID);
-	}
-	if (argv.mono) {
-		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.goth, !argv.pwid && !argv.term);
-	}
-	removeUnusedFeatures(ctx.items.a, "WS", argv.mono);
-	gc(ctx.items.a);
+	if (argv.pwid) toPWID(a);
+	if (argv.mono) sanitizeSymbols(a, argv.goth, !argv.pwid && !argv.term);
 
-	await ctx.run(build, "a", { to: argv.o, optimize: true });
-	ctx.remove("a");
+	removeUnusedFeatures(a, "WS", argv.mono);
+	gc(a);
+
+	await buildFont(a, { to: argv.o, optimize: true });
 };

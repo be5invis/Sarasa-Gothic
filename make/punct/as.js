@@ -1,6 +1,7 @@
 "use strict";
 
-const { introduce, build, manip } = require("megaminx");
+const introFont = require("../common/intro-font");
+const buildFont = require("../common/build-font");
 const {
 	isIdeograph,
 	isWestern,
@@ -11,10 +12,11 @@ const {
 } = require("../common/unicode-kind");
 const { sanitizeSymbols, removeUnusedFeatures, toPWID, removeDashCcmp } = require("./common");
 const gc = require("../common/gc");
+const createFinder = require("../common/glyph-finder");
 
-module.exports = async function makeFont(ctx, config, argv) {
-	const a = await ctx.run(introduce, "a", { from: argv.main, prefix: "a", ignoreHints: true });
-	const b = await ctx.run(introduce, "b", { from: argv.lgc, prefix: "b", ignoreHints: true });
+module.exports = async function makeFont(argv) {
+	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
+	const b = await introFont({ from: argv.lgc, prefix: "b", ignoreHints: true });
 	a.cmap_uvs = null;
 	filterUnicodeRange(
 		a,
@@ -26,38 +28,34 @@ module.exports = async function makeFont(ctx, config, argv) {
 			!isWS(c - 0)
 	);
 
-	if (argv.pwid) {
-		await ctx.run(manip.glyph, "a", toPWID);
-	}
-	if (argv.mono) {
-		await ctx.run(manip.glyph, "b", unlinkRefsOfSymbols, argv.term);
-		transferMonoGeometry(ctx.items.a, ctx.items.b);
-		await ctx.run(manip.glyph, "a", populatePwidOfMono);
-	}
-	if (!argv.pwid) {
-		await ctx.run(manip.glyph, "a", sanitizeSymbols, argv.goth, !argv.pwid && !argv.term);
-	}
-	if (argv.mono) {
-		removeDashCcmp(ctx.items.a, argv.mono);
-	}
-	removeUnusedFeatures(ctx.items.a, "AS", argv.mono);
-	aliasFeatMap(ctx.items.a, "vert", [[0x2014, 0x2015]]);
-	gc(ctx.items.a);
+	if (argv.pwid) toPWID(a);
 
-	await ctx.run(build, "a", { to: argv.o, optimize: true });
-	ctx.remove("a");
+	if (argv.mono) {
+		unlinkRefsOfSymbols(b, argv.term);
+		transferMonoGeometry(a, b);
+		populatePwidOfMono(a);
+	}
+	if (!argv.pwid) sanitizeSymbols(a, argv.goth, !argv.pwid && !argv.term);
+	if (argv.mono) removeDashCcmp(a, argv.mono);
+
+	removeUnusedFeatures(a, "AS", argv.mono);
+	aliasFeatMap(a, "vert", [[0x2014, 0x2015]]);
+	gc(a);
+
+	await buildFont(a, { to: argv.o, optimize: true });
 };
 
 // Monospace punctuation transferring
-function unlinkRefsOfSymbols(isTerm) {
+function unlinkRefsOfSymbols(font, isTerm) {
+	const find = createFinder(font);
 	for (let u = 0x2000; u < 0x20a0; u++) {
-		let gn = this.find.gname.unicode(u);
+		let gn = find.gname.unicode(u);
 		if (!gn) continue;
 		let gnT = gn;
-		if (!isTerm) gnT = this.find.gname.subst("WWID", gn);
+		if (!isTerm) gnT = find.gname.subst("WWID", gn);
 		if (!gnT) continue;
-		const g = this.find.glyph(gn);
-		const g$ = this.find.glyph$(gnT);
+		const g = find.glyph(gn);
+		const g$ = find.glyph$(gnT);
 		HCopy(g, g$);
 	}
 }
@@ -70,14 +68,15 @@ function transferMonoGeometry(main, lgc) {
 		}
 	}
 }
-function populatePwidOfMono() {
+function populatePwidOfMono(font) {
+	const find = createFinder(font);
 	for (let u = 0x2000; u < 0x20a0; u++) {
-		const gn = this.find.gname.unicode(u);
+		const gn = find.gname.unicode(u);
 		if (!gn) continue;
-		const gnPwid = this.find.gname.subst("pwid", gn);
+		const gnPwid = find.gname.subst("pwid", gn);
 		if (!gnPwid) continue;
-		const g = this.find.glyph(gnPwid);
-		const g$ = this.find.glyph$(gn);
+		const g = find.glyph(gnPwid);
+		const g$ = find.glyph$(gn);
 		HCopy(g, g$);
 	}
 }

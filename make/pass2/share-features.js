@@ -1,4 +1,4 @@
-function shareFeatures(table) {
+module.exports = function shareFeatures(table) {
 	if (!table || !table.languages) return;
 	const defaultFeatures = table.languages.DFLT_DFLT.features || [];
 	for (const lid in table.languages) {
@@ -7,7 +7,7 @@ function shareFeatures(table) {
 			lang.features = Array.from(new Set(defaultFeatures, lang.features));
 		}
 	}
-}
+};
 
 function scriptNameMatch(lid, tag) {
 	return lid.slice(0, 4).trim() === tag;
@@ -29,5 +29,3 @@ function isFarEast(lid) {
 		languageNameMatch(lid, "ZHH")
 	);
 }
-
-exports.shareFeatures = shareFeatures;
