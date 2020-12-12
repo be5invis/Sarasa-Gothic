@@ -1,5 +1,7 @@
 "use strict";
 
+const createFinder = require("../common/glyph-finder");
+
 function deleteGPOS(font, gid) {
 	if (!font.GPOS) return;
 	for (let l in font.GPOS.lookups) {
@@ -13,10 +15,10 @@ function deleteGPOS(font, gid) {
 }
 
 const sanitizers = {};
-sanitizers.auto = function (glyph) {
+sanitizers.auto = function (font, glyph) {
 	const targetW = Math.min(
-		this.em,
-		Math.ceil(glyph.advanceWidth / (this.em / 2)) * (this.em / 2)
+		font.em,
+		Math.ceil(glyph.advanceWidth / (font.em / 2)) * (font.em / 2)
 	);
 	const shift = (targetW - glyph.advanceWidth) / 2;
 	if (!glyph.contours) return glyph;
@@ -24,47 +26,50 @@ sanitizers.auto = function (glyph) {
 	glyph.advanceWidth = targetW;
 	return glyph;
 };
-sanitizers.half = function (glyph) {
-	const targetW = this.em / 2;
+sanitizers.half = function (font, glyph) {
+	const targetW = font.em / 2;
 	const shift = (targetW - glyph.advanceWidth) / 2;
 	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x += shift;
 	glyph.advanceWidth = targetW;
 	return glyph;
 };
-sanitizers.halfLeft = function (glyph, gid, isGothic) {
-	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
+sanitizers.halfLeft = function (font, glyph, gid, isGothic) {
+	const find = createFinder(font);
+	const g1 = sanitizers.half(font, find.glyph$(find.gname.subst("pwid", gid)));
 	Object.assign(glyph, g1);
-	deleteGPOS(this.font, gid);
-	if (isGothic) glyph.advanceWidth = this.em;
+	deleteGPOS(font, gid);
+	if (isGothic) glyph.advanceWidth = font.em;
 	return glyph;
 };
-sanitizers.halfRight = function (glyph, gid, isGothic) {
-	const g1 = sanitizers.half.call(this, this.find.glyph$(this.find.gname.subst("pwid", gid)));
+sanitizers.halfRight = function (font, glyph, gid, isGothic) {
+	const find = createFinder(font);
+	const g1 = sanitizers.half(font, find.glyph$(find.gname.subst("pwid", gid)));
 	Object.assign(glyph, g1);
-	deleteGPOS(this.font, gid);
+	deleteGPOS(font, gid);
 	if (isGothic) {
-		glyph.advanceWidth = this.em;
-		for (let c of glyph.contours) for (let z of c) z.x += this.em / 2;
+		glyph.advanceWidth = font.em;
+		for (let c of glyph.contours) for (let z of c) z.x += font.em / 2;
 	}
 	return glyph;
 };
 
 function HalfCompN(n, forceFullWidth, forceHalfWidth) {
-	return function (glyph, gid, isGothic, isType) {
-		const g1 = this.find.glyph$(this.find.gname.subst("fwid", gid));
+	return function (font, glyph, gid, isGothic, isType) {
+		const find = createFinder(font);
+		const g1 = find.glyph$(find.gname.subst("fwid", gid));
 		Object.assign(glyph, g1);
 		const targetW = Math.min(
-			this.em * n,
-			Math.ceil(glyph.advanceWidth / this.em) *
-				(this.em *
+			font.em * n,
+			Math.ceil(glyph.advanceWidth / font.em) *
+				(font.em *
 					(forceHalfWidth ? 1 / 2 : isGothic || isType || forceFullWidth ? 1 : 1 / 2))
 		);
 		if (glyph.contours) {
 			for (let c of glyph.contours) for (let z of c) z.x *= targetW / glyph.advanceWidth;
 		}
 		glyph.advanceWidth = targetW;
-		deleteGPOS(this.font, gid);
+		deleteGPOS(font, gid);
 		return glyph;
 	};
 }
@@ -89,18 +94,18 @@ const sanitizerTypes = {
 	"\u2e3b": "halfComp3"
 };
 
-exports.sanitizeSymbols = async function sanitizeSymbols(isGothic, isType) {
+exports.sanitizeSymbols = function sanitizeSymbols(font, isGothic, isType) {
 	let san = new Map();
-	for (let c in this.font.cmap) {
-		if (!this.font.cmap[c]) continue;
+	for (let c in font.cmap) {
+		if (!font.cmap[c]) continue;
 		const stt = sanitizerTypes[String.fromCodePoint(c - 0)];
-		if (stt) san.set(this.font.cmap[c], stt);
+		if (stt) san.set(font.cmap[c], stt);
 	}
-	for (let g in this.font.glyf) {
+	for (let g in font.glyf) {
 		let sanitizer = sanitizers[san.has(g) ? san.get(g) : "auto"];
-		const glyph = this.font.glyf[g];
+		const glyph = font.glyf[g];
 		if (!glyph) continue;
-		sanitizer.call(this, glyph, g, isGothic, isType);
+		sanitizer(font, glyph, g, isGothic, isType);
 	}
 };
 
@@ -166,11 +171,11 @@ function removeDashCcmpLookup(lookup, cmap) {
 	}
 }
 
-exports.toPWID = async function () {
-	const font = this.font;
+exports.toPWID = function (font) {
+	const find = createFinder(font);
 	for (let c in font.cmap) {
 		if (!font.cmap[c]) continue;
 		if (!sanitizerTypes[String.fromCodePoint(c - 0)]) continue;
-		font.cmap[c] = this.find.gname.subst("pwid", font.cmap[c]);
+		font.cmap[c] = find.gname.subst("pwid", font.cmap[c]);
 	}
 };

@@ -1,23 +1,16 @@
 "use strict";
 
-const { introduce, build } = require("megaminx");
+const introFont = require("../common/intro-font");
+const buildFont = require("../common/build-font");
 const { isIdeograph, isKorean, filterUnicodeRange } = require("../common/unicode-kind");
 const gc = require("../common/gc");
 
-async function pass(ctx, config, argv) {
-	const a = await ctx.run(introduce, "a", {
-		from: argv.main,
-		prefix: "a",
-		ignoreHints: true
-	});
+module.exports = async function pass(argv) {
+	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
 	filterUnicodeRange(a, c => !isIdeograph(c) && !isKorean(c));
 	a.cvt_ = [];
 	a.fpgm = [];
 	a.prep = [];
-	gc(ctx.items.a);
-	await ctx.run(build, "a", { to: config.o, optimize: true });
-}
-
-module.exports = async function makeFont(ctx, config, argv) {
-	await pass(ctx, { o: argv.o }, argv);
+	gc(a);
+	await buildFont(a, { to: argv.o, optimize: true });
 };

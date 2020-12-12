@@ -13,7 +13,7 @@
 	},
 	"extends": ["eslint:recommended", "prettier"],
 	"rules": {
-		"linebreak-style": ["error", "windows"],
+		"linebreak-style": ["error", "unix"],
 		"semi": ["error", "always"],
 		"no-var": "error",
 		"no-console": 0,

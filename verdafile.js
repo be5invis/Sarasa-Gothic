@@ -24,9 +24,6 @@ const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
 const OTC2OTF = `otc2otf`;
 const TTX = `ttx`;
-
-const NPX_SUFFIX = os.platform() === "win32" ? ".cmd" : "";
-const TTCIZE = "node_modules/.bin/otfcc-ttcize" + NPX_SUFFIX;
 const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
 
 build.setJournal(`${BUILD}/.verda-build-journal`);
@@ -256,7 +253,7 @@ const Pass1 = file.make(
 			AS0(family, region, deItalizedNameOf(config, style)),
 			WS0(family, region, deItalizedNameOf(config, style))
 		);
-		await RunFontBuildTask("make/pass1/build.js", {
+		await RunFontBuildTask("make/pass1/index.js", {
 			main: $1.full,
 			asian: $2.full,
 			ws: $3.full,
@@ -319,7 +316,7 @@ const Prod = file.make(
 			HfoHangul(weight, region, weight)
 		);
 		const tmpOTD = `${dir}/${name}.otd`;
-		await RunFontBuildTask("make/pass2/build.js", {
+		await RunFontBuildTask("make/pass2/index.js", {
 			main: $1.full,
 			kanji: $2.full,
 			hangul: $3.full,
@@ -580,17 +577,20 @@ async function OtfccBuildAsIs(from, to) {
 
 async function OtfccTtcize(config, from, to) {
 	const optimization = config.buildOptions.optimizeWithFilter
-		? ["--filter-loop", config.buildOptions.optimizeWithFilter]
-		: config.buildOptions.optimizeWithTtx
-		? ["--ttx-loop"]
-		: [];
-	const ttcizeArgs = ["-x", "--common-width", 1000, "--common-height", 1000];
+		? { filterLoop: config.buildOptions.optimizeWithFilter }
+		: {};
 	await rm(to);
-	await run(TTCIZE, optimization, ttcizeArgs, ["-o", to], from);
+	await node("make/common/make-ttc/index", {
+		inputs: from,
+		output: to,
+		commonWidth: 1000,
+		commonHeight: 1000,
+		...optimization
+	});
 }
 
 async function RunFontBuildTask(recipe, args) {
-	return await node("./run", recipe, args);
+	return await node(recipe, args);
 }
 
 function deItalizedNameOf(config, set) {

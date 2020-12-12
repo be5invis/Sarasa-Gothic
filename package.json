@@ -1,33 +1,35 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.15.5",
+	"version": "0.16.0",
 	"main": "./run",
+	"scripts": {
+		"build": "verda -f verdafile.js",
+		"clean": "verda -f verdafile.js clean",
+		"full-clean": "verda -f verdafile.js full-clean",
+		"install": "node checkenv"
+	},
 	"dependencies": {
 		"@chlorophytum/cli": "^0.20.0",
 		"@chlorophytum/font-format-ttf": "^0.20.0",
 		"@chlorophytum/hint-store-provider-file": "^0.20.0",
 		"@chlorophytum/hm-combine": "^0.20.0",
 		"@chlorophytum/hm-ideograph": "^0.20.5",
+		"JSONStream": "^1.3.5",
+		"clone": "^2.1.2",
 		"colors": "^1.4.0",
 		"fs-extra": "^9.0.1",
-		"megaminx": "^0.9.0",
-		"otfcc-ttcize": "^0.10.2",
-		"verda": "^1.1.0",
-		"which": "^2.0.2",
-		"yargs": "^15.4.1"
+		"strip-bom-stream": "^4.0.0",
+		"temp": "^0.9.4",
+		"typo-geom": "^0.11.0",
+		"verda": "^1.2.1",
+		"which": "^2.0.2"
+	},
+	"devDependencies": {
+		"eslint": "^7.15.0",
+		"eslint-config-prettier": "^7.0.0",
+		"prettier": "^2.2.1"
 	},
 	"engines": {
 		"node": ">=12.0.0"
-	},
-	"scripts": {
-		"install": "node checkenv",
-		"build": "verda -f verdafile.js",
-		"clean": "verda -f verdafile.js clean",
-		"full-clean": "verda -f verdafile.js full-clean"
-	},
-	"devDependencies": {
-		"eslint": "^7.6.0",
-		"eslint-config-prettier": "^6.11.0",
-		"prettier": "^2.0.5"
 	}
 }

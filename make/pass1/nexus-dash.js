@@ -1,9 +1,13 @@
 "use strict";
 
-exports.buildNexusDash = async function() {
+const createFinder = require("../common/glyph-finder");
+
+exports.buildNexusDash = function (font) {
+	const find = createFinder(font);
+
 	let gidCovered = new Set();
 	for (const u of [0x2013, 0x2014, 0x2015]) {
-		const gn = this.find.gname.unicode(u);
+		const gn = find.gname.unicode(u);
 		if (gn) gidCovered.add(gn);
 	}
 
@@ -15,9 +19,9 @@ exports.buildNexusDash = async function() {
 	const nexusChainingLookup = { type: "gsub_chaining", subtables: nexusChainingRules };
 
 	for (const originalGid of gidCovered) {
-		const glyph = createNexusGlyph(this.find.glyph$(originalGid));
+		const glyph = createNexusGlyph(find.glyph$(originalGid));
 		const nexusGid = originalGid + ".nexus";
-		await this.save.to(nexusGid, null, glyph);
+		font.glyf[nexusGid] = glyph;
 		nexusLookupSubst[originalGid] = nexusGid;
 		nexusChainingRules.push({
 			match: [[originalGid, nexusGid], [originalGid]],
@@ -27,13 +31,13 @@ exports.buildNexusDash = async function() {
 		});
 	}
 
-	if (this.font.GSUB) {
-		this.font.GSUB.lookups[nexusLookupName] = nexusLookup;
-		this.font.GSUB.lookups[nexusChainingLookupName] = nexusChainingLookup;
+	if (font.GSUB) {
+		font.GSUB.lookups[nexusLookupName] = nexusLookup;
+		font.GSUB.lookups[nexusChainingLookupName] = nexusChainingLookup;
 
-		for (const fid in this.font.GSUB.features) {
+		for (const fid in font.GSUB.features) {
 			if (fid.slice(0, 4) !== "ccmp") continue;
-			const feature = this.font.GSUB.features[fid];
+			const feature = font.GSUB.features[fid];
 			if (!feature) continue;
 			feature.push(nexusChainingLookupName);
 		}

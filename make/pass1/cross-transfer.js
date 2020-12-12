@@ -1,4 +1,4 @@
-exports.crossTransfer = function(a, b, unicode) {
+exports.crossTransfer = function (a, b, unicode) {
 	let gidCor = [];
 	for (const u of unicode) {
 		const gidA = a.cmap[u];
