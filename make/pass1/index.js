@@ -34,14 +34,9 @@ module.exports = async function (argv) {
 		a.glyf[g].advanceHeight = a.head.unitsPerEm;
 	}
 
-	// italize
-	if (argv.italize) {
-		italize(a, -10);
-		italize(c, -10);
-	}
+	if (argv.italize) italize(a, -9.4);
 
 	knockoutSymbols(a, { enclosedAlphaNumerics: !argv.mono, pua: !argv.mono });
-
 	crossTransfer(a, b, [0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015]);
 	mergeBelow(a, c, { mergeOTL: true });
 	mergeAbove(a, b, { mergeOTL: true });
@@ -80,7 +75,7 @@ module.exports = async function (argv) {
 		}
 	);
 
-	if (argv.italize) italize(a, +10);
+	if (argv.italize) italize(a, +9.4);
 	a.glyph_order = gc(a);
 	await buildFont(a, { to: argv.o });
 };

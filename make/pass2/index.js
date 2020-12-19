@@ -14,8 +14,8 @@ module.exports = async function makeFont(argv) {
 	const b = await introFont({ from: argv.kanji, prefix: "b" });
 	const c = await introFont({ from: argv.hangul, prefix: "c" });
 
-	if (argv.italize) italize(b, 10);
-	if (argv.italize) italize(c, 10);
+	if (argv.italize) italize(b, 9.4);
+	if (argv.italize) italize(c, 9.4);
 
 	mergeBelow(a, b, { mergeOTL: true });
 	mergeBelow(a, c, { mergeOTL: true });
