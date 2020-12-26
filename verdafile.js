@@ -188,39 +188,31 @@ function flagsOfFamily(config, family) {
 
 const WS0 = file.make(
 	(family, region, style) => `${BUILD}/ws0/${family}-${region}-${style}.ttf`,
-	async (t, { full, dir, name }, family, region, style) => {
-		const [config] = await t.need(Config, Scripts);
-		const [, $1] = await t.need(de(dir), NonKanji(region, style));
-		const tmpOTD = `${dir}/${name}.otd`;
-		await RunFontBuildTask("make/punct/ws.js", {
-			main: $1.full,
-			o: tmpOTD,
-			...flagsOfFamily(config, family)
-		});
-		await OtfccBuildAsIs(tmpOTD, full);
-	}
+	(...args) => BuildPunct("ws", ...args)
 );
 
 const AS0 = file.make(
 	(family, region, style) => `${BUILD}/as0/${family}-${region}-${style}.ttf`,
-	async (t, { full, dir, name }, family, region, style) => {
-		const [config] = await t.need(Config, Scripts);
-		const latinFamily = config.families[family].latinGroup;
-		const [, $1, $2] = await t.need(
-			de(dir),
-			NonKanji(region, style),
-			LatinSource(latinFamily, style)
-		);
-		const tmpOTD = `${dir}/${name}.otd`;
-		await RunFontBuildTask("make/punct/as.js", {
-			main: $1.full,
-			lgc: $2.full,
-			o: tmpOTD,
-			...flagsOfFamily(config, family)
-		});
-		await OtfccBuildAsIs(tmpOTD, full);
-	}
+	(...args) => BuildPunct("as", ...args)
 );
+
+async function BuildPunct(blockName, t, { full, dir, name }, family, region, style) {
+	const [config] = await t.need(Config, Scripts);
+	const latinFamily = config.families[family].latinGroup;
+	const [, $1, $2] = await t.need(
+		de(dir),
+		NonKanji(region, style),
+		LatinSource(latinFamily, style)
+	);
+	const tmpOTD = `${dir}/${name}.otd`;
+	await RunFontBuildTask(`make/punct/${blockName}.js`, {
+		main: $1.full,
+		lgc: $2.full,
+		o: tmpOTD,
+		...flagsOfFamily(config, family)
+	});
+	await OtfccBuildAsIs(tmpOTD, full);
+}
 
 const LatinSource = file.make(
 	(group, style) => `${BUILD}/latin-${group}/${group}-${style}.ttf`,
