@@ -238,7 +238,7 @@
 		"HC": ["en_US", "zh_HK"],
 		"CL": ["en_US", "zh_TW"]
 	},
-	"copyright": "Copyright 2015-2020, Renzhi Li (a.k.a. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014-2019 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2017-2020 Rasmus Andersson. Portions Copyright 2017, 2018 MoneMizuno.",
+	"copyright": "Copyright 2015-2021 Renzhi Li (aka. Belleve Invis, belleve@typeof.net). Portions Copyright © 2014-2019 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Portions Copyright 2017-2020 Rasmus Andersson. Portions Copyright 2017, 2018 MoneMizuno.",
 	"shsSourceMap": {
 		"defaultRegion": "SourceHanSans",
 		"region": {
