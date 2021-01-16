@@ -34,18 +34,23 @@ module.exports = build;
 // Entrypoint
 const Start = phony("all", async t => {
 	const version = await t.need(Version);
-	await t.need(TtfFontFiles);
-	await t.need(TtcFontFiles);
-	await t.need(TTCArchive(version), TTFArchive(version));
+	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
+	await t.need(TtcFontFiles`ttc`, TtcFontFiles`ttc-unhinted`);
+	await t.need(
+		TtcArchive(`ttc`, version),
+		TtcArchive(`ttc-unhinted`, version),
+		TtfArchive(`ttf`, version),
+		TtfArchive(`ttf-unhinted`, version)
+	);
 });
 
 const Ttc = phony(`ttc`, async t => {
-	await t.need(TtfFontFiles);
-	await t.need(TtcFontFiles);
+	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
+	await t.need(TtcFontFiles`ttc`, TtcFontFiles`ttc-unhinted`);
 });
 
 const Ttf = phony(`ttf`, async t => {
-	await t.need(TtfFontFiles);
+	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
@@ -63,29 +68,26 @@ const Version = oracle("oracles::version", async t => {
 	return (await fs.readJson(path.resolve(__dirname, "package.json"))).version;
 });
 
-const TTCArchive = file.make(
-	version => `${OUT}/sarasa-gothic-ttc-${version}.7z`,
-	async (t, target) => {
-		await t.need(TtcFontFiles);
-		await rm(target.full);
-		await SevenZipCompress(`${OUT}/ttc`, target, `*.ttc`);
+const TtcArchive = file.make(
+	(infix, version) => `${OUT}/sarasa-gothic-${infix}-${version}.7z`,
+	async (t, out, infix) => {
+		await t.need(TtcFontFiles(infix));
+		await rm(out.full);
+		await SevenZipCompress(`${OUT}/${infix}`, out.full, `*.ttc`);
 	}
 );
-const TTFArchive = file.make(
-	version => `${OUT}/sarasa-gothic-ttf-${version}.7z`,
-	async (t, target) => {
-		const [config] = await t.need(Config, de`${OUT}/ttf`);
-		await t.need(TtfFontFiles);
 
-		// StyleOrder is interlaced with "upright" and "italic"
-		// Compressing in this order reduces archive size
-		await rm(target.full);
+const TtfArchive = file.make(
+	(infix, version) => `${OUT}/sarasa-gothic-${infix}-${version}.7z`,
+	async (t, out, infix) => {
+		const [config] = await t.need(Config, TtfFontFiles(infix));
+		await rm(out.full);
 		for (let j = 0; j < config.styleOrder.length; j += 2) {
 			const styleUpright = config.styleOrder[j];
 			const styleItalic = config.styleOrder[j + 1];
 			await SevenZipCompress(
-				`${OUT}/ttf`,
-				target,
+				`${OUT}/${infix}`,
+				out.full,
 				styleUpright ? `*-${styleUpright}.ttf` : null,
 				styleItalic ? `*-${styleItalic}.ttf` : null
 			);
@@ -97,7 +99,7 @@ function SevenZipCompress(dir, target, ...inputs) {
 	return cd(dir).run(
 		[SEVEN_ZIP, `a`],
 		[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=256m:fb=256`],
-		[`../${target.name}.7z`, ...inputs]
+		[path.relative(dir, target), ...inputs]
 	);
 }
 
@@ -126,53 +128,53 @@ const BreakShsTtc = task.make(
 
 const ShsOtd = file.make(
 	(region, weight) => `${BUILD}/shs/${region}-${weight}.otd`,
-	async (t, output, region, weight) => {
+	async (t, out, region, weight) => {
 		const [config] = await t.need(Config, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
-			de(output.dir),
+			de(out.dir),
 			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
 		);
-		const temp = `${output.dir}/${output.name}.tmp.ttf`;
+		const temp = `${out.dir}/${out.name}.tmp.ttf`;
 		// I hope SHS' HMTX LSBs are correct
 		await run(OTF2TTF, [`-o`, temp], $1.full);
 		// ... if not, use this instead
 		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
-		await run(OTFCCDUMP, `-o`, output.full, temp);
+		await run(OTFCCDUMP, `-o`, out.full, temp);
 		await rm(temp);
 	}
 );
 
 const ShsCassicalOverrideOtd = file.make(
 	weight => `${BUILD}/shs-classical-override/${weight}.otd`,
-	async (t, output, weight) => {
+	async (t, out, weight) => {
 		const [config] = await t.need(Config);
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
-			de(output.dir),
+			de(out.dir),
 			fu`${SOURCES}/shs-classical-override/${shsSourceMap.classicalOverridePrefix}-${shsSourceMap.classicalOverrideSuffix[weight]}.otf`
 		);
-		const temp = `${output.dir}/${output.name}.tmp.ttf`;
+		const temp = `${out.dir}/${out.name}.tmp.ttf`;
 		// I hope SHS' HMTX LSBs are correct
 		await run(OTF2TTF, [`-o`, temp], $1.full);
 		// ... if not, use this instead
 		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
-		await run(OTFCCDUMP, `-o`, output.full, temp);
+		await run(OTFCCDUMP, `-o`, out.full, temp);
 		await rm(temp);
 	}
 );
 
 const NonKanji = file.make(
 	(region, style) => `${BUILD}/non-kanji0/${region}-${style}.ttf`,
-	async (t, { full, dir, name }, region, style) => {
+	async (t, out, region, style) => {
 		await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsOtd(region, style), de(dir));
-		const tmpOTD = `${dir}/${name}.otd`;
+		const [$1] = await t.need(ShsOtd(region, style), de(out.dir));
+		const tmpOTD = `${out.dir}/${out.name}.otd`;
 		await RunFontBuildTask("make/non-kanji/build.js", {
 			main: $1.full,
 			o: tmpOTD
 		});
-		await OtfccBuildAsIs(tmpOTD, full);
+		await OtfccBuildAsIs(tmpOTD, out.full);
 	}
 );
 
@@ -196,22 +198,22 @@ const AS0 = file.make(
 	(...args) => BuildPunct("as", ...args)
 );
 
-async function BuildPunct(blockName, t, { full, dir, name }, family, region, style) {
+async function BuildPunct(blockName, t, out, family, region, style) {
 	const [config] = await t.need(Config, Scripts);
 	const latinFamily = config.families[family].latinGroup;
 	const [, $1, $2] = await t.need(
-		de(dir),
+		de(out.dir),
 		NonKanji(region, style),
 		LatinSource(latinFamily, style)
 	);
-	const tmpOTD = `${dir}/${name}.otd`;
+	const tmpOTD = `${out.dir}/${out.name}.otd`;
 	await RunFontBuildTask(`make/punct/${blockName}.js`, {
 		main: $1.full,
 		lgc: $2.full,
 		o: tmpOTD,
 		...flagsOfFamily(config, family)
 	});
-	await OtfccBuildAsIs(tmpOTD, full);
+	await OtfccBuildAsIs(tmpOTD, out.full);
 }
 
 const LatinSource = file.make(
@@ -236,11 +238,11 @@ const LatinSource = file.make(
 
 const Pass1 = file.make(
 	(family, region, style) => `${BUILD}/pass1/${family}-${region}-${style}.ttf`,
-	async (t, { full, dir, name }, family, region, style) => {
+	async (t, out, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
 		const latinFamily = config.families[family].latinGroup;
 		const [, $1, $2, $3] = await t.need(
-			de(dir),
+			de(out.dir),
 			LatinSource(latinFamily, style),
 			AS0(family, region, deItalizedNameOf(config, style)),
 			WS0(family, region, deItalizedNameOf(config, style))
@@ -249,75 +251,95 @@ const Pass1 = file.make(
 			main: $1.full,
 			asian: $2.full,
 			ws: $3.full,
-			o: full + ".tmp.ttf",
+			o: out.full,
 
 			family: family,
 			subfamily: config.subfamilies[region].name,
 			style: style,
-			italize: deItalizedNameOf(config, name) === name ? false : true,
+			italize: deItalizedNameOf(config, out.name) === out.name ? false : true,
 
 			...flagsOfFamily(config, family)
 		});
-		await run("ttfautohint", full + ".tmp.ttf", full);
-		await rm(full + ".tmp.ttf");
+	}
+);
+
+const Pass1Hinted = file.make(
+	(family, region, style) => `${BUILD}/pass1-hinted/${family}-${region}-${style}.ttf`,
+	async (t, out, family, region, style) => {
+		const [pass1] = await t.need(Pass1(family, region, style), de(out.dir));
+		await run("ttfautohint", pass1.full, out.full);
 	}
 );
 
 const Kanji0 = file.make(
 	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
-	async (t, { full, dir, name }, region, style) => {
+	async (t, out, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsOtd(region, style), de(dir));
+		const [$1] = await t.need(ShsOtd(region, style), de(out.dir));
 		let $2 = null;
 		if (region === config.shsSourceMap.classicalRegion) {
 			[$2] = await t.need(ShsCassicalOverrideOtd(style));
 		}
-		const tmpOTD = `${dir}/${name}.otd`;
+		const tmpOTD = `${out.dir}/${out.name}.otd`;
 		await RunFontBuildTask("make/kanji/build.js", {
 			main: $1.full,
 			classicalOverride: $2 ? $2.full : null,
 			o: tmpOTD
 		});
-		await OtfccBuildAsIs(tmpOTD, full);
+		await OtfccBuildAsIs(tmpOTD, out.full);
 	}
 );
 
 const Hangul0 = file.make(
 	(region, style) => `${BUILD}/hangul0/${region}-${style}.ttf`,
-	async (t, { full, dir, name }, region, style) => {
+	async (t, out, region, style) => {
 		await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsOtd(region, style), de(dir));
-		const tmpOTD = `${dir}/${name}.otd`;
-		await RunFontBuildTask("make/hangul/build.js", {
-			main: $1.full,
-			o: tmpOTD
-		});
-		await OtfccBuildAsIs(tmpOTD, full);
+		const [$1] = await t.need(ShsOtd(region, style), de(out.dir));
+		const tmpOTD = `${out.dir}/${out.name}.otd`;
+		await RunFontBuildTask("make/hangul/build.js", { main: $1.full, o: tmpOTD });
+		await OtfccBuildAsIs(tmpOTD, out.full);
 	}
 );
 
 const Prod = file.make(
 	(family, region, style) => `${OUT}/ttf/${PREFIX}-${family}-${region}-${style}.ttf`,
-	async (t, { full, dir, name }, family, region, style) => {
-		const [config] = await t.need(Config, Scripts, Version);
-		const weight = deItalizedNameOf(config, style);
-		const [, $1, $2, $3] = await t.need(
-			de(dir),
-			HfoPass1(weight, family, region, style),
-			HfoKanji(weight, region, weight),
-			HfoHangul(weight, region, weight)
-		);
-		const tmpOTD = `${dir}/${name}.otd`;
-		await RunFontBuildTask("make/pass2/index.js", {
-			main: $1.full,
-			kanji: $2.full,
-			hangul: $3.full,
-			o: tmpOTD,
-			italize: weight === style ? false : true
-		});
-		await OtfccBuildOptimize(config, tmpOTD, full);
-	}
+	(t, out, family, region, style) =>
+		MakeProd(t, out, family, region, style, {
+			Pass1: HfoPass1,
+			Kanji: HfoKanji,
+			Hangul: HfoHangul
+		})
 );
+
+const ProdUnhinted = file.make(
+	(family, region, style) => `${OUT}/ttf-unhinted/${PREFIX}-${family}-${region}-${style}.ttf`,
+	(t, out, family, region, style) =>
+		MakeProd(t, out, family, region, style, {
+			Pass1: (w, f, r, s) => Pass1(f, r, s),
+			Kanji: (w, r, s) => Kanji0(r, s),
+			Hangul: (w, r, s) => Hangul0(r, s)
+		})
+);
+
+async function MakeProd(t, out, family, region, style, fragT) {
+	const [config] = await t.need(Config, Scripts, Version, de(out.dir));
+	const weight = deItalizedNameOf(config, style);
+	const [, $1, $2, $3] = await t.need(
+		de(out.dir),
+		fragT.Pass1(weight, family, region, style),
+		fragT.Kanji(weight, region, weight),
+		fragT.Hangul(weight, region, weight)
+	);
+	const tmpOTD = `${out.dir}/${out.name}.otd`;
+	await RunFontBuildTask("make/pass2/index.js", {
+		main: $1.full,
+		kanji: $2.full,
+		hangul: $3.full,
+		o: tmpOTD,
+		italize: weight === style ? false : true
+	});
+	await OtfccBuildOptimize(config, tmpOTD, out.full);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // HINTING
@@ -344,7 +366,7 @@ const Pass1Ttf = file.make(
 	(weight, family, region, style) =>
 		`${HintDirPrefix}-${weight}/pass1-${family}-${region}-${style}.ttf`,
 	async (t, out, weight, family, region, style) => {
-		const [k0ttf] = await t.need(Pass1(family, region, style), de(out.dir));
+		const [k0ttf] = await t.need(Pass1Hinted(family, region, style), de(out.dir));
 		await cp(k0ttf.full, out.full);
 	}
 );
@@ -471,38 +493,44 @@ function* InstrParams(toDir, otds) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTC building
-const TTCFile = file.make(
-	style => `${OUT}/ttc/${PREFIX}-${style}.ttc`,
-	async (t, out, style) => {
-		const [config] = await t.need(Config, de`${OUT}/ttc`);
-
+const TtcFile = file.make(
+	(infix, style) => `${OUT}/${infix}/${PREFIX}-${style}.ttc`,
+	async (t, out, infix, style) => {
+		const prodT = /unhinted/.test(infix) ? ProdUnhinted : Prod;
+		const [config] = await t.need(Config, de(out.dir));
 		let requirements = [];
 		for (let family of config.familyOrder) {
 			for (let region of config.subfamilyOrder) {
-				requirements.push(Prod(family, region, style));
+				requirements.push(prodT(family, region, style));
 			}
 		}
-
 		const [$$] = await t.need(requirements);
-		await OtfccTtcize(config, [...$$.map(t => t.full)], out.full);
+		await MakeTtc(config, [...$$.map(t => t.full)], out.full);
 	}
 );
 
-const TtcFontFiles = task("intermediate::ttcFontFiles", async t => {
-	const [config] = await t.need(Config, de`${OUT}/ttc`);
-	await t.need(config.styleOrder.map(st => TTCFile(st)));
-});
+const TtcFontFiles = task.make(
+	infix => `intermediate::ttcFontFiles::${infix}`,
+	async (t, infix) => {
+		const [config] = await t.need(Config);
+		await t.need(config.styleOrder.map(st => TtcFile(infix, st)));
+	}
+);
 
-const TtfFontFiles = task("intermediate::ttfFontFiles", async t => {
-	const [config] = await t.need(Config, de`${OUT}/ttf`);
-	let reqs = [];
-	for (let f of config.familyOrder)
-		for (let sf of config.subfamilyOrder)
-			for (let st of config.styleOrder) {
-				reqs.push(Prod(f, sf, st));
-			}
-	await t.need(...reqs);
-});
+const TtfFontFiles = task.make(
+	infix => `intermediate::ttfFontFiles::${infix}`,
+	async (t, infix) => {
+		const prodT = /unhinted/.test(infix) ? ProdUnhinted : Prod;
+		const [config] = await t.need(Config);
+		let reqs = [];
+		for (let f of config.familyOrder)
+			for (let sf of config.subfamilyOrder)
+				for (let st of config.styleOrder) {
+					reqs.push(prodT(f, sf, st));
+				}
+		await t.need(...reqs);
+	}
+);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Build Scripts & Config
@@ -567,7 +595,7 @@ async function OtfccBuildAsIs(from, to) {
 	await rm(from);
 }
 
-async function OtfccTtcize(config, from, to) {
+async function MakeTtc(config, from, to) {
 	const optimization = config.buildOptions.optimizeWithFilter
 		? { filterLoop: config.buildOptions.optimizeWithFilter }
 		: {};
