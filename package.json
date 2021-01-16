@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.16.5",
+	"version": "0.17.0",
 	"main": "./run",
 	"scripts": {
 		"build": "verda -f verdafile.js",
@@ -9,11 +9,11 @@
 		"install": "node checkenv"
 	},
 	"dependencies": {
-		"@chlorophytum/cli": "^0.20.0",
-		"@chlorophytum/font-format-ttf": "^0.20.0",
-		"@chlorophytum/hint-store-provider-file": "^0.20.0",
-		"@chlorophytum/hm-combine": "^0.20.0",
-		"@chlorophytum/hm-ideograph": "^0.20.5",
+		"@chlorophytum/cli": "^0.21.0",
+		"@chlorophytum/font-format-ttf": "^0.21.0",
+		"@chlorophytum/hint-store-provider-file": "^0.21.0",
+		"@chlorophytum/hm-combine": "^0.21.0",
+		"@chlorophytum/hm-ideograph": "^0.21.0",
 		"JSONStream": "^1.3.5",
 		"clone": "^2.1.2",
 		"colors": "^1.4.0",
