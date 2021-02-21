@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.18.1",
+	"version": "0.18.2",
 	"main": "./run",
 	"scripts": {
 		"build": "verda -f verdafile.js",
@@ -20,7 +20,7 @@
 		"JSONStream": "^1.3.5",
 		"strip-bom-stream": "^4.0.0",
 		"temp": "^0.9.4",
-		"typo-geom": "^0.11.0",
+		"typo-geom": "^0.11.2",
 		"verda": "^1.2.1",
 		"which": "^2.0.2"
 	},
