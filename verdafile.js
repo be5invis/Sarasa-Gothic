@@ -129,38 +129,26 @@ const BreakShsTtc = task.make(
 const ShsOtd = file.make(
 	(region, weight) => `${BUILD}/shs/${region}-${weight}.otd`,
 	async (t, out, region, weight) => {
-		const [config] = await t.need(Config, BreakShsTtc(weight));
+		const [config] = await t.need(Config, Scripts, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
 			de(out.dir),
 			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
 		);
-		const temp = `${out.dir}/${out.name}.tmp.ttf`;
-		// I hope SHS' HMTX LSBs are correct
-		await run(OTF2TTF, [`-o`, temp], $1.full);
-		// ... if not, use this instead
-		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
-		await run(OTFCCDUMP, `-o`, out.full, temp);
-		await rm(temp);
+		await RunFontBuildTask("make/quadify/index.js", { main: $1.full, o: out.full });
 	}
 );
 
 const ShsCassicalOverrideOtd = file.make(
 	weight => `${BUILD}/shs-classical-override/${weight}.otd`,
 	async (t, out, weight) => {
-		const [config] = await t.need(Config);
+		const [config] = await t.need(Config, Scripts);
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
 			de(out.dir),
 			fu`${SOURCES}/shs-classical-override/${shsSourceMap.classicalOverridePrefix}-${shsSourceMap.classicalOverrideSuffix[weight]}.otf`
 		);
-		const temp = `${out.dir}/${out.name}.tmp.ttf`;
-		// I hope SHS' HMTX LSBs are correct
-		await run(OTF2TTF, [`-o`, temp], $1.full);
-		// ... if not, use this instead
-		// await RunFontBuildTask("make/quadify/index.js", { main: temp, o: $1.full + ".tmp.ttf" });
-		await run(OTFCCDUMP, `-o`, out.full, temp);
-		await rm(temp);
+		await RunFontBuildTask("make/quadify/index.js", { main: $1.full, o: out.full });
 	}
 );
 

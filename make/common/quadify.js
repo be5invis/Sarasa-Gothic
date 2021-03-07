@@ -38,9 +38,7 @@ function convertContourToArcs(_contour) {
 	for (let j = 1; j < contour.length; j++) {
 		const z = contour[j];
 		if (z.on) {
-			arcs.push(
-				TypoGeom.Arcs.Bez3.fromStraightSegment(new TypoGeom.Arcs.StraightSegment(z0, z))
-			);
+			arcs.push(new TypoGeom.Arcs.StraightSegment(z0, z));
 			z0 = z;
 		} else {
 			const z1 = z;
@@ -63,10 +61,11 @@ class FairizedShapeSink {
 	beginShape() {}
 	endShape() {
 		if (this.lastContour.length > 2) {
-			const zFirst = this.lastContour[0],
-				zLast = this.lastContour[this.lastContour.length - 1];
-			if (isOccurrent(zFirst, zLast)) this.lastContour.pop();
-			this.contours.push(this.lastContour);
+			const c = this.lastContour.reverse();
+			const zFirst = c[0],
+				zLast = c[c.length - 1];
+			if (isOccurrent(zFirst, zLast)) c.pop();
+			this.contours.push(c);
 		}
 		this.lastContour = [];
 	}
