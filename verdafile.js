@@ -387,7 +387,7 @@ const GroupHintSelf = task.make(
 			[`-c`, hintParam.full],
 			[`-h`, `${HintDirPrefix}-${weight}/cache.gz`],
 			[`--jobs`, jHint],
-			[...HintParams([...kanjiTtfs, ...pass1Ttfs])]
+			[...HintParams([...pass1Ttfs, ...kanjiTtfs])]
 		);
 	}
 );
@@ -419,7 +419,7 @@ const GroupInstr = task.make(
 			Chlorophytum,
 			`instruct`,
 			[`-c`, hintParam.full],
-			[...InstrParams(outDir, [...kanjiTtfs, ...pass1Ttfs])]
+			[...InstrParams(outDir, [...pass1Ttfs, ...kanjiTtfs])]
 		);
 	}
 );
