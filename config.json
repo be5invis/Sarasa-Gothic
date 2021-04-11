@@ -1,6 +1,6 @@
 {
 	"buildOptions":{},
-	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab", "fixed", "fixed-slab"],
+	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab"],
 	"families": {
 		"gothic": {
 			"isTNUM": true,
@@ -30,7 +30,7 @@
 		},
 		"mono": {
 			"isMono": true,
-			"latinGroup": "iosevka",
+			"latinGroup": "iosevka-n",
 			"naming": {
 				"en_US": "Sarasa Mono",
 				"zh_CN": "等距更纱黑体",
@@ -43,7 +43,7 @@
 		"term": {
 			"isMono": true,
 			"isTerm": true,
-			"latinGroup": "iosevka-term",
+			"latinGroup": "iosevka-n-term",
 			"naming": {
 				"en_US": "Sarasa Term",
 				"zh_CN": "Sarasa Term",
@@ -56,7 +56,7 @@
 		"fixed": {
 			"isMono": true,
 			"isTerm": true,
-			"latinGroup": "iosevka-fixed",
+			"latinGroup": "iosevka-n-fixed",
 			"naming": {
 				"en_US": "Sarasa Fixed",
 				"zh_CN": "Sarasa Fixed",
@@ -68,7 +68,7 @@
 		},
 		"mono-slab": {
 			"isMono": true,
-			"latinGroup": "iosevka-slab",
+			"latinGroup": "iosevka-n-slab",
 			"naming": {
 				"en_US": "Sarasa Mono Slab",
 				"zh_CN": "等距更纱黑体 Slab",
@@ -80,7 +80,7 @@
 		},
 		"term-slab": {
 			"isMono": true,
-			"latinGroup": "iosevka-term-slab",
+			"latinGroup": "iosevka-n-term-slab",
 			"isTerm": true,
 			"naming": {
 				"en_US": "Sarasa Term Slab",
@@ -93,7 +93,7 @@
 		},
 		"fixed-slab": {
 			"isMono": true,
-			"latinGroup": "iosevka-fixed-slab",
+			"latinGroup": "iosevka-n-fixed-slab",
 			"isTerm": true,
 			"naming": {
 				"en_US": "Sarasa Fixed Slab",
