@@ -1,6 +1,6 @@
 {
 	"buildOptions":{},
-	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab"],
+	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab", "fixed", "fixed-slab"],
 	"families": {
 		"gothic": {
 			"isTNUM": true,
