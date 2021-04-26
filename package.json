@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.30.2",
+	"version": "0.31.0",
 	"main": "./run",
 	"scripts": {
 		"build": "verda -f verdafile.js",
@@ -13,7 +13,7 @@
 		"@chlorophytum/font-format-ttf": "^0.32.3",
 		"@chlorophytum/hint-store-provider-file": "^0.32.3",
 		"@chlorophytum/hm-combine": "^0.32.3",
-		"@chlorophytum/hm-ideograph": "^0.32.1",
+		"@chlorophytum/hm-ideograph": "^0.32.7",
 		"clone": "^2.1.2",
 		"colors": "^1.4.0",
 		"fs-extra": "^9.1.0",
