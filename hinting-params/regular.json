@@ -8,7 +8,9 @@
 			{
 				"hintPlugin": "@chlorophytum/hm-ideograph",
 				"hintOptions": {
-					"CANONICAL_STEM_WIDTH": 0.067
+					"CANONICAL_STEM_WIDTH": 0.067,
+					"DoOutlineDicing": true,
+					"OutlineDicingStepLength": 0.075
 				}
 			},
 			{
@@ -26,7 +28,9 @@
 					"SLOPE_FUZZ": 0.175,
 					"SLOPE_FUZZ_POS": 0.175,
 					"SLOPE_FUZZ_POST": 0.175,
-					"SLOPE_FUZZ_NEG": 0.175
+					"SLOPE_FUZZ_NEG": 0.175,
+					"DoOutlineDicing": true,
+					"OutlineDicingStepLength": 0.075
 				}
 			},
 			{
@@ -44,7 +48,9 @@
 					"SLOPE_FUZZ": 0.03,
 					"SLOPE_FUZZ_POS": 0.03,
 					"SLOPE_FUZZ_POST": 0.03,
-					"SLOPE_FUZZ_NEG": 0.03
+					"SLOPE_FUZZ_NEG": 0.03,
+					"DoOutlineDicing": true,
+					"OutlineDicingStepLength": 0.075
 				}
 			}
 		]
