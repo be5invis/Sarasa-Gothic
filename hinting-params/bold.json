@@ -11,7 +11,7 @@
 					"CANONICAL_STEM_WIDTH": 0.097,
 					"STEM_SIDE_MIN_DIST_DESCENT": 0.072,
 					"DoOutlineDicing": true,
-					"OutlineDicingStepLength": 0.075
+					"OutlineDicingStepLength": 0.05
 				}
 			},
 			{
@@ -33,7 +33,7 @@
 					"CANONICAL_STEM_WIDTH": 0.097,
 					"STEM_SIDE_MIN_DIST_DESCENT": 0.072,
 					"DoOutlineDicing": true,
-					"OutlineDicingStepLength": 0.075
+					"OutlineDicingStepLength": 0.05
 				}
 			},
 			{
@@ -55,7 +55,7 @@
 					"CANONICAL_STEM_WIDTH": 0.097,
 					"STEM_SIDE_MIN_DIST_DESCENT": 0.072,
 					"DoOutlineDicing": true,
-					"OutlineDicingStepLength": 0.075
+					"OutlineDicingStepLength": 0.05
 				}
 			}
 		]
