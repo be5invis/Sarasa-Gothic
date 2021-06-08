@@ -71,8 +71,8 @@ function createNameTuple(nameTable, langID, family, style, localizedStyle) {
 			nameEntry(WINDOWS, UNICODE, langID, FULL_NAME, `${compat.family} ${compatStyle}`)
 		);
 	}
+	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, UNIQUE_NAME, `${family} ${style}`));
 	if (langID === langIDMap.en_US) {
-		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, UNIQUE_NAME, `${family} ${style}`));
 		nameTable.push(
 			nameEntry(WINDOWS, UNICODE, langID, POSTSCRIPT, convPostscript(`${family} ${style}`))
 		);
