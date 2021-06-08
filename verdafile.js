@@ -369,36 +369,51 @@ const GroupHintStyleList = computed(`group-hint-style-list`, async t => {
 	return results;
 });
 
-const GroupHintSelf = task.make(
-	weight => `group-hint-self::${weight}`,
+const GroupHintSelfKanji = task.make(
+	weight => `group-hint-self-kanji::${weight}`,
 	async (t, weight) => {
-		const [config, jHint, hintParam] = await t.need(
-			Config,
-			JHint,
-			fu`hinting-params/${weight}.json`
-		);
-
+		const [config, jHint] = await t.need(Config, JHint);
+		const [hintParam] = await t.need(fu`hinting-params/${weight}.json`);
 		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
-		const [kanjiTtfs, pass1Ttfs] = await t.need(kanjiDeps, pass1Deps);
+		const [kanjiTtfs] = await t.need(kanjiDeps);
 
 		await run(
 			Chlorophytum,
 			`hint`,
 			[`-c`, hintParam.full],
-			[`-h`, `${HintDirPrefix}-${weight}/cache.gz`],
+			[`-h`, `${HintDirPrefix}-${weight}/cache-kanji.gz`],
 			[`--jobs`, jHint],
-			[...HintParams([...pass1Ttfs, ...kanjiTtfs])]
+			Array.from(HintParams(kanjiTtfs))
 		);
 	}
 );
 
-const GroupHintDependent = task.make(
+const GroupHintSelfPass1 = task.make(
+	weight => `group-hint-self-pass1::${weight}`,
+	async (t, weight) => {
+		const [config, jHint] = await t.need(Config, JHint);
+		const [hintParam] = await t.need(fu`hinting-params/${weight}.json`);
+		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
+		const [pass1Ttfs] = await t.need(pass1Deps);
+
+		await run(
+			Chlorophytum,
+			`hint`,
+			[`-c`, hintParam.full],
+			[`-h`, `${HintDirPrefix}-${weight}/cache-pass1.gz`],
+			[`--jobs`, jHint],
+			Array.from(HintParams(pass1Ttfs))
+		);
+	}
+);
+
+const GroupHintDependentKanji = task.make(
 	weight => `group-hint-dependent::${weight}`,
 	async (t, weight) => {
 		const [styleList] = await t.need(GroupHintStyleList);
 		const weightIndex = styleList.indexOf(weight);
-		if (weightIndex > 0) await t.need(GroupHintDependent(styleList[weightIndex - 1]));
-		await t.need(GroupHintSelf(weight));
+		if (weightIndex > 0) await t.need(GroupHintDependentKanji(styleList[weightIndex - 1]));
+		await t.need(GroupHintSelfKanji(weight));
 	}
 );
 
@@ -413,7 +428,7 @@ const GroupInstr = task.make(
 		);
 		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
 		const [kanjiTtfs, pass1Ttfs] = await t.need(kanjiDeps, pass1Deps);
-		await t.need(GroupHintDependent(weight));
+		await t.need(GroupHintDependentKanji(weight), GroupHintSelfPass1(weight));
 
 		await run(
 			Chlorophytum,

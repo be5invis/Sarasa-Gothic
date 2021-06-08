@@ -6,53 +6,112 @@
 	"hintOptions": {
 		"passes": [
 			{
-				"hintPlugin": "@chlorophytum/hm-ideograph",
+				"hintPlugin": "@chlorophytum/hm-select-glyphs",
 				"hintOptions": {
-					"CANONICAL_STEM_WIDTH": 0.029,
-					"DoOutlineDicing": true,
-					"OutlineDicingStepLength": 0.06
+					"unicodeRange": {
+						"union": [
+							"Block/Kangxi_Radicals",
+							"Block/CJK_Radicals_Supplement",
+							"Block/CJK_Unified_Ideographs",
+							"Block/CJK_Unified_Ideographs_Extension_A",
+							"Block/CJK_Unified_Ideographs_Extension_B",
+							"Block/CJK_Unified_Ideographs_Extension_C",
+							"Block/CJK_Unified_Ideographs_Extension_D",
+							"Block/CJK_Unified_Ideographs_Extension_E",
+							"Block/CJK_Unified_Ideographs_Extension_F",
+							"Block/CJK_Strokes",
+							"Block/CJK_Compatibility_Ideographs",
+							"Block/CJK_Compatibility_Ideographs_Supplement",
+							"Block/Hangul_Syllables"
+						]
+					},
+					"trackScripts": ["hani", "hang"],
+					"trackFeatures": [
+						"locl",
+						"smpl",
+						"trad",
+						"tnam",
+						"jp78",
+						"jp83",
+						"jp90",
+						"jp04",
+						"hojo",
+						"nlck",
+						"expt"
+					],
+					"pass": {
+						"hintPlugin": "@chlorophytum/hm-ideograph",
+						"hintOptions": {
+							"CANONICAL_STEM_WIDTH": 0.029,
+							"DoOutlineDicing": true,
+							"OutlineDicingStepLength": 0.06
+						}
+					}
 				}
 			},
 			{
-				"hintPlugin": "@chlorophytum/hm-ideograph",
+				"hintPlugin": "@chlorophytum/hm-select-glyphs",
 				"hintOptions": {
-					"groupName": "Hiragana",
-					"unicodeRanges": [
-						[12353, 12438],
-						[12447, 12447],
-						[110608, 110847],
-						[110848, 110895]
-					],
+					"unicodeRange": {
+						"intersection": [
+							"Script/Hiragana",
+							{
+								"union": [
+									"Block/Hiragana",
+									"Block/Kana_Supplement",
+									"Block/Kana_Extended_A"
+								]
+							}
+						]
+					},
 					"trackFeatures": ["vert", "palt", "pkna", "hkna", "vkna"],
 					"trackScripts": ["kana"],
-					"SLOPE_FUZZ": 0.175,
-					"SLOPE_FUZZ_POS": 0.175,
-					"SLOPE_FUZZ_POST": 0.175,
-					"SLOPE_FUZZ_NEG": 0.175,
-					"CANONICAL_STEM_WIDTH": 0.029,
-					"DoOutlineDicing": true,
-					"OutlineDicingStepLength": 0.06
+					"pass": {
+						"hintPlugin": "@chlorophytum/hm-ideograph",
+						"hintOptions": {
+							"groupName": "Hiragana",
+							"SLOPE_FUZZ": 0.175,
+							"SLOPE_FUZZ_POS": 0.175,
+							"SLOPE_FUZZ_POST": 0.175,
+							"SLOPE_FUZZ_NEG": 0.175,
+							"CANONICAL_STEM_WIDTH": 0.029,
+							"DoOutlineDicing": true,
+							"OutlineDicingStepLength": 0.06
+						}
+					}
 				}
 			},
 			{
-				"hintPlugin": "@chlorophytum/hm-ideograph",
+				"hintPlugin": "@chlorophytum/hm-select-glyphs",
 				"hintOptions": {
-					"groupName": "Katakana",
-					"unicodeRanges": [
-						[12449, 12538],
-						[12543, 12543],
-						[12784, 12799],
-						[110896, 110959]
-					],
+					"unicodeRange": {
+						"intersection": [
+							"Script/Katakana",
+							{
+								"union": [
+									"Block/Katakana",
+									"Block/Katakana_Phonetic_Extensions",
+									"Block/Kana_Supplement",
+									"Block/Kana_Extended_A"
+								]
+							}
+						]
+					},
 					"trackFeatures": ["vert", "palt", "pkna", "hkna", "vkna"],
 					"trackScripts": ["kana"],
-					"SLOPE_FUZZ": 0.03,
-					"SLOPE_FUZZ_POS": 0.03,
-					"SLOPE_FUZZ_POST": 0.03,
-					"SLOPE_FUZZ_NEG": 0.03,
-					"CANONICAL_STEM_WIDTH": 0.029,
-					"DoOutlineDicing": true,
-					"OutlineDicingStepLength": 0.06
+					"pass": {
+						"hintPlugin": "@chlorophytum/hm-ideograph",
+						"hintOptions": {
+							"groupName": "Katakana",
+							"SLOPE_FUZZ": 0.03,
+							"SLOPE_FUZZ_POS": 0.03,
+							"SLOPE_FUZZ_POST": 0.03,
+							"SLOPE_FUZZ_NEG": 0.03,
+							"CANONICAL_STEM_WIDTH": 0.029,
+							"DoOutlineDicing": true,
+							"OutlineDicingStepLength": 0.06
+						}
+					}
 				}
 			}
 		]
