@@ -44,5 +44,5 @@ Please note that you will need *a lot of* memory to create TTCs, due to the huge
 
 ## Mirrors
 
-- TUNA (CN): https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis/Sarasa-Gothic
-- NJU (CN): https://mirrors.nju.edu.cn/github-release/be5invis/Sarasa-Gothic/
+- TUNA (CN): https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis/Iosevka
+- NJU (CN): https://mirrors.nju.edu.cn/github-release/be5invis/Iosevka
