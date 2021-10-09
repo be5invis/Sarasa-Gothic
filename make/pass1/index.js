@@ -1,5 +1,6 @@
 "use strict";
 
+const rebaseFont = require("../common/rebase");
 const introFont = require("../common/intro-font");
 const buildFont = require("../common/build-font");
 const { mergeAbove, mergeBelow } = require("../common/merge");
@@ -23,6 +24,8 @@ module.exports = async function (argv) {
 	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
 	const b = await introFont({ from: argv.asian, prefix: "b", ignoreHints: true });
 	const c = await introFont({ from: argv.ws, prefix: "c", ignoreHints: true });
+
+	rebaseFont(a, { scale: 1000 / a.head.unitsPerEm });
 
 	// tnum
 	if (argv.tnum) toTNUM(a);
