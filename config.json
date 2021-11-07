@@ -119,7 +119,7 @@
 	],
 	"latinGroups": {
 		"Inter": {
-			"isCff": true,
+			"isCff": false,
 			"styleToFileSuffixMap": {
 				"extralight": "ExtraLight",
 				"extralightitalic": "ExtraLightItalic",
