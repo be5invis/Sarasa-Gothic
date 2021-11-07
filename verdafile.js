@@ -126,8 +126,8 @@ const BreakShsTtc = task.make(
 	}
 );
 
-const ShsOtd = file.make(
-	(region, weight) => `${BUILD}/shs/${region}-${weight}.otd`,
+const ShsTtf = file.make(
+	(region, weight) => `${BUILD}/shs/${region}-${weight}.ttf`,
 	async (t, out, region, weight) => {
 		const [config] = await t.need(Config, Scripts, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
@@ -135,12 +135,12 @@ const ShsOtd = file.make(
 			de(out.dir),
 			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
 		);
-		await RunFontBuildTask("make/quadify/index.js", { main: $1.full, o: out.full });
+		await run("otf2ttf", "-o", out.full, $1.full);
 	}
 );
 
-const ShsCassicalOverrideOtd = file.make(
-	weight => `${BUILD}/shs-classical-override/${weight}.otd`,
+const ShsCassicalOverrideTtf = file.make(
+	weight => `${BUILD}/shs-classical-override/${weight}.ttf`,
 	async (t, out, weight) => {
 		const [config] = await t.need(Config, Scripts);
 		const shsSourceMap = config.shsSourceMap;
@@ -148,7 +148,7 @@ const ShsCassicalOverrideOtd = file.make(
 			de(out.dir),
 			fu`${SOURCES}/shs-classical-override/${shsSourceMap.classicalOverridePrefix}-${shsSourceMap.classicalOverrideSuffix[weight]}.otf`
 		);
-		await RunFontBuildTask("make/quadify/index.js", { main: $1.full, o: out.full });
+		await run("otf2ttf", "-o", out.full, $1.full);
 	}
 );
 
@@ -156,7 +156,7 @@ const NonKanji = file.make(
 	(region, style) => `${BUILD}/non-kanji0/${region}-${style}.ttf`,
 	async (t, out, region, style) => {
 		await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsOtd(region, style), de(out.dir));
+		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
 		const tmpOTD = `${out.dir}/${out.name}.otd`;
 		await RunFontBuildTask("make/non-kanji/build.js", {
 			main: $1.full,
@@ -217,9 +217,9 @@ const LatinSource = file.make(
 		const sourceFile = `sources/${group}/${group}-${sourceStyle}` + (isCff ? ".otf" : ".ttf");
 		const [source] = await t.need(fu(sourceFile));
 		if (isCff) {
-			await RunFontBuildTask("make/quadify/index.js", { main: source.full, o: out.full });
+			await run("otf2ttf", "-o", out.full, source.full);
 		} else {
-			await cp(source.full, out.full);
+			await run("ttfautohint", "-d", source.full, out.full);
 		}
 	}
 );
@@ -263,10 +263,10 @@ const Kanji0 = file.make(
 	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
 	async (t, out, region, style) => {
 		const [config] = await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsOtd(region, style), de(out.dir));
+		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
 		let $2 = null;
 		if (region === config.shsSourceMap.classicalRegion) {
-			[$2] = await t.need(ShsCassicalOverrideOtd(style));
+			[$2] = await t.need(ShsCassicalOverrideTtf(style));
 		}
 		const tmpOTD = `${out.dir}/${out.name}.otd`;
 		await RunFontBuildTask("make/kanji/build.js", {
@@ -282,7 +282,7 @@ const Hangul0 = file.make(
 	(region, style) => `${BUILD}/hangul0/${region}-${style}.ttf`,
 	async (t, out, region, style) => {
 		await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsOtd(region, style), de(out.dir));
+		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
 		const tmpOTD = `${out.dir}/${out.name}.otd`;
 		await RunFontBuildTask("make/hangul/build.js", { main: $1.full, o: tmpOTD });
 		await OtfccBuildAsIs(tmpOTD, out.full);

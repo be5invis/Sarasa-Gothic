@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "0.34.7",
+	"version": "0.35.0",
 	"main": "./run",
 	"scripts": {
 		"build": "verda -f verdafile.js",
