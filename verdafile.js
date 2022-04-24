@@ -152,6 +152,47 @@ const ShsCassicalOverrideTtf = file.make(
 	}
 );
 
+const Kanji0 = file.make(
+	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
+	async (t, out, region, style) => {
+		const [config] = await t.need(Config, Scripts);
+		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
+		let $2 = null;
+		if (region === config.shsSourceMap.classicalRegion) {
+			[$2] = await t.need(ShsCassicalOverrideTtf(style));
+		}
+		const tmpOTD = `${out.dir}/${out.name}.otd`;
+		await RunFontBuildTask("make/kanji/build.js", {
+			main: $1.full,
+			classicalOverride: $2 ? $2.full : null,
+			o: tmpOTD
+		});
+		await OtfccBuildAsIs(tmpOTD, out.full);
+	}
+);
+
+const Hangul0 = file.make(
+	(region, style) => `${BUILD}/hangul0/${region}-${style}.ttf`,
+	async (t, out, region, style) => {
+		await t.need(Config, Scripts);
+		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
+		const tmpOTD = `${out.dir}/${out.name}.otd`;
+		await RunFontBuildTask("make/hangul/build.js", { main: $1.full, o: tmpOTD });
+		await OtfccBuildAsIs(tmpOTD, out.full);
+	}
+);
+
+const FEMisc0 = file.make(
+	(region, style) => `${BUILD}/fe-misc0/${region}-${style}.ttf`,
+	async (t, out, region, style) => {
+		await t.need(Config, Scripts);
+		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
+		const tmpOTD = `${out.dir}/${out.name}.otd`;
+		await RunFontBuildTask("make/fe-misc/build.js", { main: $1.full, o: tmpOTD });
+		await OtfccBuildAsIs(tmpOTD, out.full);
+	}
+);
+
 const NonKanji = file.make(
 	(region, style) => `${BUILD}/non-kanji0/${region}-${style}.ttf`,
 	async (t, out, region, style) => {
@@ -229,16 +270,18 @@ const Pass1 = file.make(
 	async (t, out, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
 		const latinFamily = config.families[family].latinGroup;
-		const [, $1, $2, $3] = await t.need(
+		const [, $1, $2, $3, $4] = await t.need(
 			de(out.dir),
 			LatinSource(latinFamily, style),
 			AS0(family, region, deItalizedNameOf(config, style)),
-			WS0(family, region, deItalizedNameOf(config, style))
+			WS0(family, region, deItalizedNameOf(config, style)),
+			FEMisc0(region, deItalizedNameOf(config, style))
 		);
 		await RunFontBuildTask("make/pass1/index.js", {
 			main: $1.full,
 			asian: $2.full,
 			ws: $3.full,
+			feMisc: $4.full,
 			o: out.full,
 
 			family: family,
@@ -256,36 +299,6 @@ const Pass1Hinted = file.make(
 	async (t, out, family, region, style) => {
 		const [pass1] = await t.need(Pass1(family, region, style), de(out.dir));
 		await run("ttfautohint", pass1.full, out.full);
-	}
-);
-
-const Kanji0 = file.make(
-	(region, style) => `${BUILD}/kanji0/${region}-${style}.ttf`,
-	async (t, out, region, style) => {
-		const [config] = await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
-		let $2 = null;
-		if (region === config.shsSourceMap.classicalRegion) {
-			[$2] = await t.need(ShsCassicalOverrideTtf(style));
-		}
-		const tmpOTD = `${out.dir}/${out.name}.otd`;
-		await RunFontBuildTask("make/kanji/build.js", {
-			main: $1.full,
-			classicalOverride: $2 ? $2.full : null,
-			o: tmpOTD
-		});
-		await OtfccBuildAsIs(tmpOTD, out.full);
-	}
-);
-
-const Hangul0 = file.make(
-	(region, style) => `${BUILD}/hangul0/${region}-${style}.ttf`,
-	async (t, out, region, style) => {
-		await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
-		const tmpOTD = `${out.dir}/${out.name}.otd`;
-		await RunFontBuildTask("make/hangul/build.js", { main: $1.full, o: tmpOTD });
-		await OtfccBuildAsIs(tmpOTD, out.full);
 	}
 );
 
