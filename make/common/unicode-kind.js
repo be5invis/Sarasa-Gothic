@@ -24,6 +24,11 @@ exports.isKorean = c =>
 	(c >= 0xa960 && c <= 0xa97f) ||
 	(c >= 0xd7b0 && c <= 0xd7ff);
 
+exports.isFEMisc = c =>
+	(c >= 0x3000 && c <= 0x33ff) ||
+	(c >= 0x1aff0 && c <= 0x1b12f) ||
+	(c >= 0x1f000 && c <= 0x1f2ff);
+
 exports.isWS = function (c) {
 	return (
 		((c >= 0x2000 && c <= 0x200f) || (c >= 0x20a0 && c < 0x3000)) &&
