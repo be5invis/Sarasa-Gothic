@@ -24,6 +24,7 @@ module.exports = async function (argv) {
 	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
 	const b = await introFont({ from: argv.asian, prefix: "b", ignoreHints: true });
 	const c = await introFont({ from: argv.ws, prefix: "c", ignoreHints: true });
+	const d = await introFont({ from: argv.feMisc, prefix: "d", ignoreHints: true });
 
 	rebaseFont(a, { scale: 1000 / a.head.unitsPerEm });
 
@@ -43,6 +44,7 @@ module.exports = async function (argv) {
 	crossTransfer(a, b, [0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015]);
 	mergeBelow(a, c, { mergeOTL: true });
 	mergeAbove(a, b, { mergeOTL: true });
+	mergeAbove(a, d, { mergeOTL: true });
 
 	buildNexusDash(a);
 	setHintFlag(a);

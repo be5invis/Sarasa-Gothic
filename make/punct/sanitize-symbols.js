@@ -34,6 +34,14 @@ sanitizers.half = function (font, glyph) {
 	glyph.advanceWidth = targetW;
 	return glyph;
 };
+sanitizers.full = function (font, glyph) {
+	const targetW = font.em;
+	const shift = (targetW - glyph.advanceWidth) / 2;
+	if (!glyph.contours) return glyph;
+	for (let c of glyph.contours) for (let z of c) z.x += shift;
+	glyph.advanceWidth = targetW;
+	return glyph;
+};
 sanitizers.halfLeft = function (font, glyph, gid, isGothic) {
 	const find = createFinder(font);
 	const g1 = sanitizers.half(font, find.glyph$(find.gname.subst("pwid", gid)));
@@ -90,6 +98,8 @@ const sanitizerTypes = {
 	"\u2013": "halfCompH",
 	"\u2014": "halfComp",
 	"\u2015": "halfComp",
+	"\u2025": "full",
+	"\u2026": "full",
 	"\u2e3a": "halfComp2",
 	"\u2e3b": "halfComp3"
 };
