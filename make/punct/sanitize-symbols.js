@@ -37,9 +37,17 @@ sanitizers.half = function (font, glyph) {
 sanitizers.full = function (font, glyph) {
 	const targetW = font.em;
 	const shift = (targetW - glyph.advanceWidth) / 2;
+	glyph.advanceWidth = targetW;
 	if (!glyph.contours) return glyph;
 	for (let c of glyph.contours) for (let z of c) z.x += shift;
+	return glyph;
+};
+sanitizers.ellipsis = function (font, glyph, gid, isGothic, isType) {
+	const targetW = isGothic ? font.em : isType ? glyph.advanceWidth : font.em / 2;
+	const shift = (targetW - glyph.advanceWidth) / 2;
 	glyph.advanceWidth = targetW;
+	if (!glyph.contours) return glyph;
+	for (let c of glyph.contours) for (let z of c) z.x += shift;
 	return glyph;
 };
 sanitizers.halfLeft = function (font, glyph, gid, isGothic) {
@@ -98,8 +106,8 @@ const sanitizerTypes = {
 	"\u2013": "halfCompH",
 	"\u2014": "halfComp",
 	"\u2015": "halfComp",
-	"\u2025": "full",
-	"\u2026": "full",
+	"\u2025": "ellipsis",
+	"\u2026": "ellipsis",
 	"\u2e3a": "halfComp2",
 	"\u2e3b": "halfComp3"
 };
