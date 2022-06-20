@@ -25,7 +25,9 @@ exports.isKorean = c =>
 	(c >= 0xd7b0 && c <= 0xd7ff);
 
 exports.isFEMisc = c =>
-	(c >= 0x3000 && c <= 0x33ff) ||
+	(c >= 0x3003 && c <= 0x3007) ||
+	(c >= 0x3012 && c <= 0x3013) ||
+	(c >= 0x3020 && c <= 0x33ff) ||
 	(c >= 0x1aff0 && c <= 0x1b12f) ||
 	(c >= 0x1f000 && c <= 0x1f2ff);
 
