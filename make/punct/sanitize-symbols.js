@@ -109,7 +109,12 @@ const sanitizerTypes = {
 	"\u2025": "ellipsis",
 	"\u2026": "ellipsis",
 	"\u2e3a": "halfComp2",
-	"\u2e3b": "halfComp3"
+	"\u2e3b": "halfComp3",
+	"\u31b4": "half",
+	"\u31b5": "half",
+	"\u31b6": "half",
+	"\u31b7": "half",
+	"\u31bb": "half"
 };
 
 exports.sanitizeSymbols = function sanitizeSymbols(font, isGothic, isType) {
