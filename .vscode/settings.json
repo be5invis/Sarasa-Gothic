@@ -1,5 +1,9 @@
 {
-	"codemetrics.basics.EnabledForJS": false,
 	"cSpell.enabled": false,
-	"search.useGlobalIgnoreFiles": true
+	"search.useGlobalIgnoreFiles": true,
+	"files.exclude": {
+		".build/": true,
+		"node_modules/": true,
+		"out/": true
+	}
 }

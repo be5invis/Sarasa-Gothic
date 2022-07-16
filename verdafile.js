@@ -182,17 +182,6 @@ const Hangul0 = file.make(
 	}
 );
 
-const FEMisc0 = file.make(
-	(region, style) => `${BUILD}/fe-misc0/${region}-${style}.ttf`,
-	async (t, out, region, style) => {
-		await t.need(Config, Scripts);
-		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
-		const tmpOTD = `${out.dir}/${out.name}.otd`;
-		await RunFontBuildTask("make/fe-misc/build.js", { main: $1.full, o: tmpOTD });
-		await OtfccBuildAsIs(tmpOTD, out.full);
-	}
-);
-
 const NonKanji = file.make(
 	(region, style) => `${BUILD}/non-kanji0/${region}-${style}.ttf`,
 	async (t, out, region, style) => {
@@ -225,6 +214,11 @@ const WS0 = file.make(
 const AS0 = file.make(
 	(family, region, style) => `${BUILD}/as0/${family}-${region}-${style}.ttf`,
 	(...args) => BuildPunct("as", ...args)
+);
+
+const FEMisc0 = file.make(
+	(family, region, style) => `${BUILD}/fe-misc0/${family}-${region}-${style}.ttf`,
+	(...args) => BuildPunct("fe-misc", ...args)
 );
 
 async function BuildPunct(blockName, t, out, family, region, style) {
@@ -275,7 +269,7 @@ const Pass1 = file.make(
 			LatinSource(latinFamily, style),
 			AS0(family, region, deItalizedNameOf(config, style)),
 			WS0(family, region, deItalizedNameOf(config, style)),
-			FEMisc0(region, deItalizedNameOf(config, style))
+			FEMisc0(family, region, deItalizedNameOf(config, style))
 		);
 		await RunFontBuildTask("make/pass1/index.js", {
 			main: $1.full,
@@ -293,6 +287,8 @@ const Pass1 = file.make(
 		});
 	}
 );
+
+task("test", t => t.need(Pass1("gothic", "cl", "regular"), Pass1("mono", "cl", "regular")));
 
 const Pass1Hinted = file.make(
 	(family, region, style) => `${BUILD}/pass1-hinted/${family}-${region}-${style}.ttf`,

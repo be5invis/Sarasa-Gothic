@@ -7,7 +7,7 @@ const gc = require("../common/gc");
 
 module.exports = async function pass(argv) {
 	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
-	filterUnicodeRange(a, c => !isIdeograph(c) && !isKorean(c) && !isFEMisc(c));
+	filterUnicodeRange(a, c => !isIdeograph(c) && !isKorean(c));
 	a.cvt_ = [];
 	a.fpgm = [];
 	a.prep = [];
