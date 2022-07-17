@@ -1,5 +1,3 @@
-"use strict";
-
 const which = require("which");
 
 function check(util) {
