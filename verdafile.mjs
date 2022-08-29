@@ -20,7 +20,7 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 // Command line
 const NODEJS = `node`;
-const SEVEN_ZIP = `7z`;
+const SEVEN_ZIP = process.env.SEVEN_ZIP_PATH || "7z";
 const OTFCCDUMP = `otfccdump`;
 const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
