@@ -1,4 +1,4 @@
-function mergeAbove(major, side, config) {
+export function mergeAbove(major, side, config) {
 	config = config || {};
 	const gid0 = side.glyph_order[0];
 	for (const unicode in side.cmap) {
@@ -22,7 +22,8 @@ function mergeAbove(major, side, config) {
 		major.GDEF = mergeGDEF(major.GDEF || {}, side.GDEF || {});
 	}
 }
-function mergeBelow(major, side, config) {
+
+export function mergeBelow(major, side, config) {
 	config = config || {};
 	for (const unicode in side.cmap) {
 		if (major.cmap[unicode]) continue;
@@ -44,29 +45,31 @@ function mergeBelow(major, side, config) {
 		major.GDEF = mergeGDEF(side.GDEF || {}, major.GDEF || {});
 	}
 }
+
 function mergeOTLTables(dst, src, priorizeSrc) {
 	if (!dst || !src) return;
-	for (const fid in src.features) {
-		dst.features[fid] = src.features[fid];
-	}
-	for (const lid in src.lookups) {
-		dst.lookups[lid] = src.lookups[lid];
-	}
+
+	for (const fid in src.features) dst.features[fid] = src.features[fid];
+	for (const lid in src.lookups) dst.lookups[lid] = src.lookups[lid];
+
 	for (const lid in src.languages) {
 		if (dst.languages[lid]) {
-			dst.languages[lid].features = dst.languages[lid].features.concat(
-				src.languages[lid].features
-			);
+			dst.languages[lid].features = [
+				...dst.languages[lid].features,
+				...src.languages[lid].features
+			];
 		} else {
 			dst.languages[lid] = src.languages[lid];
 		}
 	}
+
 	if (priorizeSrc) {
 		dst.lookupOrder = [src.lookupOrder || [], dst.lookupOrder || []];
 	} else {
 		dst.lookupOrder = [dst.lookupOrder || [], src.lookupOrder || []];
 	}
 }
+
 function mergeGDEF(first, second) {
 	return {
 		markAttachClassDef: Object.assign({}, first.markAttachClassDef, second.markAttachClassDef),
@@ -74,5 +77,3 @@ function mergeGDEF(first, second) {
 		ligCarets: Object.assign({}, first.ligCarets, second.ligCarets)
 	};
 }
-export { mergeAbove };
-export { mergeBelow };
