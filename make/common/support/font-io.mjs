@@ -31,6 +31,7 @@ function getStream(sourcefile, options) {
 		return fs.createReadStream(sourcefile, { encoding: "utf8" });
 	}
 }
+
 function cpToPromise(cp) {
 	return new Promise(function (resolve, reject) {
 		cp.on("close", code => {
@@ -42,9 +43,11 @@ function cpToPromise(cp) {
 		});
 	});
 }
+
 export function loadFont(sourceFile, options) {
 	return JsonUtil.parseJsonObjectFromStream(getStream(sourceFile, options));
 }
+
 export const buildFont = async function builFont(font, destination, options) {
 	if (destination === "|") {
 		if (process.stdout.setEncoding instanceof Function) process.stdout.setEncoding("utf8");

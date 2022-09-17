@@ -22,32 +22,36 @@ const globalConfig = fs.readJsonSync(path.resolve(__dirname, "../../config.json"
 const packageConfig = fs.readJsonSync(path.resolve(__dirname, "../../package.json"));
 const ENCODINGS = globalConfig.os2encodings;
 export default (async function (argv) {
-	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
-	const b = await introFont({ from: argv.asian, prefix: "b", ignoreHints: true });
-	const c = await introFont({ from: argv.ws, prefix: "c", ignoreHints: true });
-	const d = await introFont({ from: argv.feMisc, prefix: "d", ignoreHints: true });
-	rebaseFont(a, { scale: 1000 / a.head.unitsPerEm });
+	const main = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
+	const as = await introFont({ from: argv.asian, prefix: "b", ignoreHints: true });
+	const ws = await introFont({ from: argv.ws, prefix: "c", ignoreHints: true });
+	const feMisc = await introFont({ from: argv.feMisc, prefix: "d", ignoreHints: true });
+
+	rebaseFont(main, { scale: 1000 / main.head.unitsPerEm });
 
 	// tnum
-	if (argv.tnum) toTNUM(a);
+	if (argv.tnum) toTNUM(main);
 	// vhea
-	a.vhea = b.vhea;
-	for (let g in a.glyf) {
-		a.glyf[g].verticalOrigin = a.head.unitsPerEm * 0.88;
-		a.glyf[g].advanceHeight = a.head.unitsPerEm;
+	main.vhea = as.vhea;
+	for (let g in main.glyf) {
+		main.glyf[g].verticalOrigin = main.head.unitsPerEm * 0.88;
+		main.glyf[g].advanceHeight = main.head.unitsPerEm;
 	}
-	if (argv.italize) italize(a, -9.4);
-	knockoutSymbols(a, { enclosedAlphaNumerics: !argv.mono, pua: !argv.mono });
-	crossTransfer(a, b, [0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015]);
 
-	mergeBelow(a, c, { mergeOTL: true });
-	mergeAbove(a, b, { mergeOTL: true });
-	mergeAbove(a, d, { mergeOTL: true });
-	buildNexusDash(a);
-	setHintFlag(a);
+	if (argv.italize) italize(main, -9.4);
+
+	knockoutSymbols(main, { enclosedAlphaNumerics: !argv.mono, pua: !argv.mono });
+	crossTransfer(main, as, [0x2010, 0x2011, 0x2012, 0x2013, 0x2014, 0x2015]);
+
+	mergeBelow(main, ws, { mergeOTL: true });
+	mergeAbove(main, as, { mergeOTL: true });
+	mergeBelow(main, feMisc, { mergeOTL: true });
+
+	buildNexusDash(main);
+	setHintFlag(main);
 
 	nameFont(
-		a,
+		main,
 		!!argv.mono,
 		globalConfig.nameTupleSelector[argv.subfamily],
 		ENCODINGS[argv.subfamily],
@@ -76,8 +80,9 @@ export default (async function (argv) {
 			}
 		}
 	);
-	if (argv.italize) italize(a, +9.4);
 
-	a.glyph_order = gc(a);
-	await buildFont(a, { to: argv.o });
+	if (argv.italize) italize(main, +9.4);
+
+	main.glyph_order = gc(main);
+	await buildFont(main, { to: argv.o });
 });

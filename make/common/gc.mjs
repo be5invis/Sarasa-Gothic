@@ -1,13 +1,90 @@
+"use strict";
+
+export default (function gcFont(font, cfg) {
+	simplifyFeatureMap(font.GSUB);
+	markSweepOtl(font.GSUB);
+	simplifyFeatureMap(font.GPOS);
+	markSweepOtl(font.GPOS);
+
+	const glyphSink = markGlyphs(font, cfg);
+	sweepGlyphs(font, glyphSink);
+	return [...glyphSink].sort((a, b) => a[1] - b[1]).map(x => x[0]);
+});
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+function simplifyFeatureMap(table) {
+	if (!table || !table.features || !table.lookups) return;
+
+	const uniqueLookupListMap = new Map();
+
+	const mergedFeatures = {};
+	const knownLanguages = Object.keys(table.languages).sort();
+
+	for (let lid of knownLanguages) {
+		if (!table.languages[lid]) continue;
+		const lang = JSON.parse(JSON.stringify(table.languages[lid]));
+		table.languages[lid] = lang;
+
+		let flattenFeatureTagMap_Req = {};
+		let flattenFeatureTagMap = {};
+		if (lang.requiredFeature) {
+			addFeatureToTagMap(flattenFeatureTagMap_Req, lang.requiredFeature, table);
+		}
+		if (lang.features) {
+			for (let f of lang.features) addFeatureToTagMap(flattenFeatureTagMap, f, table);
+		}
+
+		lang.requiredFeature = null;
+		for (let tag in flattenFeatureTagMap_Req) {
+			const lookups = [...new Set(flattenFeatureTagMap_Req[tag])];
+			const fidNew = uniqFeature(uniqueLookupListMap, tag + "__R__" + lid, tag, lookups);
+			mergedFeatures[fidNew] = lookups;
+			lang.requiredFeature = fidNew;
+		}
+
+		lang.features = [];
+		for (let tag in flattenFeatureTagMap) {
+			const lookups = [...new Set(flattenFeatureTagMap[tag])];
+			const fidNew = uniqFeature(uniqueLookupListMap, tag + "__F__" + lid, tag, lookups);
+			mergedFeatures[fidNew] = lookups;
+			lang.features.push(fidNew);
+		}
+	}
+	table.features = mergedFeatures;
+}
+
+function addFeatureToTagMap(sink, fid, table) {
+	if (!table.features[fid]) return;
+	const tag = fid.slice(0, 4);
+	if (!sink[tag]) sink[tag] = [];
+	sink[tag] = [...sink[tag], ...table.features[fid]];
+}
+
+function uniqFeature(map, fid, tag, lookups) {
+	const key = tag + "|" + lookups.map(x => "{" + x + "}").join("|");
+
+	const existing = map.get(key);
+	if (existing) return existing;
+
+	map.set(key, fid);
+	return fid;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 function markSweepOtl(table) {
 	if (!table || !table.features || !table.lookups) return;
+
 	const accessibleLookupsIds = new Set();
 	markLookups(table, accessibleLookupsIds);
+
 	let lookups1 = {};
 	for (const l in table.lookups) {
 		if (accessibleLookupsIds.has(l)) lookups1[l] = table.lookups[l];
 	}
 	table.lookups = lookups1;
+
 	let features1 = {};
 	for (let f in table.features) {
 		const feature = table.features[f];
@@ -19,6 +96,7 @@ function markSweepOtl(table) {
 	}
 	table.features = features1;
 }
+
 // eslint-disable-next-line complexity
 function markLookups(gsub, lookupSet) {
 	if (!gsub || !gsub.features) return;
@@ -46,7 +124,9 @@ function markLookups(gsub, lookupSet) {
 		lookupSetChanged = sizeBefore !== lookupSet.size;
 	} while (loop < 0xff && lookupSetChanged);
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 const RANK_MOST = 0;
 const RANK_UNICODE_PREFERRED = 0x1000000;
 const RANK_UNICODE_ALIASED = 0x2000000;
@@ -163,7 +243,9 @@ function markSubtable(glyphSink, type, st, cfg) {
 			break;
 	}
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 function sweepGlyphs(font, glyphSink) {
 	// glyf
 	if (font.glyf) {
@@ -291,10 +373,3 @@ function sweep_gsubReverse(st, gs) {
 	st.to = newTo;
 	return true;
 }
-export default (function gcFont(font, cfg) {
-	markSweepOtl(font.GSUB);
-	markSweepOtl(font.GPOS);
-	const glyphSink = markGlyphs(font, cfg);
-	sweepGlyphs(font, glyphSink);
-	return [...glyphSink].sort((a, b) => a[1] - b[1]).map(x => x[0]);
-});
