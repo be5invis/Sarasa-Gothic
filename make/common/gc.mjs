@@ -1,5 +1,3 @@
-"use strict";
-
 export default (function gcFont(font, cfg) {
 	simplifyFeatureMap(font.GSUB);
 	markSweepOtl(font.GSUB);
