@@ -26,7 +26,13 @@ const OTFCCBUILD = `otfccbuild`;
 const OTF2TTF = `otf2ttf`;
 const OTC2OTF = `otc2otf`;
 const TTX = `ttx`;
-const Chlorophytum = [NODEJS, `./node_modules/@chlorophytum/cli/bin/_startup`];
+
+const TTC_BUNDLE = [
+	NODEJS,
+	`--max-old-space-size=16384`,
+	`node_modules/otb-ttc-bundle/bin/otb-ttc-bundle`
+];
+const Chlorophytum = [NODEJS, `node_modules/@chlorophytum/cli/bin/_startup`];
 
 build.setJournal(`${BUILD}/.verda-build-journal`);
 build.setSelfTracking();
@@ -36,7 +42,9 @@ build.setSelfTracking();
 const Start = phony("all", async t => {
 	const version = await t.need(Version);
 	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
-	await t.need(TtcFontFiles`ttc`, TtcFontFiles`ttc-unhinted`);
+	// Do in serial -- otherwise, memory usage will be too high.
+	await t.need(TtcFontFiles`ttc`);
+	await t.need(TtcFontFiles`ttc-unhinted`);
 	await t.need(
 		TtcArchive(`ttc`, version),
 		TtcArchive(`ttc-unhinted`, version),
@@ -47,7 +55,9 @@ const Start = phony("all", async t => {
 
 const Ttc = phony(`ttc`, async t => {
 	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
-	await t.need(TtcFontFiles`ttc`, TtcFontFiles`ttc-unhinted`);
+	// Do in serial -- otherwise, memory usage will be too high.
+	await t.need(TtcFontFiles`ttc`);
+	await t.need(TtcFontFiles`ttc-unhinted`);
 });
 
 const Ttf = phony(`ttf`, async t => {
@@ -609,17 +619,7 @@ async function OtfccBuildAsIs(from, to) {
 }
 
 async function MakeTtc(config, from, to) {
-	const optimization = config.buildOptions.optimizeWithFilter
-		? { filterLoop: config.buildOptions.optimizeWithFilter }
-		: {};
-	await rm(to);
-	await node("make/common/make-ttc/index.mjs", {
-		inputs: from,
-		output: to,
-		commonWidth: 1000,
-		commonHeight: 1000,
-		...optimization
-	});
+	await run(TTC_BUNDLE, "--verbose", "-x", ["-o", to], from);
 }
 
 async function RunFontBuildTask(recipe, args) {
