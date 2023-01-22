@@ -32,6 +32,7 @@ const TTC_BUNDLE = [
 	`--max-old-space-size=16384`,
 	`node_modules/otb-ttc-bundle/bin/otb-ttc-bundle`
 ];
+const OTB_CLI = [NODEJS, `--max-old-space-size=16384`, `node_modules/ot-builder-cli/bin/otb-cli`];
 const Chlorophytum = [NODEJS, `node_modules/@chlorophytum/cli/bin/_startup`];
 
 build.setJournal(`${BUILD}/.verda-build-journal`);
@@ -610,7 +611,8 @@ async function OtfccBuildOptimize(config, from, to) {
 		await run(TTX, "-q", ["-o", to], tmpTtx);
 		await rm(tmpTtx);
 	} else {
-		await mv(tmpTo, to);
+		await run(OTB_CLI, "--optimize-size", "--recalc-os2-avg-char-width", tmpTo, "-o", to);
+		await rm(tmpTo);
 	}
 }
 async function OtfccBuildAsIs(from, to) {
