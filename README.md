@@ -31,10 +31,10 @@ Please note that you will need *a lot of* memory to create TTCs, due to the huge
 ## What are the names?
 
 - Style dimension
-  - Latin/Greek/Cyrillic character set being Inter
+  - Latin/Greek/Cyrillic character set being [Inter](https://github.com/rsms/inter)
     - Quotes (`“”`) are full width —— **Gothic**
     - Quotes (`“”`) are narrow —— **UI**
-  - Latin/Greek/Cyrillic character set being Iosevka
+  - Latin/Greek/Cyrillic character set being [Iosevka](https://github.com/be5invis/Iosevka)
     - Em dashes (`——`) are full width —— **Mono**
     - Em dashes (`——`) are half width —— **Term**
     - No ligature, Em dashes (`——`) are half width —— **Fixed**
