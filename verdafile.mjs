@@ -49,9 +49,15 @@ const Start = phony("all", async t => {
 	await t.need(
 		TtcArchive(`ttc`, version),
 		TtcArchive(`ttc-unhinted`, version),
+		SuperTtcArchive(`ttc`, version),
+		SuperTtcArchive(`ttc-unhinted`, version),
 		TtfArchive(`ttf`, version),
 		TtfArchive(`ttf-unhinted`, version)
 	);
+});
+
+const SuperTtc = phony(`super-ttc`, async target => {
+	await target.need(SuperTtcFile`ttc`, SuperTtcFile`ttc-unhinted`);
 });
 
 const Ttc = phony(`ttc`, async t => {
@@ -80,6 +86,14 @@ const Version = oracle("oracles::version", async t => {
 	return (await fs.readJson(path.resolve(__dirname, "package.json"))).version;
 });
 
+const SuperTtcArchive = file.make(
+	(infix, version) => `${OUT}/sarasa-gothic-super-${infix}-${version}.7z`,
+	async (t, out, infix) => {
+		await t.need(SuperTtcFile(infix));
+		await rm(out.full);
+		await SevenZipCompress(`${OUT}/.super-ttc`, out.full, `${PREFIX}-${infix}.ttc`);
+	}
+);
 const TtcArchive = file.make(
 	(infix, version) => `${OUT}/sarasa-gothic-${infix}-${version}.7z`,
 	async (t, out, infix) => {
@@ -517,6 +531,7 @@ function* InstrParams(toDir, otds) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TTC building
+
 const TtcFile = file.make(
 	(infix, style) => `${OUT}/${infix}/${PREFIX}-${style}.ttc`,
 	async (t, out, infix, style) => {
@@ -553,6 +568,19 @@ const TtfFontFiles = task.make(
 					reqs.push(prodT(f, sf, st));
 				}
 		await t.need(...reqs);
+	}
+);
+
+const SuperTtcFile = file.make(
+	infix => `${OUT}/.super-ttc/${PREFIX}-${infix}.ttc`,
+	async (target, out, infix) => {
+		const [config] = await target.need(Config, de(out.dir));
+		const [inputs] = await target.need(config.styleOrder.map(st => TtcFile(infix, st)));
+		await MakeSuperTtc(
+			config,
+			inputs.map(x => x.full),
+			out.full
+		);
 	}
 );
 
@@ -622,6 +650,9 @@ async function OtfccBuildAsIs(from, to) {
 
 async function MakeTtc(config, from, to) {
 	await run(TTC_BUNDLE, "--verbose", "-x", ["-o", to], from);
+}
+async function MakeSuperTtc(config, from, to) {
+	await run(TTC_BUNDLE, "--verbose", ["-o", to], from);
 }
 
 async function RunFontBuildTask(recipe, args) {
