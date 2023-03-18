@@ -1,7 +1,7 @@
 import buildFont from "../common/build-font.mjs";
 import gc from "../common/gc.mjs";
 import introFont from "../common/intro-font.mjs";
-import { isIdeograph, isKorean, filterUnicodeRange, isFEMisc } from "../common/unicode-kind.mjs";
+import { filterUnicodeRange, isIdeograph, isKorean } from "../common/unicode-kind.mjs";
 
 function removeUnusedFeature(table, tag) {
 	if (!table) return;

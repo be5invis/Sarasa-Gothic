@@ -9,6 +9,7 @@ import introFont from "../common/intro-font.mjs";
 import { italize } from "../common/italize.mjs";
 import { mergeAbove, mergeBelow } from "../common/merge.mjs";
 import rebaseFont from "../common/rebase.mjs";
+import { filterUnicodeRange, isIdeograph, isKorean } from "../common/unicode-kind.mjs";
 
 import { crossTransfer } from "./cross-transfer.mjs";
 import { knockoutSymbols } from "./knockout-symbols.mjs";
@@ -49,6 +50,7 @@ export default (async function (argv) {
 
 	buildNexusDash(main);
 	setHintFlag(main);
+	filterUnicodeRange(main, c => !isIdeograph(c) && !isKorean(c)); // Further filter out FE glyphs
 
 	nameFont(
 		main,
