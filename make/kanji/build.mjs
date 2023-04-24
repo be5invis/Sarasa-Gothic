@@ -1,21 +1,21 @@
-import buildFont from "../common/build-font.mjs";
-import gc from "../common/gc.mjs";
-import introFont from "../common/intro-font.mjs";
-import { mergeAbove } from "../common/merge.mjs";
-import { isIdeograph, filterUnicodeRange } from "../common/unicode-kind.mjs";
+import { CliProc, Ot } from "ot-builder";
+
+import { dropCharacters, dropHints, dropOtl } from "../helpers/drop.mjs";
+import { readFont, writeFont } from "../helpers/font-io.mjs";
+import { isIdeograph } from "../helpers/unicode-kind.mjs";
 
 export default (async function pass(argv) {
-	const a = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
-	filterUnicodeRange(a, isIdeograph);
-	a.cvt_ = [];
-	a.fpgm = [];
-	a.prep = [];
-	a.GSUB = null;
-	a.GPOS = null;
+	const font = await readFont(argv.main);
+
+	dropHints(font);
+	dropOtl(font);
+	dropCharacters(font, c => !isIdeograph(c));
+
 	if (argv.classicalOverride) {
-		const b = await introFont({ from: argv.classicalOverride, prefix: "b", ignoreHints: true });
-		mergeAbove(a, b, { mergeOTL: true });
+		const b = await readFont(argv.classicalOverride);
+		CliProc.mergeFonts(font, b, Ot.ListGlyphStoreFactory, { preferOverride: true });
 	}
-	gc(a);
-	await buildFont(a, { to: argv.o, optimize: true });
+
+	CliProc.gcFont(font, Ot.ListGlyphStoreFactory);
+	await writeFont(argv.o, font);
 });

@@ -21,18 +21,13 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 // Command line
 const NODEJS = `node`;
 const SEVEN_ZIP = process.env.SEVEN_ZIP_PATH || "7z";
-const OTFCCDUMP = `otfccdump`;
-const OTFCCBUILD = `otfccbuild`;
-const OTF2TTF = `otf2ttf`;
 const OTC2OTF = `otc2otf`;
-const TTX = `ttx`;
 
 const TTC_BUNDLE = [
 	NODEJS,
 	`--max-old-space-size=16384`,
 	`node_modules/otb-ttc-bundle/bin/otb-ttc-bundle`
 ];
-const OTB_CLI = [NODEJS, `--max-old-space-size=16384`, `node_modules/ot-builder-cli/bin/otb-cli`];
 const Chlorophytum = [NODEJS, `node_modules/@chlorophytum/cli/bin/_startup`];
 
 build.setJournal(`${BUILD}/.verda-build-journal`);
@@ -155,7 +150,7 @@ const BreakShsTtc = task.make(
 const ShsTtf = file.make(
 	(region, weight) => `${BUILD}/shs/${region}-${weight}.ttf`,
 	async (t, out, region, weight) => {
-		const [config] = await t.need(Config, Scripts, BreakShsTtc(weight));
+		const [config] = await t.need(Config, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
 			de(out.dir),
@@ -168,7 +163,7 @@ const ShsTtf = file.make(
 const ShsCassicalOverrideTtf = file.make(
 	weight => `${BUILD}/shs-classical-override/${weight}.ttf`,
 	async (t, out, weight) => {
-		const [config] = await t.need(Config, Scripts);
+		const [config] = await t.need(Config);
 		const shsSourceMap = config.shsSourceMap;
 		const [, $1] = await t.need(
 			de(out.dir),
@@ -187,13 +182,11 @@ const Kanji0 = file.make(
 		if (region === config.shsSourceMap.classicalRegion) {
 			[$2] = await t.need(ShsCassicalOverrideTtf(style));
 		}
-		const tmpOTD = `${out.dir}/${out.name}.otd`;
 		await RunFontBuildTask("make/kanji/build.mjs", {
 			main: $1.full,
 			classicalOverride: $2 ? $2.full : null,
-			o: tmpOTD
+			o: out.full
 		});
-		await OtfccBuildAsIs(tmpOTD, out.full);
 	}
 );
 
@@ -202,9 +195,7 @@ const Hangul0 = file.make(
 	async (t, out, region, style) => {
 		await t.need(Config, Scripts);
 		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
-		const tmpOTD = `${out.dir}/${out.name}.otd`;
-		await RunFontBuildTask("make/hangul/build.mjs", { main: $1.full, o: tmpOTD });
-		await OtfccBuildAsIs(tmpOTD, out.full);
+		await RunFontBuildTask("make/hangul/build.mjs", { main: $1.full, o: out.full });
 	}
 );
 
@@ -213,12 +204,7 @@ const NonKanji = file.make(
 	async (t, out, region, style) => {
 		await t.need(Config, Scripts);
 		const [$1] = await t.need(ShsTtf(region, style), de(out.dir));
-		const tmpOTD = `${out.dir}/${out.name}.otd`;
-		await RunFontBuildTask("make/non-kanji/build.mjs", {
-			main: $1.full,
-			o: tmpOTD
-		});
-		await OtfccBuildAsIs(tmpOTD, out.full);
+		await RunFontBuildTask("make/non-kanji/build.mjs", { main: $1.full, o: out.full });
 	}
 );
 
@@ -255,14 +241,12 @@ async function BuildPunct(blockName, t, out, family, region, style) {
 		NonKanji(region, style),
 		LatinSource(latinFamily, style)
 	);
-	const tmpOTD = `${out.dir}/${out.name}.otd`;
 	await RunFontBuildTask(`make/punct/${blockName}.mjs`, {
 		main: $1.full,
 		lgc: $2.full,
-		o: tmpOTD,
+		o: out.full,
 		...flagsOfFamily(config, family)
 	});
-	await OtfccBuildAsIs(tmpOTD, out.full);
 }
 
 const LatinSource = file.make(
@@ -299,7 +283,7 @@ const Pass1 = file.make(
 		);
 		await RunFontBuildTask("make/pass1/index.mjs", {
 			main: $1.full,
-			asian: $2.full,
+			as: $2.full,
 			ws: $3.full,
 			feMisc: $4.full,
 			o: out.full,
@@ -313,8 +297,6 @@ const Pass1 = file.make(
 		});
 	}
 );
-
-task("test", t => t.need(Pass1("gothic", "cl", "regular"), Pass1("mono", "cl", "regular")));
 
 const Pass1Hinted = file.make(
 	(family, region, style) => `${BUILD}/pass1-hinted/${family}-${region}-${style}.ttf`,
@@ -353,15 +335,14 @@ async function MakeProd(t, out, family, region, style, fragT) {
 		fragT.Kanji(weight, region, weight),
 		fragT.Hangul(weight, region, weight)
 	);
-	const tmpOTD = `${out.dir}/${out.name}.otd`;
+
 	await RunFontBuildTask("make/pass2/index.mjs", {
 		main: $1.full,
 		kanji: $2.full,
 		hangul: $3.full,
-		o: tmpOTD,
+		o: out.full,
 		italize: weight === style ? false : true
 	});
-	await OtfccBuildOptimize(config, tmpOTD, out.full);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -624,29 +605,6 @@ phony(`full-clean`, async () => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // CLI wrappers
-async function OtfccBuildOptimize(config, from, to) {
-	const tmpTo = to + ".tmp.otf";
-	const tmpTtx = to + ".tmp.ttx";
-	await run(OTFCCBUILD, from, [`-o`, tmpTo], [`-O3`, `-s`, `--keep-average-char-width`, `-q`]);
-	await rm(from);
-	if (config.buildOptions.optimizeWithFilter) {
-		const filterArgs = config.buildOptions.optimizeWithFilter.split(/ +/g);
-		await run(filterArgs, tmpTo, to);
-		await rm(tmpTo);
-	} else if (config.buildOptions.optimizeWithTtx) {
-		await run(TTX, "-q", ["-o", tmpTtx], tmpTo);
-		await rm(tmpTo);
-		await run(TTX, "-q", ["-o", to], tmpTtx);
-		await rm(tmpTtx);
-	} else {
-		await run(OTB_CLI, "--optimize-size", "--recalc-os2-avg-char-width", tmpTo, "-o", to);
-		await rm(tmpTo);
-	}
-}
-async function OtfccBuildAsIs(from, to) {
-	await run(OTFCCBUILD, from, [`-o`, to], [`-k`, `-s`, `--keep-average-char-width`, `-q`]);
-	await rm(from);
-}
 
 async function MakeTtc(config, from, to) {
 	await run(TTC_BUNDLE, "--verbose", "-x", ["-o", to], from);
