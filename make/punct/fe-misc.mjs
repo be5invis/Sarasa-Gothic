@@ -1,24 +1,20 @@
-import buildFont from "../common/build-font.mjs";
-import gc from "../common/gc.mjs";
-import introFont from "../common/intro-font.mjs";
-import { filterUnicodeRange, isFEMisc, isLongDash, isWestern } from "../common/unicode-kind.mjs";
+import { CliProc, Ot } from "ot-builder";
 
-import { removeUnusedFeatures } from "./remove-unused-features.mjs";
+import { dropCharacters, dropFeature, dropHints } from "../helpers/drop.mjs";
+import { readFont, writeFont } from "../helpers/font-io.mjs";
+import { isFEMisc } from "../helpers/unicode-kind.mjs";
+
 import { sanitizeSymbols } from "./sanitize-symbols.mjs";
 
-export default (async function pass(argv) {
-	const main = await introFont({ from: argv.main, prefix: "a", ignoreHints: true });
-	filterUnicodeRange(main, c => isFEMisc(c));
-	main.cvt_ = [];
-	main.fpgm = [];
-	main.prep = [];
-	if (argv.mono) {
-		removeUnusedFeatures(main.GPOS, "kern");
-		removeUnusedFeatures(main.GPOS, "palt");
-		removeUnusedFeatures(main.GPOS, "vkrn");
-		removeUnusedFeatures(main.GPOS, "vpal");
-	}
-	if (!argv.pwid) sanitizeSymbols(main, argv.goth, !argv.pwid && !argv.term);
-	gc(main);
-	await buildFont(main, { to: argv.o, optimize: true });
-});
+export default pass;
+async function pass(argv) {
+	const font = await readFont(argv.main);
+
+	dropHints(font);
+	dropCharacters(font, c => !isFEMisc(c));
+	if (argv.mono) dropFeature(font.gpos, ["kern", "palt", "vkrn", "vpal"]);
+
+	if (!argv.pwid) sanitizeSymbols(font, argv.goth, !argv.pwid && !argv.term);
+	CliProc.gcFont(font, Ot.ListGlyphStoreFactory);
+	await writeFont(argv.o, font);
+}
