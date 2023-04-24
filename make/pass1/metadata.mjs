@@ -1,15 +1,67 @@
-// Naming functions
-function nameEntry(p, e, l, n, str) {
-	return {
-		platformID: p,
-		encodingID: e,
-		languageID: l,
-		nameID: n,
-		nameString: str
+import { Ot } from "ot-builder";
+
+export function setFontMetadata(font, fMono, selectorList, encodings, namings) {
+	// Set font name
+	nameFont(font, fMono, selectorList, encodings, namings);
+
+	// Set fsSelection
+	font.os2.fsSelection |= Ot.Os2.FsSelection.USE_TYPO_METRICS;
+	font.os2.fsSelection &= ~Ot.Os2.FsSelection.WWS;
+
+	// clear achVendID
+	font.os2.achVendID = "????";
+
+	// Set encodings
+	if (encodings.jis) font.os2.ulCodePageRange1 |= Ot.Os2.CodePageRange1.CP932;
+	if (encodings.gbk) font.os2.ulCodePageRange1 |= Ot.Os2.CodePageRange1.CP936;
+	if (encodings.korean)
+		font.os2.ulCodePageRange1 |= Ot.Os2.CodePageRange1.CP949 | Ot.Os2.CodePageRange1.CP1361;
+	if (encodings.big5) font.os2.ulCodePageRange1 |= Ot.Os2.CodePageRange1.CP950;
+
+	// Set Panose bits
+	font.os2.panose = {
+		bFamilyType: 2,
+		bSerifStyle: 0,
+		bWeight: (1 + font.os2.usWeightClass / 100) | 0,
+		bProportion: fMono ? 9 : 0,
+		bContrast: 0,
+		bStrokeVariation: 0,
+		bArmStyle: 0,
+		bLetterform: 0,
+		bMidline: 0,
+		bXHeight: 0
 	};
+
+	// Set head bits
+	font.head.flags |=
+		Ot.Head.Flags.BaseLineYAt0 |
+		Ot.Head.Flags.LeftSidebearingAtX0 |
+		Ot.Head.Flags.ForcePpemToBeInteger |
+		Ot.Head.Flags.InstructionsMayDependOnPointSize;
 }
-const WINDOWS = 3;
+
+// Naming functions
+function nameFont(font, fMono, selectorList, encodings, namings) {
+	const recs = [];
+	const defaultNg = namings.en_US;
+	const selector = new Set(selectorList);
+	for (let language in namings) {
+		const langID = langIDMap[language];
+		const ng = namings[language];
+		if (!ng || !langID || !selector.has(language)) continue;
+		createNameTuple(recs, langID, ng.family, defaultNg.style, ng.style || defaultNg.style);
+		if (ng.copyright) recs.push(nameEntry(WIN, UNICODE, langID, COPYRIGHT, ng.copyright));
+		if (ng.version) recs.push(nameEntry(WIN, UNICODE, langID, VERSION, ng.version));
+		if (ng.manufacturer) recs.push(nameEntry(WIN, UNICODE, langID, MANUFACTURER, ng.copyright));
+		if (ng.trademark) recs.push(nameEntry(WIN, UNICODE, langID, TRADEMARK, ng.trademark));
+		if (ng.designer) recs.push(nameEntry(WIN, UNICODE, langID, DESIGNER, ng.designer));
+	}
+	font.name.records = recs;
+}
+
+const WIN = 3;
 const UNICODE = 1;
+
 const COPYRIGHT = 0;
 const FAMILY = 1;
 const STYLE = 2;
@@ -22,9 +74,15 @@ const MANUFACTURER = 8;
 const DESIGNER = 9;
 const PREFERRED_FAMILY = 16;
 const PREFERRED_STYLE = 17;
-function convPostscript(name) {
+const langIDMap = { en_US: 1033, zh_CN: 2052, zh_TW: 1028, zh_HK: 3076, ja_JP: 1041 };
+
+function nameEntry(p, e, l, n, str) {
+	return { platformID: p, encodingID: e, languageID: l, nameID: n, value: str };
+}
+function toPostscriptName(name) {
 	return name.replace(/ /g, "-");
 }
+
 function compatibilityName(family, style) {
 	if (style === "Regular" || style === "Bold" || style === "Italic" || style === "Bold Italic") {
 		return { family, style, standardFour: true };
@@ -44,95 +102,23 @@ function compatibilityName(family, style) {
 		}
 	}
 }
-const langIDMap = {
-	en_US: 1033,
-	zh_CN: 2052,
-	zh_TW: 1028,
-	zh_HK: 3076,
-	ja_JP: 1041
-};
-function createNameTuple(nameTable, langID, family, style, localizedStyle) {
+
+function createNameTuple(sink, langID, family, style, localizedStyle) {
 	const compat = compatibilityName(family, style);
-	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_FAMILY, family));
-	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, PREFERRED_STYLE, style));
-	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, FAMILY, compat.family));
+	sink.push(nameEntry(WIN, UNICODE, langID, PREFERRED_FAMILY, family));
+	sink.push(nameEntry(WIN, UNICODE, langID, PREFERRED_STYLE, style));
+	sink.push(nameEntry(WIN, UNICODE, langID, FAMILY, compat.family));
 	const compatStyle = compat.standardFour ? localizedStyle : compat.style;
-	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, STYLE, compatStyle));
+	sink.push(nameEntry(WIN, UNICODE, langID, STYLE, compatStyle));
 	if (compatStyle === "Regular") {
-		nameTable.push(nameEntry(WINDOWS, UNICODE, langID, FULL_NAME, `${compat.family}`));
+		sink.push(nameEntry(WIN, UNICODE, langID, FULL_NAME, `${compat.family}`));
 	} else {
-		nameTable.push(
-			nameEntry(WINDOWS, UNICODE, langID, FULL_NAME, `${compat.family} ${compatStyle}`)
-		);
+		sink.push(nameEntry(WIN, UNICODE, langID, FULL_NAME, `${compat.family} ${compatStyle}`));
 	}
-	nameTable.push(nameEntry(WINDOWS, UNICODE, langID, UNIQUE_NAME, `${family} ${style}`));
+	sink.push(nameEntry(WIN, UNICODE, langID, UNIQUE_NAME, `${family} ${style}`));
 	if (langID === langIDMap.en_US) {
-		nameTable.push(
-			nameEntry(WINDOWS, UNICODE, langID, POSTSCRIPT, convPostscript(`${family} ${style}`))
+		sink.push(
+			nameEntry(WIN, UNICODE, langID, POSTSCRIPT, toPostscriptName(`${family} ${style}`))
 		);
 	}
 }
-function nameFont(font, fMono, selectorList, encodings, namings) {
-	const nameTable = [];
-	const defaultNg = namings.en_US;
-	const selector = new Set(selectorList);
-	for (let language in namings) {
-		const langID = langIDMap[language];
-		const ng = namings[language];
-		if (!ng || !langID || !selector.has(language)) continue;
-		createNameTuple(nameTable, langID, ng.family, defaultNg.style, ng.style || defaultNg.style);
-		if (ng.copyright)
-			nameTable.push(nameEntry(WINDOWS, UNICODE, langID, COPYRIGHT, ng.copyright));
-		if (ng.version) nameTable.push(nameEntry(WINDOWS, UNICODE, langID, VERSION, ng.version));
-		if (ng.manufacturer)
-			nameTable.push(nameEntry(WINDOWS, UNICODE, langID, MANUFACTURER, ng.copyright));
-		if (ng.trademark)
-			nameTable.push(nameEntry(WINDOWS, UNICODE, langID, TRADEMARK, ng.trademark));
-		if (ng.designer) nameTable.push(nameEntry(WINDOWS, UNICODE, langID, DESIGNER, ng.designer));
-	}
-	font.name = nameTable;
-	// Set fsSelection
-	font.OS_2.fsSelection.useTypoMetrics = true;
-	font.OS_2.fsSelection.wws = false;
-	// clear achVendID
-	font.OS_2.achVendID = "????";
-	// Set encodings
-	font.OS_2.ulCodePageRange1 = {
-		...font.OS_2.ulCodePageRange1,
-		latin1: true,
-		latin2: true,
-		cyrillic: true,
-		greek: true,
-		turkish: true,
-		vietnamese: true,
-		macRoman: true,
-		...encodings
-	};
-	font.OS_2.ulCodePageRange2 = {
-		...font.OS_2.ulCodePageRange2,
-		cp852: true,
-		cp850: true,
-		ascii: true
-	};
-	// Set Panose bits
-	font.OS_2.panose = [
-		2,
-		0,
-		(1 + font.OS_2.usWeightClass / 100) | 0,
-		fMono ? 9 : 0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0
-	];
-}
-function setHintFlag(font) {
-	font.head.flags.baselineAtY_0 = true;
-	font.head.flags.lsbAtX_0 = true;
-	font.head.flags.alwaysUseIntegerSize = true;
-	font.head.flags.instrMayDependOnPointSize = true;
-}
-export { nameFont };
-export { setHintFlag };

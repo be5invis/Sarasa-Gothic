@@ -1,29 +1,73 @@
-import buildFont from "../common/build-font.mjs";
-import gc from "../common/gc.mjs";
-import introFont from "../common/intro-font.mjs";
-import { italize } from "../common/italize.mjs";
-import { mergeBelow } from "../common/merge.mjs";
-import GlyphPoint from "../common/support/glyph-point.mjs";
+import { CliProc, Ot } from "ot-builder";
 
-import shareFeatures from "./share-features.mjs";
+import { dropGlyphNames } from "../helpers/drop.mjs";
+import { simplifySingleSub } from "../helpers/feature-simplify.mjs";
+import { readFont, writeFont } from "../helpers/font-io.mjs";
+import { italize } from "../helpers/geometry.mjs";
 
 export default (async function makeFont(argv) {
-	const a = await introFont({ from: argv.main, prefix: "a" });
-	const b = await introFont({ from: argv.kanji, prefix: "b" });
-	const c = await introFont({ from: argv.hangul, prefix: "c" });
+	const main = await readFont(argv.main);
+	const kanji = await readFont(argv.kanji);
+	const hangul = await readFont(argv.hangul);
 
-	if (argv.italize) italize(b, 9.4);
-	if (argv.italize) italize(c, 9.4);
+	addTrivialGdef(kanji);
+	addTrivialGdef(hangul);
 
-	mergeBelow(a, b, { mergeOTL: true });
-	mergeBelow(a, c, { mergeOTL: true });
+	if (argv.italize) {
+		italize(kanji, 9.4);
+		italize(hangul, 9.4);
+	}
 
-	shareFeatures(a.GSUB);
-	shareFeatures(a.GPOS);
+	CliProc.mergeFonts(main, hangul, Ot.ListGlyphStoreFactory);
+	CliProc.mergeFonts(main, kanji, Ot.ListGlyphStoreFactory);
 
-	// This will make the order of glyphs in TTC less mangled
-	a.glyf.__glyf_pad__ = { advanceWidth: 0, contours: [[GlyphPoint.cornerFromXY(0, 0)]] };
-	a.glyph_order = gc(a, { rankMap: [["__glyf_pad__", 1]] });
+	shareFeatures(main.gsub);
+	shareFeatures(main.gpos);
+	CliProc.consolidateFont(main);
 
-	await buildFont(a, { to: argv.o });
+	dropGlyphNames(main);
+	simplifySingleSub(main.gsub, "vert");
+	simplifySingleSub(main.gsub, "vrt2");
+
+	await writeFont(argv.o, main);
 });
+
+function addTrivialGdef(font) {
+	if (!font.gdef) {
+		font.gdef = new Ot.Gdef.Table();
+	}
+	if (!font.gdef.glyphClassDef || !font.gdef.glyphClassDef.size) {
+		font.gdef.glyphClassDef = new Map();
+		for (const g of font.glyphs.decideOrder()) {
+			font.gdef.glyphClassDef.set(g, Ot.Gdef.GlyphClass.Base);
+		}
+	}
+}
+
+function shareFeatures(table) {
+	if (!table || !table.scripts) return;
+	const langDflt = table.scripts.get("DFLT").defaultLanguage;
+
+	for (const [scriptTag, script] of table.scripts) {
+		if (script.defaultLanguage && isFarEastScript(scriptTag)) {
+			script.defaultLanguage.features = [
+				...script.defaultLanguage.features,
+				...langDflt.features
+			];
+		}
+
+		for (const [langTag, lang] of script.languages) {
+			if (isFarEastScript(scriptTag) || isFarEastLanguage(langTag)) {
+				lang.features = [...lang.features, ...langDflt.features];
+			}
+		}
+	}
+}
+
+function isFarEastScript(tag) {
+	return tag === "hani" || tag === "kana" || tag === "bopo" || tag === "hang";
+}
+function isFarEastLanguage(tag) {
+	tag = tag.trim();
+	return tag === "JAN" || tag === "KOR" || tag === "ZHS" || tag === "ZHT" || tag === "ZHH";
+}

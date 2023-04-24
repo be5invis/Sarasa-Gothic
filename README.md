@@ -4,7 +4,7 @@ This is SARASA GOTHIC, a CJK programming font based on Iosevka and Source Han Sa
 
 ## To build
 
-You need [Node.js](https://nodejs.org/en/) (version 12 or newer), [otfcc](https://github.com/caryll/otfcc), [AFDKO](http://www.adobe.com/devnet/opentype/afdko.html) and [ttfautohint](https://www.freetype.org/ttfautohint) installed, then run:
+You need [Node.js](https://nodejs.org/en/) (version 12 or newer) and [ttfautohint](https://www.freetype.org/ttfautohint) installed, then run:
 
 ```bash
 npm install
