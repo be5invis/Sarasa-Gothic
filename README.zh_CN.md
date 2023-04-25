@@ -11,7 +11,7 @@ Sarasa Gothic 是一款免费的开源字体，基于 Iosevka 和 Source Han San
 
 ## 下载说明
 
-对于一般用户，可以下载 `sarasa-gothic-ttf` 的字体包。如果需要希望用在代码编辑器中，可以选择 `sarasa-mono-sc-regular.ttf` 文件，并指定编辑器字体为 `等距更纱黑体 SC`。
+对于一般用户，可以下载 `sarasa-gothic-ttf` 的字体包，下载后解压，安装文件名中带有 `SC` 标注的字体文件，这表示中国大陆的字符集。如果希望用在代码编辑器中替换默认编程字体，可以选择 `sarasa-mono-sc-regular.ttf` 文件，并指定编辑器字体为 `等距更纱黑体 SC`。
 
 ## 字体类型
 
