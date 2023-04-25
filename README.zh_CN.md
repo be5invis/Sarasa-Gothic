@@ -2,7 +2,7 @@
 
 # Sarasa Gothic (更纱黑体 / 更紗黑體)
 
-Sarasa Gothic 是一款免费的开源字体，基于 Iosevka 和 Source Han Sans (思源黑体) 设计，包含中日韩字符，主要用于操作系统页面和编程字体。
+Sarasa Gothic 是一款免费的开源字体，基于 Iosevka 和 Source Han Sans (思源黑体) 字型设计，适合在包含中日韩等多种亚洲语言混排的场景使用，主要用于操作系统页面和编程字体。
 
 ## 国内镜像下载站点
 
@@ -11,7 +11,7 @@ Sarasa Gothic 是一款免费的开源字体，基于 Iosevka 和 Source Han San
 
 ## 下载说明
 
-对于一般用户，可以下载 `sarasa-gothic-ttf` 的字体包。如果您需要一款等宽编程字体，可以选择 `sarasa-mono-sc-regular.ttf` 文件，在代码编辑器中，指定字体显示为 `等距更纱黑体 SC`。
+对于一般用户，可以下载 `sarasa-gothic-ttf` 的字体包。如果需要希望用在代码编辑器中，可以选择 `sarasa-mono-sc-regular.ttf` 文件，并指定编辑器字体为 `等距更纱黑体 SC`。
 
 ## 字体类型
 
