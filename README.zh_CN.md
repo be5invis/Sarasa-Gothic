@@ -1,4 +1,4 @@
-[English](https://github.com/be5invis/Sarasa-Gothic#readme) [简体中文](README-CN.md)
+[English](https://github.com/be5invis/Sarasa-Gothic#readme) [简体中文](README.zh_CN.md)
 
 # Sarasa Gothic (更纱黑体 / 更紗黑體)
 
