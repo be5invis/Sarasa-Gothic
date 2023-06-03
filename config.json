@@ -263,7 +263,7 @@
 			"bold": "Bold"
 		},
 		"classicalRegion": "cl",
-		"classicalOverridePrefix":"GenneGothic",
+		"classicalOverridePrefix":"AdvocateAncientSansTC",
 		"classicalOverrideSuffix": {
 			"extralight": "ExtraLight-subset",
 			"light": "Light-subset",
