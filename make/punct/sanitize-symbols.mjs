@@ -124,5 +124,5 @@ export function sanitizeSymbols(font, isGothic, isType) {
 	}
 }
 export function toPWID(font) {
-	bakeFeature("pwid", font, c => sanitizerTypes[String.fromCodePoint(c - 0)]);
+	bakeFeature("pwid", font, c => sanitizerTypes[String.fromCodePoint(c)]);
 }
