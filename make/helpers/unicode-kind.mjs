@@ -27,10 +27,14 @@ export const isFEMisc = c =>
 	(c >= 0x1f000 && c <= 0x1f2ff);
 export const isWS = function (c) {
 	return (
-		((c >= 0x2000 && c <= 0x200f) || (c >= 0x20a0 && c < 0x3000)) &&
-		!(c >= 0x2e3a && c <= 0x2e3b)
+		(((c >= 0x2000 && c <= 0x200f) || (c >= 0x20a0 && c < 0x3000)) &&
+			!(c >= 0x2e3a && c <= 0x2e3b)) ||
+		(c >= 0xff01 && c <= 0xff5e && !isLocaleDependentFwidPunct(c))
 	);
 };
+export function isLocaleDependentFwidPunct(c) {
+	return c == 0xff01 || c == 0xff0c || c == 0xff0e || c == 0xff1a || c == 0xff1b || c == 0xff1f;
+}
 export const isLongDash = function (c, isTerm) {
 	return isTerm ? c === 0x2e3a || c === 0x2e3b : false;
 };
