@@ -11,6 +11,9 @@ export function setFontMetadata(font, fMono, selectorList, encodings, namings) {
 	// clear achVendID
 	font.os2.achVendID = "????";
 
+	// Fix Inter's usWeightClass
+	font.os2.usWeightClass = 100 * Math.round(font.os2.usWeightClass / 100);
+
 	// Set encodings
 	if (encodings.jis) font.os2.ulCodePageRange1 |= Ot.Os2.CodePageRange1.CP932;
 	if (encodings.gbk) font.os2.ulCodePageRange1 |= Ot.Os2.CodePageRange1.CP936;
