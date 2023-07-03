@@ -19,13 +19,13 @@
     "ot-builder": "^1.6.4",
     "otb-ttc-bundle": "^1.6.4",
     "verda": "^1.11.0",
-    "which": "^3.0.0"
+    "which": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^8.39.0",
+    "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "prettier": "^2.8.7"
+    "eslint-plugin-import": "^2.26.0",
+    "prettier": "^2.8.8"
   },
   "engines": {
     "node": ">=12.0.0"
