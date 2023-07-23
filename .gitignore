@@ -21,6 +21,5 @@ preview/test-fonts
 **.DS_Store
 **/*.packed.js
 ns-proof-page/fonts
-package-lock.json
 .private*
 config.private.json
