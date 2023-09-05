@@ -2,6 +2,10 @@
 
 This is SARASA GOTHIC, a CJK programming font based on Iosevka and Source Han Sans.
 
+## Note
+
+It is highly recommended to completely remove the old version of the fonts before you install the newer version of this font. Many OSes' and softwares' caching system may have trouble when dealing with large TTC fonts.
+
 ## To build
 
 You need [Node.js](https://nodejs.org/en/) (version 18 or newer), [AFDKO](https://github.com/adobe-type-tools/afdko) (latest) and [ttfautohint](https://www.freetype.org/ttfautohint) installed, then run:

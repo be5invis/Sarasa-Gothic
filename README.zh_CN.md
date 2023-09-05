@@ -4,6 +4,10 @@
 
 Sarasa Gothic 是一款免费的开源字体，基于 Iosevka 和 Source Han Sans (思源黑体) 字型设计，适合在包含中日韩等多种亚洲语言之间混排的场景使用，主要用于操作系统页面和编程字体。
 
+## 安装说明
+
+在更新字体之前请务必完全移除已安装的旧版字体。许多软件或操作系统的缓存系统对于大型字体并不友好。
+
 ## 国内镜像下载站点
 
 - 清华大学镜像源: https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis/Sarasa-Gothic
