@@ -1,6 +1,6 @@
 {
   "name": "sarasa-gothic",
-  "version": "0.42.1",
+  "version": "0.42.2",
   "main": "./run",
   "scripts": {
     "build": "verda -f verdafile.mjs",
@@ -16,16 +16,16 @@
     "@chlorophytum/hm-ideograph": "^0.41.1",
     "@chlorophytum/hm-select-glyphs": "^0.41.21",
     "fs-extra": "^11.1.1",
-    "ot-builder": "^1.7.0",
-    "otb-ttc-bundle": "^1.7.0",
+    "ot-builder": "^1.7.2",
+    "otb-ttc-bundle": "^1.7.2",
     "verda": "^1.11.0",
-    "which": "^3.0.1"
+    "which": "^4.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.47.0",
+    "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.28.1",
-    "prettier": "^3.0.2"
+    "prettier": "^3.0.3"
   },
   "engines": {
     "node": ">=12.0.0"
