@@ -1,8 +1,17 @@
 {
-	"buildOptions":{},
-	"familyOrder": ["gothic", "ui", "mono", "mono-slab", "term", "term-slab", "fixed", "fixed-slab"],
+	"buildOptions": {},
+	"familyOrder": [
+		"Gothic",
+		"Ui",
+		"Mono",
+		"MonoSlab",
+		"Term",
+		"TermSlab",
+		"Fixed",
+		"FixedSlab"
+	],
 	"families": {
-		"gothic": {
+		"Gothic": {
 			"isTNUM": true,
 			"isGothic": true,
 			"latinGroup": "Inter",
@@ -15,7 +24,7 @@
 				"ko_KR": "사라사 고딕"
 			}
 		},
-		"ui": {
+		"Ui": {
 			"isTNUM": true,
 			"isPWID": true,
 			"latinGroup": "Inter",
@@ -28,9 +37,9 @@
 				"ko_KR": "사라사 고딕 UI"
 			}
 		},
-		"mono": {
+		"Mono": {
 			"isMono": true,
-			"latinGroup": "iosevka-n",
+			"latinGroup": "IosevkaN",
 			"naming": {
 				"en_US": "Sarasa Mono",
 				"zh_CN": "等距更纱黑体",
@@ -40,10 +49,10 @@
 				"ko_KR": "사라사 고정 폭고딕"
 			}
 		},
-		"term": {
+		"Term": {
 			"isMono": true,
 			"isTerm": true,
-			"latinGroup": "iosevka-n-term",
+			"latinGroup": "IosevkaNTerm",
 			"naming": {
 				"en_US": "Sarasa Term",
 				"zh_CN": "Sarasa Term",
@@ -53,10 +62,10 @@
 				"ko_KR": "Sarasa Term"
 			}
 		},
-		"fixed": {
+		"Fixed": {
 			"isMono": true,
 			"isTerm": true,
-			"latinGroup": "iosevka-n-fixed",
+			"latinGroup": "IosevkaNFixed",
 			"naming": {
 				"en_US": "Sarasa Fixed",
 				"zh_CN": "Sarasa Fixed",
@@ -66,9 +75,9 @@
 				"ko_KR": "Sarasa Fixed"
 			}
 		},
-		"mono-slab": {
+		"MonoSlab": {
 			"isMono": true,
-			"latinGroup": "iosevka-n-slab",
+			"latinGroup": "IosevkaNSlab",
 			"naming": {
 				"en_US": "Sarasa Mono Slab",
 				"zh_CN": "等距更纱黑体 Slab",
@@ -78,9 +87,9 @@
 				"ko_KR": "사라사 고정 폭고딕 Slab"
 			}
 		},
-		"term-slab": {
+		"TermSlab": {
 			"isMono": true,
-			"latinGroup": "iosevka-n-term-slab",
+			"latinGroup": "IosevkaNTermSlab",
 			"isTerm": true,
 			"naming": {
 				"en_US": "Sarasa Term Slab",
@@ -91,9 +100,9 @@
 				"ko_KR": "Sarasa Term Slab"
 			}
 		},
-		"fixed-slab": {
+		"FixedSlab": {
 			"isMono": true,
-			"latinGroup": "iosevka-n-fixed-slab",
+			"latinGroup": "IosevkaNFixedSlab",
 			"isTerm": true,
 			"naming": {
 				"en_US": "Sarasa Fixed Slab",
@@ -106,92 +115,67 @@
 		}
 	},
 	"styleOrder": [
-		"extralight",
-		"extralightitalic",
-		"light",
-		"lightitalic",
-		"regular",
-		"italic",
-		"semibold",
-		"semibolditalic",
-		"bold",
-		"bolditalic"
+		"ExtraLight",
+		"ExtraLightItalic",
+		"Light",
+		"LightItalic",
+		"Regular",
+		"Italic",
+		"SemiBold",
+		"SemiBoldItalic",
+		"Bold",
+		"BoldItalic"
 	],
 	"latinGroups": {
 		"Inter": {
-			"isCff": false,
-			"styleToFileSuffixMap": {
-				"extralight": "ExtraLight",
-				"extralightitalic": "ExtraLightItalic",
-				"light": "Light",
-				"lightitalic": "LightItalic",
-				"regular": "Regular",
-				"italic": "Italic",
-				"semibold": "SemiBold",
-				"semibolditalic": "SemiBoldItalic",
-				"bold": "Bold",
-				"bolditalic": "BoldItalic"
-			}
+			"isCff": false
 		}
 	},
 	"styles": {
-		"extralight": {
-			"name": "Extralight"
+		"ExtraLight": {
+			"name": "ExtraLight"
 		},
-		"extralightitalic": {
-			"name": "Extralight Italic",
-			"uprightStyleMap": "extralight"
+		"ExtraLightItalic": {
+			"name": "ExtraLight Italic",
+			"uprightStyleMap": "ExtraLight"
 		},
-		"light": {
+		"Light": {
 			"name": "Light"
 		},
-		"lightitalic": {
+		"LightItalic": {
 			"name": "Light Italic",
-			"uprightStyleMap": "light"
+			"uprightStyleMap": "Light"
 		},
-		"regular": {
+		"Regular": {
 			"name": "Regular"
 		},
-		"italic": {
+		"Italic": {
 			"name": "Italic",
-			"uprightStyleMap": "regular"
+			"uprightStyleMap": "Regular"
 		},
-		"semibold": {
-			"name": "Semibold"
+		"SemiBold": {
+			"name": "SemiBold"
 		},
-		"semibolditalic": {
-			"name": "Semibold Italic",
-			"uprightStyleMap": "semibold"
+		"SemiBoldItalic": {
+			"name": "SemiBold Italic",
+			"uprightStyleMap": "SemiBold"
 		},
-		"bold": {
+		"Bold": {
 			"name": "Bold"
 		},
-		"bolditalic": {
+		"BoldItalic": {
 			"name": "Bold Italic",
-			"uprightStyleMap": "bold"
+			"uprightStyleMap": "Bold"
 		}
 	},
-	"subfamilyOrder": ["cl", "sc", "tc", "hc", "j", "k"],
-	"subfamilies": {
-		"cl": {
-			"name": "CL"
-		},
-		"sc": {
-			"name": "SC"
-		},
-		"tc": {
-			"name": "TC"
-		},
-		"hc": {
-			"name": "HC"
-		},
-		"j": {
-			"name": "J"
-		},
-		"k": {
-			"name": "K"
-		}
-	},
+	"subfamilyOrder": [
+		"CL",
+		"SC",
+		"TC",
+		"HC",
+		"J",
+		"K"
+	],
 	"os2encodings": {
 		"J": {
 			"gbk": false,
@@ -231,45 +215,59 @@
 		}
 	},
 	"nameTupleSelector": {
-		"J": ["en_US", "ja_JP"],
-		"K": ["en_US", "ko_KR"],
-		"SC": ["en_US", "zh_CN"],
-		"TC": ["en_US", "zh_TW"],
-		"HC": ["en_US", "zh_HK"],
-		"CL": ["en_US", "zh_TW"]
+		"J": [
+			"en_US",
+			"ja_JP"
+		],
+		"K": [
+			"en_US",
+			"ko_KR"
+		],
+		"SC": [
+			"en_US",
+			"zh_CN"
+		],
+		"TC": [
+			"en_US",
+			"zh_TW"
+		],
+		"HC": [
+			"en_US",
+			"zh_HK"
+		],
+		"CL": [
+			"en_US",
+			"zh_TW"
+		]
 	},
 	"copyright": "Copyright (c) 2015-2023, Renzhi Li (aka. Belleve Invis, belleve@typeof.net). Portions Copyright (c) 2016-2020 The Inter Project Authors. Portions Copyright (c) 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/). Portions Copyright (c) 2012 Google Inc.",
 	"shsSourceMap": {
 		"defaultRegion": "SourceHanSans",
 		"region": {
-			"j": "SourceHanSans",
-			"k": "SourceHanSansK",
-			"cl": "SourceHanSansK",
-			"sc": "SourceHanSansSC",
-			"tc": "SourceHanSansTC",
-			"hc": "SourceHanSansHC",
-			"j-hw": "SourceHanSansHW",
-			"k-hw": "SourceHanSansHWK",
-			"cl-hw": "SourceHanSansHWK",
-			"sc-hw": "SourceHanSansHWSC",
-			"tc-hw": "SourceHanSansHWTC",
-			"hc-hw": "SourceHanSansHWHC"
+			"J": "SourceHanSans",
+			"K": "SourceHanSansK",
+			"CL": "SourceHanSansK",
+			"SC": "SourceHanSansSC",
+			"TC": "SourceHanSansTC",
+			"HC": "SourceHanSansHC",
+			"J-HW": "SourceHanSansHW",
+			"K-HW": "SourceHanSansHWK",
+			"CL-HW": "SourceHanSansHWK",
+			"SC-HW": "SourceHanSansHWSC",
+			"TC-HW": "SourceHanSansHWTC",
+			"HC-HW": "SourceHanSansHWHC"
 		},
-		"style": {
-			"extralight": "ExtraLight",
-			"light": "Light",
-			"regular": "Regular",
-			"semibold": "Medium",
-			"bold": "Bold"
+		"styleMap": {
+			"SemiBold": "Medium"
 		},
 		"classicalRegion": "cl",
-		"classicalOverridePrefix":"AdvocateAncientSansTC",
-		"classicalOverrideSuffix": {
-			"extralight": "ExtraLight-subset",
-			"light": "Light-subset",
-			"regular": "Regular-subset",
-			"semibold": "Medium-subset",
-			"bold": "Bold-subset"
+		"classicalOverridePrefix": "AdvocateAncientSansTC",
+		"classicalOverrideSuffixMap": {
+			"ExtraLight": "ExtraLight-subset",
+			"Light": "Light-subset",
+			"Regular": "Regular-subset",
+			"SemiBold": "Medium-subset",
+			"Bold": "Bold-subset"
 		}
 	}
 }
