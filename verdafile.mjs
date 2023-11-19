@@ -84,9 +84,9 @@ const Version = oracle("oracles::version", async t => {
 const SuperTtcArchive = file.make(
 	(infix, version) => `${OUT}/${PREFIX}-Super${infix}-${version}.7z`,
 	async (t, out, infix) => {
-		await t.need(SuperTtcFile(infix));
+		const [input] = await t.need(SuperTtcFile(infix));
 		await rm(out.full);
-		await SevenZipCompress(`${OUT}/.super-ttc`, out.full, `${PREFIX}-${infix}.ttc`);
+		await SevenZipCompress(`${OUT}/.super-ttc`, out.full, input.base);
 	}
 );
 const TtcArchive = file.make(
@@ -512,7 +512,7 @@ function* InstrParams(toDir, otds) {
 const TtcFile = file.make(
 	(infix, style) => `${OUT}/${infix}/${PREFIX}-${style}.ttc`,
 	async (t, out, infix, style) => {
-		const prodT = /unhinted/.test(infix) ? ProdUnhinted : Prod;
+		const prodT = /Unhinted/i.test(infix) ? ProdUnhinted : Prod;
 		const [config] = await t.need(Config, de(out.dir));
 		let requirements = [];
 		for (let family of config.familyOrder) {
@@ -536,7 +536,7 @@ const TtcFontFiles = task.make(
 const TtfFontFiles = task.make(
 	infix => `intermediate::ttfFontFiles::${infix}`,
 	async (t, infix) => {
-		const prodT = /unhinted/.test(infix) ? ProdUnhinted : Prod;
+		const prodT = /Unhinted/i.test(infix) ? ProdUnhinted : Prod;
 		const [config] = await t.need(Config);
 		let reqs = [];
 		for (let f of config.familyOrder)
@@ -549,7 +549,7 @@ const TtfFontFiles = task.make(
 );
 
 const SuperTtcFile = file.make(
-	infix => `${OUT}/.super-ttc/${PREFIX}-${infix}.ttc`,
+	infix => `${OUT}/.super-ttc/${PREFIX}-Super${infix}.ttc`,
 	async (target, out, infix) => {
 		const [config] = await target.need(Config, de(out.dir));
 		const [inputs] = await target.need(config.styleOrder.map(st => TtcFile(infix, st)));
