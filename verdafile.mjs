@@ -12,7 +12,7 @@ const { run, node, rm, cd, mv, cp } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 // Directories
-const PREFIX = `sarasa`;
+const PREFIX = `Sarasa`;
 const BUILD = `.build`;
 const OUT = `out`;
 const SOURCES = `sources`;
@@ -37,33 +37,33 @@ build.setSelfTracking();
 // Entrypoint
 const Start = phony("all", async t => {
 	const version = await t.need(Version);
-	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
+	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
 	// Do in serial -- otherwise, memory usage will be too high.
-	await t.need(TtcFontFiles`ttc`);
-	await t.need(TtcFontFiles`ttc-unhinted`);
+	await t.need(TtcFontFiles`TTC`);
+	await t.need(TtcFontFiles`TTC-Unhinted`);
 	await t.need(
-		TtcArchive(`ttc`, version),
-		TtcArchive(`ttc-unhinted`, version),
-		SuperTtcArchive(`ttc`, version),
-		SuperTtcArchive(`ttc-unhinted`, version),
-		TtfArchive(`ttf`, version),
-		TtfArchive(`ttf-unhinted`, version)
+		TtcArchive(`TTC`, version),
+		TtcArchive(`TTC-Unhinted`, version),
+		SuperTtcArchive(`TTC`, version),
+		SuperTtcArchive(`TTC-Unhinted`, version),
+		TtfArchive(`TTF`, version),
+		TtfArchive(`TTF-Unhinted`, version)
 	);
 });
 
 const SuperTtc = phony(`super-ttc`, async target => {
-	await target.need(SuperTtcFile`ttc`, SuperTtcFile`ttc-unhinted`);
+	await target.need(SuperTtcFile`TTC`, SuperTtcFile`TTC-Unhinted`);
 });
 
 const Ttc = phony(`ttc`, async t => {
-	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
+	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
 	// Do in serial -- otherwise, memory usage will be too high.
-	await t.need(TtcFontFiles`ttc`);
-	await t.need(TtcFontFiles`ttc-unhinted`);
+	await t.need(TtcFontFiles`TTC`);
+	await t.need(TtcFontFiles`TTC-Unhinted`);
 });
 
 const Ttf = phony(`ttf`, async t => {
-	await t.need(TtfFontFiles`ttf`, TtfFontFiles`ttf-unhinted`);
+	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
@@ -82,15 +82,15 @@ const Version = oracle("oracles::version", async t => {
 });
 
 const SuperTtcArchive = file.make(
-	(infix, version) => `${OUT}/sarasa-gothic-super-${infix}-${version}.7z`,
+	(infix, version) => `${OUT}/${PREFIX}-Super${infix}-${version}.7z`,
 	async (t, out, infix) => {
-		await t.need(SuperTtcFile(infix));
+		const [input] = await t.need(SuperTtcFile(infix));
 		await rm(out.full);
-		await SevenZipCompress(`${OUT}/.super-ttc`, out.full, `${PREFIX}-${infix}.ttc`);
+		await SevenZipCompress(`${OUT}/.super-ttc`, out.full, input.base);
 	}
 );
 const TtcArchive = file.make(
-	(infix, version) => `${OUT}/sarasa-gothic-${infix}-${version}.7z`,
+	(infix, version) => `${OUT}/${PREFIX}-${infix}-${version}.7z`,
 	async (t, out, infix) => {
 		await t.need(TtcFontFiles(infix));
 		await rm(out.full);
@@ -99,7 +99,7 @@ const TtcArchive = file.make(
 );
 
 const TtfArchive = file.make(
-	(infix, version) => `${OUT}/sarasa-gothic-${infix}-${version}.7z`,
+	(infix, version) => `${OUT}/${PREFIX}-${infix}-${version}.7z`,
 	async (t, out, infix) => {
 		const [config] = await t.need(Config, TtfFontFiles(infix));
 		await rm(out.full);
@@ -132,13 +132,11 @@ const BreakShsTtc = task.make(
 	async ($, weight) => {
 		const [config] = await $.need(Config, de(`${BUILD}/shs`));
 		const shsSourceMap = config.shsSourceMap;
-		await run(
-			OTC2OTF,
-			`${SOURCES}/shs/${shsSourceMap.defaultRegion}-${shsSourceMap.style[weight]}.ttc`
-		);
+		const shsSuffix = shsSourceMap.styleMap[weight] || weight;
+		await run(OTC2OTF, `${SOURCES}/shs/${shsSourceMap.defaultRegion}-${shsSuffix}.ttc`);
 		for (const regionID in shsSourceMap.region) {
-			const region = shsSourceMap.region[regionID];
-			const partName = `${region}-${shsSourceMap.style[weight]}.otf`;
+			const shsPrefix = shsSourceMap.region[regionID];
+			const partName = `${shsPrefix}-${shsSuffix}.otf`;
 			if (await fs.pathExists(`${SOURCES}/shs/${partName}`)) {
 				await rm(`${BUILD}/shs/${partName}`);
 				await mv(`${SOURCES}/shs/${partName}`, `${BUILD}/shs/${partName}`);
@@ -152,10 +150,9 @@ const ShsTtf = file.make(
 	async (t, out, region, weight) => {
 		const [config] = await t.need(Config, BreakShsTtc(weight));
 		const shsSourceMap = config.shsSourceMap;
-		const [, $1] = await t.need(
-			de(out.dir),
-			fu`${BUILD}/shs/${shsSourceMap.region[region]}-${shsSourceMap.style[weight]}.otf`
-		);
+		const shsPrefix = shsSourceMap.region[region];
+		const shsSuffix = shsSourceMap.styleMap[weight] || weight;
+		const [, $1] = await t.need(de(out.dir), fu`${BUILD}/shs/${shsPrefix}-${shsSuffix}.otf`);
 		await run("otf2ttf", "-o", out.full, $1.full);
 	}
 );
@@ -165,9 +162,11 @@ const ShsCassicalOverrideTtf = file.make(
 	async (t, out, weight) => {
 		const [config] = await t.need(Config);
 		const shsSourceMap = config.shsSourceMap;
+		const shsPrefix = shsSourceMap.classicalOverridePrefix;
+		const shsWeight = shsSourceMap.classicalOverrideSuffixMap[weight] || weight;
 		const [, $1] = await t.need(
 			de(out.dir),
-			fu`${SOURCES}/shs-classical-override/${shsSourceMap.classicalOverridePrefix}-${shsSourceMap.classicalOverrideSuffix[weight]}.otf`
+			fu`${SOURCES}/shs-classical-override/${shsPrefix}-${shsWeight}.otf`
 		);
 		await run("otf2ttf", "-o", out.full, $1.full);
 	}
@@ -255,9 +254,6 @@ const LatinSource = file.make(
 		const [config] = await t.need(Config, Scripts, de(out.dir));
 		const latinCfg = config.latinGroups[group] || {};
 		let sourceStyle = style;
-		if (latinCfg.styleToFileSuffixMap) {
-			sourceStyle = latinCfg.styleToFileSuffixMap[style] || style;
-		}
 		const isCff = latinCfg.isCff;
 		const sourceFile = `sources/${group}/${group}-${sourceStyle}` + (isCff ? ".otf" : ".ttf");
 		const [source] = await t.need(fu(sourceFile));
@@ -289,7 +285,7 @@ const Pass1 = file.make(
 			o: out.full,
 
 			family: family,
-			subfamily: config.subfamilies[region].name,
+			subfamily: region,
 			style: style,
 			italize: deItalizedNameOf(config, out.name) === out.name ? false : true,
 
@@ -307,7 +303,7 @@ const Pass1Hinted = file.make(
 );
 
 const Prod = file.make(
-	(family, region, style) => `${OUT}/ttf/${PREFIX}-${family}-${region}-${style}.ttf`,
+	(family, region, style) => `${OUT}/TTF/${PREFIX}${family}${region}-${style}.ttf`,
 	(t, out, family, region, style) =>
 		MakeProd(t, out, family, region, style, {
 			Pass1: HfoPass1,
@@ -317,7 +313,7 @@ const Prod = file.make(
 );
 
 const ProdUnhinted = file.make(
-	(family, region, style) => `${OUT}/ttf-unhinted/${PREFIX}-${family}-${region}-${style}.ttf`,
+	(family, region, style) => `${OUT}/TTF-Unhinted/${PREFIX}${family}${region}-${style}.ttf`,
 	(t, out, family, region, style) =>
 		MakeProd(t, out, family, region, style, {
 			Pass1: (w, f, r, s) => Pass1(f, r, s),
@@ -516,7 +512,7 @@ function* InstrParams(toDir, otds) {
 const TtcFile = file.make(
 	(infix, style) => `${OUT}/${infix}/${PREFIX}-${style}.ttc`,
 	async (t, out, infix, style) => {
-		const prodT = /unhinted/.test(infix) ? ProdUnhinted : Prod;
+		const prodT = /Unhinted/i.test(infix) ? ProdUnhinted : Prod;
 		const [config] = await t.need(Config, de(out.dir));
 		let requirements = [];
 		for (let family of config.familyOrder) {
@@ -540,7 +536,7 @@ const TtcFontFiles = task.make(
 const TtfFontFiles = task.make(
 	infix => `intermediate::ttfFontFiles::${infix}`,
 	async (t, infix) => {
-		const prodT = /unhinted/.test(infix) ? ProdUnhinted : Prod;
+		const prodT = /Unhinted/i.test(infix) ? ProdUnhinted : Prod;
 		const [config] = await t.need(Config);
 		let reqs = [];
 		for (let f of config.familyOrder)
@@ -553,7 +549,7 @@ const TtfFontFiles = task.make(
 );
 
 const SuperTtcFile = file.make(
-	infix => `${OUT}/.super-ttc/${PREFIX}-${infix}.ttc`,
+	infix => `${OUT}/.super-ttc/${PREFIX}-Super${infix}.ttc`,
 	async (target, out, infix) => {
 		const [config] = await target.need(Config, de(out.dir));
 		const [inputs] = await target.need(config.styleOrder.map(st => TtcFile(infix, st)));

@@ -24,7 +24,7 @@ async function pass(argv) {
 	dropFeature(main.gsub, ["ccmp", "aalt", "pwid", "fwid", "hwid", "twid", "qwid"]);
 	if (argv.mono) {
 		dropFeature(main.gsub, ["locl"]);
-		dropFeature(main.gpos, ["kern", "vkrn", "palt", "vpal"]);
+		dropFeature(main.gpos, ["kern", "vkrn", "halt", "palt", "vpal"]);
 	}
 	aliasFeatMap(main, "vert", 0x2014, 0x2015);
 	CliProc.gcFont(main, Ot.ListGlyphStoreFactory);
