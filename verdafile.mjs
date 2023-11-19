@@ -385,14 +385,14 @@ const GroupHintSelfKanji = task.make(
 	weight => `group-hint-self-kanji::${weight}`,
 	async (t, weight) => {
 		const [config, jHint] = await t.need(Config, JHint);
-		const [hintParam] = await t.need(fu`hinting-params/${weight}.json`);
+		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
 		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
 		const [kanjiTtfs] = await t.need(kanjiDeps);
 
 		await run(
 			Chlorophytum,
 			`hint`,
-			[`-c`, hintParam.full],
+			[`-c`, hintCfg.full],
 			[`-h`, `${HintDirPrefix}-${weight}/cache-kanji.gz`],
 			[`--jobs`, jHint],
 			Array.from(HintParams(kanjiTtfs))
@@ -404,14 +404,14 @@ const GroupHintSelfPass1 = task.make(
 	weight => `group-hint-self-pass1::${weight}`,
 	async (t, weight) => {
 		const [config, jHint] = await t.need(Config, JHint);
-		const [hintParam] = await t.need(fu`hinting-params/${weight}.json`);
-		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
+		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
+		const [_kanjiDeps, pass1Deps] = HintingDeps(config, weight);
 		const [pass1Ttfs] = await t.need(pass1Deps);
 
 		await run(
 			Chlorophytum,
 			`hint`,
-			[`-c`, hintParam.full],
+			[`-c`, hintCfg.full],
 			[`-h`, `${HintDirPrefix}-${weight}/cache-pass1.gz`],
 			[`--jobs`, jHint],
 			Array.from(HintParams(pass1Ttfs))
@@ -433,11 +433,7 @@ const GroupInstr = task.make(
 	weight => `group-instr::${weight}`,
 	async (t, weight) => {
 		const outDir = `${HintDirOutPrefix}-${weight}`;
-		const [config, hintParam] = await t.need(
-			Config,
-			fu`hinting-params/${weight}.json`,
-			de(outDir)
-		);
+		const [config, hintCfg] = await t.need(Config, fu`hcfg/${weight}.json`, de(outDir));
 		const [kanjiDeps, pass1Deps] = HintingDeps(config, weight);
 		const [kanjiTtfs, pass1Ttfs] = await t.need(kanjiDeps, pass1Deps);
 		await t.need(GroupHintDependentKanji(weight), GroupHintSelfPass1(weight));
@@ -445,7 +441,7 @@ const GroupInstr = task.make(
 		await run(
 			Chlorophytum,
 			`instruct`,
-			[`-c`, hintParam.full],
+			[`-c`, hintCfg.full],
 			[...InstrParams(outDir, [...pass1Ttfs, ...kanjiTtfs])]
 		);
 	}
