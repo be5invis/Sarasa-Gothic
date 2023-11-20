@@ -5,7 +5,7 @@ import * as url from "url";
 import { CliProc, Ot } from "ot-builder";
 
 import { bakeFeature } from "../helpers/bake-feature.mjs";
-import { dropCharacters } from "../helpers/drop.mjs";
+import { dropCharacters, dropFeature } from "../helpers/drop.mjs";
 import { readFont, writeFont } from "../helpers/font-io.mjs";
 import { italize } from "../helpers/geometry.mjs";
 import { isEnclosedAlphanumerics, isIdeograph, isKorean, isPua } from "../helpers/unicode-kind.mjs";
@@ -26,7 +26,19 @@ async function pass(argv) {
 
 	if (main.head.unitsPerEm !== 1000) CliProc.rebaseFont(main, 1000);
 
-	if (argv.tnum) bakeFeature("tnum", main, c => c >= 0x30 && c <= 0x39);
+	if (argv.latinCfg && argv.latinCfg.bakeFeatures) {
+		for (const feature of argv.latinCfg.bakeFeatures) {
+			let filter = feature.range
+				? c => c >= feature.range[0].codePointAt(0) && c <= feature.range[1].codePointAt(0)
+				: _ => true;
+			bakeFeature(feature.tag, main, filter);
+		}
+	}
+	if (argv.latinCfg && argv.latinCfg.dropFeatures) {
+		dropFeature(main.gsub, argv.latinCfg.dropFeatures);
+		dropFeature(main.gpos, argv.latinCfg.dropFeatures);
+	}
+
 	initVhea(main, as);
 
 	// Drop enclosed alphanumerics and PUA
