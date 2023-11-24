@@ -1,18 +1,8 @@
 {
 	"buildOptions": {},
-	"familyOrder": [
-		"Gothic",
-		"Ui",
-		"Mono",
-		"MonoSlab",
-		"Term",
-		"TermSlab",
-		"Fixed",
-		"FixedSlab"
-	],
+	"familyOrder": ["Gothic", "Ui", "Mono", "MonoSlab", "Term", "TermSlab", "Fixed", "FixedSlab"],
 	"families": {
 		"Gothic": {
-			"isTNUM": true,
 			"isGothic": true,
 			"latinGroup": "Inter",
 			"naming": {
@@ -25,7 +15,6 @@
 			}
 		},
 		"Ui": {
-			"isTNUM": true,
 			"isPWID": true,
 			"latinGroup": "Inter",
 			"naming": {
@@ -128,7 +117,38 @@
 	],
 	"latinGroups": {
 		"Inter": {
-			"isCff": false
+			"isCff": false,
+			"bakeFeatures": [
+				{ "tag": "ss03" },
+				{ "tag": "tnum", "range": ["0", "9"] },
+				{ "tag": "cv03", "range": ["0", "9"] },
+				{ "tag": "cv04", "range": ["0", "9"] },
+				{ "tag": "cv02", "range": ["0", "9"] },
+				{ "tag": "cv10" }
+			],
+			"dropFeatures": [
+				"cv01",
+				"cv02",
+				"cv03",
+				"cv04",
+				"cv05",
+				"cv06",
+				"cv07",
+				"cv08",
+				"cv09",
+				"cv10",
+				"cv11",
+				"cv12",
+				"cv13",
+				"ss01",
+				"ss02",
+				"ss03",
+				"ss04",
+				"ss05",
+				"ss06",
+				"ss07",
+				"ss08"
+			]
 		}
 	},
 	"styles": {
@@ -168,14 +188,7 @@
 			"uprightStyleMap": "Bold"
 		}
 	},
-	"subfamilyOrder": [
-		"CL",
-		"SC",
-		"TC",
-		"HC",
-		"J",
-		"K"
-	],
+	"subfamilyOrder": ["CL", "SC", "TC", "HC", "J", "K"],
 	"os2encodings": {
 		"J": {
 			"gbk": false,
@@ -215,30 +228,12 @@
 		}
 	},
 	"nameTupleSelector": {
-		"J": [
-			"en_US",
-			"ja_JP"
-		],
-		"K": [
-			"en_US",
-			"ko_KR"
-		],
-		"SC": [
-			"en_US",
-			"zh_CN"
-		],
-		"TC": [
-			"en_US",
-			"zh_TW"
-		],
-		"HC": [
-			"en_US",
-			"zh_HK"
-		],
-		"CL": [
-			"en_US",
-			"zh_TW"
-		]
+		"J": ["en_US", "ja_JP"],
+		"K": ["en_US", "ko_KR"],
+		"SC": ["en_US", "zh_CN"],
+		"TC": ["en_US", "zh_TW"],
+		"HC": ["en_US", "zh_HK"],
+		"CL": ["en_US", "zh_TW"]
 	},
 	"copyright": "Copyright (c) 2015-2023, Renzhi Li (aka. Belleve Invis, belleve@typeof.net). Portions Copyright (c) 2016-2020 The Inter Project Authors. Portions Copyright (c) 2014, 2015 Adobe Systems Incorporated (http://www.adobe.com/). Portions Copyright (c) 2012 Google Inc.",
 	"shsSourceMap": {
