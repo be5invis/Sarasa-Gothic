@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "1.0.0-beta.1",
+	"version": "1.0.0-beta.2",
 	"main": "./run",
 	"scripts": {
 		"build": "verda -f verdafile.mjs",
@@ -28,6 +28,6 @@
 		"prettier": "^3.0.3"
 	},
 	"engines": {
-		"node": ">=12.0.0"
+		"node": ">=20.0.0"
 	}
 }
