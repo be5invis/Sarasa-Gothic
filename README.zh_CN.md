@@ -80,7 +80,7 @@ Sarasa Gothic 提供了多种字重和字型的组合，以满足不同的场景
 
 ### 要求
 
-安装 [Node.js](https://nodejs.org/en/) 和 [ttfautohint](https://www.freetype.org/ttfautohint)
+安装 [Node.js](https://nodejs.org/en/)、[AFDKO](https://github.com/adobe-type-tools/afdko) 和 [ttfautohint](https://www.freetype.org/ttfautohint)
 
 ### 创建所有字体
 

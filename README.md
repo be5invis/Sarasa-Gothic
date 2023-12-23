@@ -8,7 +8,7 @@ It is highly recommended to completely remove the old version of the fonts befor
 
 ## To build
 
-You need [Node.js](https://nodejs.org/en/) (version 18 or newer), [AFDKO](https://github.com/adobe-type-tools/afdko) (latest) and [ttfautohint](https://www.freetype.org/ttfautohint) installed, then run:
+You need [Node.js](https://nodejs.org/en/) (version 20 or newer), [AFDKO](https://github.com/adobe-type-tools/afdko) (latest) and [ttfautohint](https://www.freetype.org/ttfautohint) installed, then run:
 
 ```bash
 npm install
