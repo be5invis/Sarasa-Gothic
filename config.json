@@ -255,7 +255,7 @@
 		"styleMap": {
 			"SemiBold": "Medium"
 		},
-		"classicalRegion": "cl",
+		"classicalRegion": "CL",
 		"classicalOverridePrefix": "AdvocateAncientSansTC",
 		"classicalOverrideSuffixMap": {
 			"ExtraLight": "ExtraLight-subset",
