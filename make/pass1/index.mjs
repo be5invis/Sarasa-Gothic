@@ -14,7 +14,6 @@ import { setFontMetadata } from "./metadata.mjs";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const globalConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../config.json")));
-const packageConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../package.json")));
 const ENCODINGS = globalConfig.os2encodings;
 
 export default pass;
@@ -66,7 +65,7 @@ async function pass(argv) {
 		{
 			en_US: {
 				copyright: globalConfig.copyright,
-				version: `Version ${packageConfig.version}`,
+				version: `Version ${argv.version}`,
 				family: globalConfig.families[argv.family].naming.en_US + " " + argv.subfamily,
 				style: globalConfig.styles[argv.style].name
 			},

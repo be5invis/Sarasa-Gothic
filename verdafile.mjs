@@ -16,7 +16,7 @@ const PREFIX = `Sarasa`;
 const BUILD = `.build`;
 const OUT = `out`;
 const SOURCES = `sources`;
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const PROJECT_ROOT = url.fileURLToPath(new URL(".", import.meta.url));
 
 // Command line
 const NODEJS = `node`;
@@ -37,10 +37,7 @@ build.setSelfTracking();
 // Entrypoint
 const Start = phony("all", async t => {
 	const version = await t.need(Version);
-	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
-	// Do in serial -- otherwise, memory usage will be too high.
-	await t.need(TtcFontFiles`TTC`);
-	await t.need(TtcFontFiles`TTC-Unhinted`);
+	await t.need(Ttf, Ttc);
 	await t.need(
 		TtcArchive(`TTC`, version),
 		TtcArchive(`TTC-Unhinted`, version),
@@ -56,10 +53,8 @@ const SuperTtc = phony(`super-ttc`, async target => {
 });
 
 const Ttc = phony(`ttc`, async t => {
-	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
-	// Do in serial -- otherwise, memory usage will be too high.
-	await t.need(TtcFontFiles`TTC`);
-	await t.need(TtcFontFiles`TTC-Unhinted`);
+	await t.need(Ttf);
+	await t.need(TtcFontFiles`TTC`, TtcFontFiles`TTC-Unhinted`);
 });
 
 const Ttf = phony(`ttf`, async t => {
@@ -67,10 +62,12 @@ const Ttf = phony(`ttf`, async t => {
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
-	const pkg = await fs.readJSON(__dirname + "/package.json");
+	const pkg = await fs.readJSON(path.resolve(PROJECT_ROOT, "package.json"));
 	const depJson = {};
 	for (const pkgName in pkg.dependencies) {
-		const depPkg = await fs.readJSON(__dirname + "/node_modules/" + pkgName + "/package.json");
+		const depPkg = await fs.readJSON(
+			path.resolve(PROJECT_ROOT, "node_modules", pkgName, "package.json")
+		);
 		const depVer = depPkg.version;
 		depJson[pkgName] = depVer;
 	}
@@ -78,7 +75,7 @@ const Dependencies = oracle("oracles::dependencies", async () => {
 });
 
 const Version = oracle("oracles::version", async t => {
-	return (await fs.readJson(path.resolve(__dirname, "package.json"))).version;
+	return (await fs.readJson(path.resolve(PROJECT_ROOT, "package.json"))).version;
 });
 
 const SuperTtcArchive = file.make(
@@ -269,6 +266,8 @@ const Pass1 = file.make(
 	(family, region, style) => `${BUILD}/pass1/${family}-${region}-${style}.ttf`,
 	async (t, out, family, region, style) => {
 		const [config] = await t.need(Config, Scripts);
+		const version = await t.need(Version);
+
 		const latinFamily = config.families[family].latinGroup;
 		const [, $1, $2, $3, $4] = await t.need(
 			de(out.dir),
@@ -288,6 +287,8 @@ const Pass1 = file.make(
 			subfamily: region,
 			style: style,
 			italize: deItalizedNameOf(config, out.name) === out.name ? false : true,
+
+			version,
 
 			...flagsOfFamily(config, family)
 		});
@@ -323,7 +324,9 @@ const ProdUnhinted = file.make(
 );
 
 async function MakeProd(t, out, family, region, style, fragT) {
-	const [config] = await t.need(Config, Scripts, Version, de(out.dir));
+	const [config] = await t.need(Config, Scripts, de(out.dir));
+	const version = await t.need(Version);
+
 	const weight = deItalizedNameOf(config, style);
 	const [, $1, $2, $3] = await t.need(
 		de(out.dir),
@@ -337,7 +340,8 @@ async function MakeProd(t, out, family, region, style, fragT) {
 		kanji: $2.full,
 		hangul: $3.full,
 		o: out.full,
-		italize: weight === style ? false : true
+		italize: weight === style ? false : true,
+		version
 	});
 }
 
@@ -601,8 +605,8 @@ const Scripts = task("dep::scripts", async t => {
 });
 
 const Config = oracle("dep::config", async () => {
-	const configPath = __dirname + "/config.json";
-	const privateConfigPath = __dirname + "/config.private.json";
+	const configPath = path.resolve(PROJECT_ROOT, "config.json");
+	const privateConfigPath = path.resolve(PROJECT_ROOT, "config.private.json");
 	const config = await fs.readJSON(configPath);
 	if (fs.existsSync(privateConfigPath)) {
 		const privateConfig = await fs.readJSON(privateConfigPath);
