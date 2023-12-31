@@ -14,7 +14,6 @@ import { setFontMetadata } from "./metadata.mjs";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const globalConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../config.json")));
-const packageConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../package.json")));
 const ENCODINGS = globalConfig.os2encodings;
 
 export default pass;
@@ -44,6 +43,9 @@ async function pass(argv) {
 	// Drop enclosed alphanumerics and PUA
 	if (!argv.mono) dropCharacters(main, c => isEnclosedAlphanumerics(c) || isPua(c));
 
+	// Bake tnum for UI
+	if (argv.tnum) bakeFeature("tnum", main, c => true);
+
 	if (argv.italize) {
 		italize(as, +9.4);
 		italize(ws, +9.4);
@@ -63,7 +65,7 @@ async function pass(argv) {
 		{
 			en_US: {
 				copyright: globalConfig.copyright,
-				version: `Version ${packageConfig.version}`,
+				version: `Version ${argv.version}`,
 				family: globalConfig.families[argv.family].naming.en_US + " " + argv.subfamily,
 				style: globalConfig.styles[argv.style].name
 			},

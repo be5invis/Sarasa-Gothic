@@ -16,6 +16,7 @@
 		},
 		"Ui": {
 			"isPWID": true,
+			"isTNUM": true,
 			"latinGroup": "Inter",
 			"naming": {
 				"en_US": "Sarasa UI",
@@ -255,7 +256,7 @@
 		"styleMap": {
 			"SemiBold": "Medium"
 		},
-		"classicalRegion": "cl",
+		"classicalRegion": "CL",
 		"classicalOverridePrefix": "AdvocateAncientSansTC",
 		"classicalOverrideSuffixMap": {
 			"ExtraLight": "ExtraLight-subset",
