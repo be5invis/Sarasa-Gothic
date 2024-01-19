@@ -44,7 +44,7 @@ async function pass(argv) {
 	if (!argv.mono) dropCharacters(main, c => isEnclosedAlphanumerics(c) || isPua(c));
 
 	// Bake tnum for UI
-	if (argv.tnum) bakeFeature("tnum", main, c => true);
+	if (argv.tnum) bakeFeature("tnum", main, c => c != 0x2d);
 
 	if (argv.italize) {
 		italize(as, +9.4);
