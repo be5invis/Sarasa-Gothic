@@ -36,8 +36,20 @@ build.setSelfTracking();
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Entrypoint
 const Start = phony("all", async t => {
-	const version = await t.need(Version);
+	const [config, version] = await t.need(Config, Version);
 	await t.need(Ttf, Ttc);
+
+	// Standalone archives
+	for (const f of config.familyOrder) {
+		let standaloneTargets = [];
+		for (const sf of config.subfamilyOrder) {
+			standaloneTargets.push(StandaloneTtfArchive(`TTF`, f, sf, version));
+			standaloneTargets.push(StandaloneTtfArchive(`TTF-Unhinted`, f, sf, version));
+		}
+		await t.need(standaloneTargets);
+	}
+
+	// "Everything" archives
 	await t.need(
 		TtcArchive(`TTC`, version),
 		TtcArchive(`TTC-Unhinted`, version),
@@ -110,6 +122,16 @@ const TtfArchive = file.make(
 				styleItalic ? `*-${styleItalic}.ttf` : null
 			);
 		}
+	}
+);
+
+const StandaloneTtfArchive = file.make(
+	(infix, family, subfamily, version) =>
+		`${OUT}/${PREFIX}${family}${subfamily}-${infix}-${version}.7z`,
+	async (t, out, infix, family, subfamily, version) => {
+		await t.need(Config, TtfFontFiles(infix));
+		await rm(out.full);
+		await SevenZipCompress(`${OUT}/${infix}`, out.full, `${PREFIX}${family}${subfamily}-*.ttf`);
 	}
 );
 
