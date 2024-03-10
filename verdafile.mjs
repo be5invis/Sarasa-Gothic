@@ -58,6 +58,13 @@ const Start = phony("all", async t => {
 		TtfArchive(`TTF`, version),
 		TtfArchive(`TTF-Unhinted`, version)
 	);
+
+	await run(
+		"node",
+		"tools/generate-release-notes.mjs",
+		version,
+		`${OUT}/release-notes-${version}.md`
+	);
 });
 
 const SuperTtc = phony(`super-ttc`, async target => {
