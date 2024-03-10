@@ -1,9 +1,0 @@
-{
-	"cSpell.enabled": false,
-	"search.useGlobalIgnoreFiles": true,
-	"files.exclude": {
-		".build/": true,
-		"node_modules/": true,
-		"out/": true
-	}
-}
