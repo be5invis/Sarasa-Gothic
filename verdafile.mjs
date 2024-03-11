@@ -39,25 +39,24 @@ const Start = phony("all", async t => {
 	const [config, version] = await t.need(Config, Version);
 	await t.need(Ttf, Ttc);
 
-	// Standalone archives
-	for (const f of config.familyOrder) {
-		let standaloneTargets = [];
-		for (const sf of config.subfamilyOrder) {
-			standaloneTargets.push(StandaloneTtfArchive(`TTF`, f, sf, version));
-			standaloneTargets.push(StandaloneTtfArchive(`TTF-Unhinted`, f, sf, version));
-		}
-		await t.need(standaloneTargets);
-	}
-
-	// "Everything" archives
-	await t.need(
+	let archiveTargets = [
 		TtcArchive(`TTC`, version),
 		TtcArchive(`TTC-Unhinted`, version),
 		SuperTtcArchive(`TTC`, version),
-		SuperTtcArchive(`TTC-Unhinted`, version),
-		TtfArchive(`TTF`, version),
-		TtfArchive(`TTF-Unhinted`, version)
-	);
+		SuperTtcArchive(`TTC-Unhinted`, version)
+	];
+
+	// Standalone archives
+	for (const f of config.familyOrder) {
+		archiveTargets.push(SingleFamilyTtfArchive(`TTF`, f, version));
+		archiveTargets.push(SingleFamilyTtfArchive(`TTF-Unhinted`, f, version));
+		for (const sf of config.subfamilyOrder) {
+			archiveTargets.push(StandaloneTtfArchive(`TTF`, f, sf, version));
+			archiveTargets.push(StandaloneTtfArchive(`TTF-Unhinted`, f, sf, version));
+		}
+	}
+
+	await t.need(archiveTargets);
 
 	await run(
 		"node",
@@ -98,7 +97,7 @@ const Version = oracle("oracles::version", async t => {
 });
 
 const SuperTtcArchive = file.make(
-	(infix, version) => `${OUT}/${PREFIX}-Super${infix}-${version}.7z`,
+	(infix, version) => `${OUT}/${PREFIX}-Super${infix}-${version}.zip`,
 	async (t, out, infix) => {
 		const [input] = await t.need(SuperTtcFile(infix));
 		await rm(out.full);
@@ -106,7 +105,7 @@ const SuperTtcArchive = file.make(
 	}
 );
 const TtcArchive = file.make(
-	(infix, version) => `${OUT}/${PREFIX}-${infix}-${version}.7z`,
+	(infix, version) => `${OUT}/${PREFIX}-${infix}-${version}.zip`,
 	async (t, out, infix) => {
 		await t.need(TtcFontFiles(infix));
 		await rm(out.full);
@@ -114,21 +113,19 @@ const TtcArchive = file.make(
 	}
 );
 
-const TtfArchive = file.make(
-	(infix, version) => `${OUT}/${PREFIX}-${infix}-${version}.7z`,
-	async (t, out, infix) => {
+const SingleFamilyTtfArchive = file.make(
+	(infix, family, version) => `${OUT}/${PREFIX}${family}-${infix}-${version}.zip`,
+	async (t, out, infix, family, version) => {
 		const [config] = await t.need(Config, TtfFontFiles(infix));
 		await rm(out.full);
-		for (let j = 0; j < config.styleOrder.length; j += 1) {
-			const style = config.styleOrder[j];
-			await SevenZipCompress(`${OUT}/${infix}`, out.full, `*-${style}.ttf`);
+		for (const sf of config.subfamilyOrder) {
+			await SevenZipCompress(`${OUT}/${infix}`, out.full, `${PREFIX}${family}${sf}-*.ttf`);
 		}
 	}
 );
-
 const StandaloneTtfArchive = file.make(
 	(infix, family, subfamily, version) =>
-		`${OUT}/${PREFIX}${family}${subfamily}-${infix}-${version}.7z`,
+		`${OUT}/${PREFIX}${family}${subfamily}-${infix}-${version}.zip`,
 	async (t, out, infix, family, subfamily, version) => {
 		await t.need(Config, TtfFontFiles(infix));
 		await rm(out.full);
@@ -139,7 +136,7 @@ const StandaloneTtfArchive = file.make(
 function SevenZipCompress(dir, target, ...inputs) {
 	return cd(dir).run(
 		[SEVEN_ZIP, `a`],
-		[`-t7z`, `-mmt=on`, `-mx=9`],
+		[`-tzip`, `-mmt=on`, `-mx=9`],
 		[path.relative(dir, target), ...inputs]
 	);
 }
