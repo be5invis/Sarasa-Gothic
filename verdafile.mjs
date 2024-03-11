@@ -119,15 +119,9 @@ const TtfArchive = file.make(
 	async (t, out, infix) => {
 		const [config] = await t.need(Config, TtfFontFiles(infix));
 		await rm(out.full);
-		for (let j = 0; j < config.styleOrder.length; j += 2) {
-			const styleUpright = config.styleOrder[j];
-			const styleItalic = config.styleOrder[j + 1];
-			await SevenZipCompress(
-				`${OUT}/${infix}`,
-				out.full,
-				styleUpright ? `*-${styleUpright}.ttf` : null,
-				styleItalic ? `*-${styleItalic}.ttf` : null
-			);
+		for (let j = 0; j < config.styleOrder.length; j += 1) {
+			const style = config.styleOrder[j];
+			await SevenZipCompress(`${OUT}/${infix}`, out.full, `*-${style}.ttf`);
 		}
 	}
 );
@@ -145,7 +139,7 @@ const StandaloneTtfArchive = file.make(
 function SevenZipCompress(dir, target, ...inputs) {
 	return cd(dir).run(
 		[SEVEN_ZIP, `a`],
-		[`-t7z`, `-mmt=on`, `-m0=LZMA:a=0:d=256m:fb=256`],
+		[`-t7z`, `-mmt=on`, `-mx=9`],
 		[path.relative(dir, target), ...inputs]
 	);
 }
