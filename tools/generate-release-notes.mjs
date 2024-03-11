@@ -13,13 +13,19 @@ async function main() {
 
 	let o = "";
 
-	o += `## Coarse-grained download links (contains all languages)\n\n`;
+	o += `## SuperTTC and TTC Archives (Contain all families and languages)\n\n`;
 
-	o += ` * [SuperTTC](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-SuperTTC-${version}.7z) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-SuperTTC-Unhinted-${version}.7z))\n`;
-	o += ` * [TTC](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTC-${version}.7z) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTC-Unhinted-${version}.7z))\n`;
-	o += ` * [TTF](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTF-${version}.7z) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTF-Unhinted-${version}.7z))\n`;
+	o += ` * [SuperTTC](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-SuperTTC-${version}.zip) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-SuperTTC-Unhinted-${version}.zip))\n`;
+	o += ` * [TTC](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTC-${version}.zip) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTC-Unhinted-${version}.zip))\n`;
 
-	o += `## Fine-grained download links\n\n`;
+	o += `## TTF Archives\n\n`;
+	o += `### Single Family, Multiple Languages Package\n\n`;
+	for (const family of config.familyOrder) {
+		o += `* [${family}](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}-TTF-${version}.zip) `;
+		o += `([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}-TTF-Unhinted-${version}.zip))\n`;
+	}
+
+	o += `### Single Family & Language\n\n`;
 	o += generateTableHeader(config);
 	for (const subfamily of config.subfamilyOrder) {
 		o += generateTableRow(config, subfamily, process.argv[2]);
@@ -46,8 +52,8 @@ function generateTableRow(config, subfamily, version) {
 	let o = `| ${subfamily} `;
 	for (const family of config.familyOrder) {
 		o += "| ";
-		o += `[TTF](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}${subfamily}-TTF-${version}.7z) `;
-		o += `([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}${subfamily}-TTF-Unhinted-${version}.7z)) `;
+		o += `[TTF](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}${subfamily}-TTF-${version}.zip) `;
+		o += `([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}${subfamily}-TTF-Unhinted-${version}.zip)) `;
 	}
 	o += "|\n";
 	return o;
