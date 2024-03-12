@@ -289,6 +289,7 @@ const Pass1 = file.make(
 		const version = await t.need(Version);
 
 		const latinFamily = config.families[family].latinGroup;
+		const latinCfg = config.latinGroups[latinFamily] || {};
 		const [, $1, $2, $3, $4] = await t.need(
 			de(out.dir),
 			LatinSource(latinFamily, style),
@@ -309,6 +310,8 @@ const Pass1 = file.make(
 			italize: deItalizedNameOf(config, out.name) === out.name ? false : true,
 
 			version,
+
+			latinCfg: latinCfg,
 
 			...flagsOfFamily(config, family)
 		});
