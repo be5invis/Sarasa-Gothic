@@ -107,7 +107,7 @@ class Out {
 const DOWNLOAD = `📦 Download`;
 function downloadItem(label, prefix, format, version, zip) {
 	const normalLink = pkgLink(version, `Sarasa${prefix}-${format}-${version}`, zip);
-	const unhintedLink = pkgLink(version, `Sarasa${prefix}-${format}-${version}-Unhinted`, zip);
+	const unhintedLink = pkgLink(version, `Sarasa${prefix}-${format}-Unhinted-${version}`, zip);
 	return `[${label}](${normalLink}) ([Unhinted](${unhintedLink}))`;
 }
 function pkgLink(version, baseName, format) {
