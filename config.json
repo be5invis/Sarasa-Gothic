@@ -257,7 +257,7 @@
 			"SemiBold": "Medium"
 		},
 		"classicalRegion": "CL",
-		"classicalOverridePrefix": "AdvocateAncientSansTC",
+		"classicalOverridePrefix": "ShangguSansTC",
 		"classicalOverrideSuffixMap": {
 			"ExtraLight": "ExtraLight-subset",
 			"Light": "Light-subset",
