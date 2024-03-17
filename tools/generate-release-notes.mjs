@@ -1,7 +1,7 @@
 import fs from "fs";
 
 const version = process.argv[2];
-const output = process.argv[3];
+const outputPath = process.argv[3];
 
 main().catch(e => {
 	console.error(e);
@@ -11,29 +11,54 @@ main().catch(e => {
 async function main() {
 	const config = JSON.parse(await fs.promises.readFile("config.json", "utf-8"));
 
-	let o = "";
+	const out = new Out(outputPath);
 
-	o += `## SuperTTC and TTC Archives (Contain all families and languages)\n\n`;
+	out.writeP(`### Everything Package`)
+		.write(`| Package | 7z | zip |`)
+		.write(`|---------|----|-----|`)
+		.write(
+			`| SuperTTC |`,
+			downloadItem(DOWNLOAD, "", "SuperTTC", version, "7z"),
+			` | `,
+			downloadItem(DOWNLOAD, "", "SuperTTC", version, "zip"),
+			`|`
+		)
+		.write(
+			`| TTC |`,
+			downloadItem(DOWNLOAD, "", "TTC", version, "7z"),
+			`|`,
+			downloadItem(DOWNLOAD, "", "TTC", version, "zip"),
+			`|`
+		)
+		.write(
+			`| TTF |`,
+			downloadItem(DOWNLOAD, "", "TTC", version, "7z"),
+			`| (File too large for GitHub release artifact) |`
+		);
 
-	o += ` * [SuperTTC](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-SuperTTC-${version}.zip) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-SuperTTC-Unhinted-${version}.zip))\n`;
-	o += ` * [TTC](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTC-${version}.zip) ([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa-TTC-Unhinted-${version}.zip))\n`;
+	out.writeP(`### Single Family TTF Package`)
+		.write(`| Package | 7z | zip |`)
+		.write(`|---------|----|-----|`);
 
-	o += `## TTF Archives\n\n`;
-	o += `### Single Family, Multiple Languages Package\n\n`;
-	for (const family of config.familyOrder) {
-		o += `* [${family}](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}-TTF-${version}.zip) `;
-		o += `([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}-TTF-Unhinted-${version}.zip))\n`;
+	for (const f of config.familyOrder) {
+		out.write(
+			`| ${f} |`,
+			downloadItem(DOWNLOAD, f, "TTF", version, "7z"),
+			`|`,
+			downloadItem(DOWNLOAD, f, "TTF", version, "zip"),
+			`|`
+		);
 	}
+	out.write("");
 
-	o += `### Single Family & Language\n\n`;
-	o += generateTableHeader(config);
+	out.writeP(`### Single Family & Language TTF Package`);
+	out.write(generateTableHeader(config));
 	for (const subfamily of config.subfamilyOrder) {
-		o += generateTableRow(config, subfamily, process.argv[2]);
+		out.write(generateTableRow(config, subfamily, version));
 	}
 
-	await fs.promises.writeFile(process.argv[3], o);
+	out.end();
 }
-
 function generateTableHeader(config) {
 	let o = `| Locale `;
 	for (const family of config.familyOrder) {
@@ -44,17 +69,45 @@ function generateTableHeader(config) {
 	for (const family of config.familyOrder) {
 		o += "|---";
 	}
-	o += "|\n";
+	o += "|";
+	return o;
+}
+function generateTableRow(config, sf, version) {
+	let o = `| ${sf} `;
+	for (const f of config.familyOrder) {
+		o += `| ${downloadItem("7z", f + sf, "TTF", version, "7z")} `;
+	}
+	o += "|";
 	return o;
 }
 
-function generateTableRow(config, subfamily, version) {
-	let o = `| ${subfamily} `;
-	for (const family of config.familyOrder) {
-		o += "| ";
-		o += `[TTF](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}${subfamily}-TTF-${version}.zip) `;
-		o += `([Unhinted](https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/Sarasa${family}${subfamily}-TTF-Unhinted-${version}.zip)) `;
+class Out {
+	constructor(filePath) {
+		this.stream = fs.createWriteStream(filePath);
 	}
-	o += "|\n";
-	return o;
+
+	write(...s) {
+		for (const item of s) this.stream.write(item);
+		this.stream.write("\n");
+		return this;
+	}
+
+	writeP(...s) {
+		this.write(...s, "\n");
+		return this;
+	}
+
+	end() {
+		this.stream.end();
+	}
+}
+
+const DOWNLOAD = `📦 Download`;
+function downloadItem(label, prefix, format, version, zip) {
+	const normalLink = pkgLink(version, `Sarasa${prefix}-${format}-${version}`, zip);
+	const unhintedLink = pkgLink(version, `Sarasa${prefix}-${format}-${version}-Unhinted`, zip);
+	return `[${label}](${normalLink}) ([Unhinted](${unhintedLink}))`;
+}
+function pkgLink(version, baseName, format) {
+	return `https://github.com/be5invis/Sarasa-Gothic/releases/download/v${version}/${baseName}.${format}`;
 }
