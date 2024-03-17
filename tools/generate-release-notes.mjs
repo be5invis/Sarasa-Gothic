@@ -32,7 +32,7 @@ async function main() {
 		)
 		.write(
 			`| TTF |`,
-			downloadItem(DOWNLOAD, "", "TTC", version, "7z"),
+			downloadItem(DOWNLOAD, "", "TTF", version, "7z"),
 			`| (File too large for GitHub release artifact) |`
 		);
 
@@ -52,10 +52,12 @@ async function main() {
 	out.write("");
 
 	out.writeP(`### Single Family & Language TTF Package`);
+	out.writeP(`<details>`);
 	out.write(generateTableHeader(config));
 	for (const subfamily of config.subfamilyOrder) {
 		out.write(generateTableRow(config, subfamily, version));
 	}
+	out.writeP(`</details>`);
 
 	out.end();
 }
