@@ -286,6 +286,9 @@ async function BuildPunct(blockName, t, out, family, region, style) {
 		LatinSource(latinFamily, style)
 	);
 	await RunFontBuildTask(`make/punct/${blockName}.mjs`, {
+		family,
+		region,
+		style,
 		main: $1.full,
 		lgc: $2.full,
 		o: out.full,

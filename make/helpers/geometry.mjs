@@ -33,7 +33,10 @@ export function alterContours(glyph, fn) {
 	if (!glyph.geometry) return;
 	const contours = Ot.GeometryUtil.apply(Ot.GeometryUtil.Flattener, glyph.geometry);
 	for (const c of contours) {
-		for (const z of c) [z.x, z.y] = fn(z.x, z.y);
+		for (let i = 0; i < c.length; i++) {
+			const [x, y] = fn(c[i].x, c[i].y);
+			c[i] = Ot.Glyph.Point.create(x, y, c[i].kind);
+		}
 	}
 	glyph.geometry = new Ot.Glyph.ContourSet(contours);
 }
@@ -48,6 +51,10 @@ export function shiftContours(glyph, delta) {
 
 export function getAdvanceWidth(glyph) {
 	if (glyph.horizontal) return glyph.horizontal.end;
+	else return 0;
+}
+export function getAdvanceHeight(glyph) {
+	if (glyph.vertical) return glyph.vertical.start - glyph.vertical.end;
 	else return 0;
 }
 

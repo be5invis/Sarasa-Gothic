@@ -32,7 +32,7 @@ async function main() {
 		)
 		.write(
 			`| TTF |`,
-			downloadItem(DOWNLOAD, "", "TTC", version, "7z"),
+			downloadItem(DOWNLOAD, "", "TTF", version, "7z"),
 			`| (File too large for GitHub release artifact) |`
 		);
 
@@ -52,10 +52,12 @@ async function main() {
 	out.write("");
 
 	out.writeP(`### Single Family & Language TTF Package`);
+	out.writeP(`<details>`);
 	out.write(generateTableHeader(config));
 	for (const subfamily of config.subfamilyOrder) {
 		out.write(generateTableRow(config, subfamily, version));
 	}
+	out.writeP(`</details>`);
 
 	out.end();
 }
@@ -105,7 +107,7 @@ class Out {
 const DOWNLOAD = `📦 Download`;
 function downloadItem(label, prefix, format, version, zip) {
 	const normalLink = pkgLink(version, `Sarasa${prefix}-${format}-${version}`, zip);
-	const unhintedLink = pkgLink(version, `Sarasa${prefix}-${format}-${version}-Unhinted`, zip);
+	const unhintedLink = pkgLink(version, `Sarasa${prefix}-${format}-Unhinted-${version}`, zip);
 	return `[${label}](${normalLink}) ([Unhinted](${unhintedLink}))`;
 }
 function pkgLink(version, baseName, format) {

@@ -4,6 +4,8 @@ import { dropCharacters, dropFeature, dropHints } from "../helpers/drop.mjs";
 import { readFont, writeFont } from "../helpers/font-io.mjs";
 import { isFEMisc, isLongDash, isWS, isWestern } from "../helpers/unicode-kind.mjs";
 
+import { bakeLocalization } from "./bake-locl.mjs";
+import { buildContinuousEmDash } from "./build-continuous-em-dash.mjs";
 import { transferMonoGeometry } from "./lgc-helpers.mjs";
 import { sanitizeSymbols, toPWID } from "./sanitize-symbols.mjs";
 
@@ -17,15 +19,16 @@ async function pass(argv) {
 		main,
 		c => isWestern(c - 0) || isLongDash(c - 0, argv.term) || isWS(c - 0) || isFEMisc(c - 0)
 	);
-	if (argv.pwid) toPWID(main);
+	if (argv.pwid) toPWID(main, argv);
+	bakeLocalization(main, argv);
 	if (argv.mono) transferMonoGeometry(main, lgc);
-	if (!argv.pwid) sanitizeSymbols(main, argv.goth, !argv.pwid && !argv.term);
+	sanitizeSymbols(main, argv);
 
-	dropFeature(main.gsub, ["ccmp", "aalt", "pwid", "fwid", "hwid", "twid", "qwid"]);
-	if (argv.mono) {
-		dropFeature(main.gsub, ["locl"]);
-		dropFeature(main.gpos, ["kern", "vkrn", "halt", "palt", "vpal"]);
-	}
+	dropFeature(main.gsub, ["locl", "ccmp", "aalt", "pwid", "fwid", "hwid", "twid", "qwid"]);
+	if (argv.mono) dropFeature(main.gpos, ["kern", "vkrn", "halt", "palt", "vpal"]);
+
+	buildContinuousEmDash(main);
+
 	aliasFeatMap(main, "vert", 0x2014, 0x2015);
 	CliProc.gcFont(main, Ot.ListGlyphStoreFactory);
 	await writeFont(argv.o, main);
