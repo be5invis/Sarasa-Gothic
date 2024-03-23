@@ -14,13 +14,12 @@ async function pass(argv) {
 
 	dropHints(main);
 	dropCharacters(main, c => isWestern(c) || isLongDash(c, argv.term) || !isWS(c) || isFEMisc(c));
-	if (argv.pwid) toPWID(main);
+	if (argv.pwid) toPWID(main, argv);
 	if (argv.mono) transferMonoGeometry(main, lgc);
-	if (!argv.pwid) sanitizeSymbols(main, argv.goth, !argv.pwid && !argv.term);
+	sanitizeSymbols(main, argv);
 
-	dropFeature(main.gsub, ["ccmp", "aalt", "pwid", "fwid", "hwid", "twid", "qwid"]);
+	dropFeature(main.gsub, ["locl", "ccmp", "aalt", "pwid", "fwid", "hwid", "twid", "qwid"]);
 	if (argv.mono) {
-		dropFeature(main.gsub, ["locl"]);
 		dropFeature(main.gpos, ["kern", "vkrn", "palt", "vpal"]);
 	}
 

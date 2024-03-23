@@ -9,7 +9,7 @@ export const isIdeograph = function (c) {
 		(c >= 0x20000 && c <= 0x3ffff) // SIP, TIP
 	);
 };
-export const isWestern = c => c < 0x2000 || (c >= 0x2070 && c <= 0x218f);
+export const isWestern = c => (c < 0x2000 && c != 0xb7) || (c >= 0x2070 && c <= 0x218f);
 export const isKorean = c =>
 	(c >= 0x1100 && c <= 0x11ff) ||
 	(c >= 0xac00 && c <= 0xd7af) ||

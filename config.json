@@ -119,14 +119,7 @@
 	"latinGroups": {
 		"Inter": {
 			"isCff": false,
-			"bakeFeatures": [
-				{ "tag": "ss03" },
-				{ "tag": "tnum", "range": ["0", "9"] },
-				{ "tag": "cv03", "range": ["0", "9"] },
-				{ "tag": "cv04", "range": ["0", "9"] },
-				{ "tag": "cv02", "range": ["0", "9"] },
-				{ "tag": "cv10" }
-			],
+			"bakeFeatures": [{ "tag": "ss03" }, { "tag": "cv10" }],
 			"dropFeatures": [
 				"cv01",
 				"cv02",
