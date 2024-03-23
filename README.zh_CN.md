@@ -2,78 +2,62 @@
 
 # Sarasa Gothic (更纱黑体 / 更紗黑體)
 
-Sarasa Gothic 是一款免费的开源字体，基于 Iosevka 和 Source Han Sans (思源黑体) 字型设计，适合在包含中日韩等多种亚洲语言之间混排的场景使用，主要用于操作系统页面和编程字体。
+Sarasa Gothic 是一款免费的开源字体，基于 [Iosevka](https://github.com/be5invis/Iosevka) 和 [Source Han Sans](https://github.com/adobe-fonts/source-han-sans) 字型设计，适合在包含中日韩等多种亚洲语言之间混排的场景使用，主要用于操作系统页面和编程字体。
 
 ## 安装说明
 
-在更新字体之前请务必完全移除已安装的旧版字体。许多软件或操作系统的缓存系统对于大型字体并不友好。
+强烈建议在更新此字体前，完全卸载已安装的旧版字体。许多操作系统或软件的字体缓存系统在处理大型TTC字体时可能会遇到问题。
 
 ## 国内镜像下载站点
 
 - 清华大学镜像源: https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis/Sarasa-Gothic
 - 南京大学镜像源: https://mirror.nju.edu.cn/github-release/be5invis/Sarasa-Gothic
 
+## 如何下载
+
+进入[最新发布版本](https://github.com/be5invis/Sarasa-Gothic/releases)页面，根据需要下载对应系列的字体包，下载后解压并安装。
+
 ## 下载说明
 
-对于一般用户，可以下载 `sarasa-gothic-ttf` 的字体包，下载后解压，安装文件名中带有 `SC` 标注的字体文件，这表示中国大陆的字符集。如果希望用在代码编辑器中替换默认编程字体，可以选择 `sarasa-mono-sc-regular.ttf` 文件，并指定编辑器字体为 `等距更纱黑体 SC`。
+Sarasa Gothic 提供了多种字形风格、字重的组合，以满足不同的场景和需求。对于仅需安装作为编程字体的用户，推荐选择 "Mono SC"。下载后，在 IDE 设置字体为 `等距更纱黑体 SC`。
 
-## 字体类型
+### 字型(Variant)
 
-Sarasa Gothic 提供了多种字重和字型的组合，以满足不同的场景和需求。
+**更纱黑体**  
+西文字符基于 [Inter](https://github.com/rsms/inter) 字型设计。
+  - Gothic: 标准字型，全宽引号。
+  - UI: 专为UI界面设计的字型，半宽引号。
+ 
+**等距更纱黑体**  
+西文字符基于 [Iosevka](https://github.com/be5invis/Iosevka) 字型设计。
+- Mono: 等宽字型，全宽破折号。
+- Term: 等宽字型，半宽破折号。
+- Fixed: 等宽字型，半宽破折号，无连字。  
 
-### 字重（Weight）
-- Extralight：特细。
-- Light：较细。
-- Regular：标准字重。
-- Semibold：半粗。
-- Bold：粗体。
+**Slab**: 粗衬线体。在原字形基础上增加了 Slab serif 的特征，使其更具有辨识度。
 
-### 斜体（Italic）
-- Extralightitalic 特细的斜体。
-- Lightitalic 较细的斜体。
-- Italic 标准斜体。
-- Semibolditalic 半粗的斜体。
-- Bold Italic 加粗的斜体。
+**连字** (Ligature) 遇到特定连续的字符时会进行组合，优化阅读体验。在编程语言中，连字特性也能让数学运算符号更容易的阅读，如输入 `!=` 时，会显示为 `≠`
 
-### 衬线（Serif）
+### 地区语言(Variant)
 
-在原有的字形基础上增加了 Slab Serif 特征，使其更具有辨识度。
+根据特定语言和地区主要使用的字形来选择字体。
 
-### 字型（Variant）
+- `SC`: 简体中文
+- `TC`: 台湾繁体中文
+- `HC`: 香港繁体中文
+- `CL`: 传统旧字形
+- `J`: 日文
+- `K`: 韩文
 
-对于字形，请看下方更详细的介绍。
+### 其他说明
 
-- Gothic：标准字型。
-- Mono：等宽字型。
-- Term：更紧凑的等宽字型。
-- Fixed：固定宽度字型。
-- UI：专为UI界面设计的字型。
+**Unhinted**: 没有进行微调字形的版本，也就是使用 Iosevka 和 Source Han Sans 原版的字形。  文件大小比其他版本更小，但可能在某些字的结构上，显示没那么清晰，特别是小字号效果更为不佳。仅需要在极端的环境中，需要更小的字体文件，且不在意字体的显示清晰效果时选择。一般用户建议不选。
 
-## 字型讲解
+**TTF**: 如果不知道怎么选，选 TTF 肯定没错。但 TTF 通常体积较大。旧系统用户可选。
 
-### 风格样式
+**TTC**: 相当于一个字体压缩包，在里面塞了很多个 TTF 的字体文件，可以包含多个 TrueType 字体的文件格式。好处就是，让文件更小。
 
-针对拉丁文（Latin）、希腊文（Greek）和西里尔文（Cyrillic）的字符集：
-
-基于 [Inter](https://github.com/rsms/inter) 字型设计：
-  - **Gothic** —— 全宽引号 (`“”`)
-  - **UI** —— 缩进引号 (`“”`)
-
-基于 [Iosevka](https://github.com/be5invis/Iosevka) 字型设计：
-- **Mono** —— 全宽破折号 (`——`)
-- **Term** —— 半宽破折号 (`——`)
-- **Fixed** —— 半宽破折号，无连字 (`——`)
-
-### 书写字形
-
-根据特定语言和地区主要使用的字形来选择字体。更多请参考[思源黑体](https://github.com/adobe-fonts/source-han-sans) 的说明。
-
-- `CL`：古典字形
-- `SC`：中国大陆（简体中文）
-- `TC`：台湾（繁体中文）
-- `HC`：香港（繁体中文）
-- `J`：日文
-- `K`：韩文
+**SuperTTC**: 是 TTC 的升级版，有更高效的打包方式，可以往里面塞更多的可变字体。进一步节省空间。
 
 
 ## 从源文件创建字体
@@ -84,7 +68,7 @@ Sarasa Gothic 提供了多种字重和字型的组合，以满足不同的场景
 
 ### 创建所有字体
 
-将项目下载到本地，进入项目文件夹安装程序包。
+将项目下载到本地，从终端进入项目文件夹运行。
 
 ```bash
 npm install
@@ -102,4 +86,4 @@ npm run build ttf
 npm run build ttc
 ```
 
-请注意，打包 TTC 将需要占用*非常高*的内存，因为包含了大量的子家族字符集的组合。
+请注意，打包 TTC 时将会占用 *非常高* 的内存，因为包含了大量的子家族字符集的组合。

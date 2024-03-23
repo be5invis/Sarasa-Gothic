@@ -14,7 +14,7 @@ async function pass(argv) {
 	dropCharacters(font, c => !isFEMisc(c));
 	if (argv.mono) dropFeature(font.gpos, ["kern", "palt", "vkrn", "vpal"]);
 
-	if (!argv.pwid) sanitizeSymbols(font, argv.goth, !argv.pwid && !argv.term);
+	sanitizeSymbols(font, argv);
 	CliProc.gcFont(font, Ot.ListGlyphStoreFactory);
 	await writeFont(argv.o, font);
 }

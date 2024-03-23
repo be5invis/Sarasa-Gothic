@@ -11,11 +11,20 @@ export class GlyphFinder {
 			return this.font.cmap.unicode.get(u);
 		}
 	}
-	subst(tag, g) {
+	subst(tag, g, scriptTag, languageTag) {
 		if (!this.font.gsub) return g;
 
+		let features = this.font.gsub.features;
 		let candidateLookups = [];
-		for (const feature of this.font.gsub.features) {
+		if (scriptTag) {
+			const script = this.font.gsub.scripts.get(scriptTag);
+			const language = languageTag
+				? script.languages.get(languageTag)
+				: script.defaultLanguage;
+			features = language.features;
+		}
+
+		for (const feature of features) {
 			if (feature.tag === tag) {
 				for (const lookup of feature.lookups) candidateLookups.push(lookup);
 			}

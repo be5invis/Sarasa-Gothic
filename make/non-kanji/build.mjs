@@ -5,7 +5,7 @@ import { dropCharacters, dropFeature, dropHints } from "../helpers/drop.mjs";
 import { readFont, writeFont } from "../helpers/font-io.mjs";
 import { isIdeograph, isKorean } from "../helpers/unicode-kind.mjs";
 
-export default (async function pass(argv) {
+export default async function pass(argv) {
 	const font = await readFont(argv.main);
 
 	dropHints(font);
@@ -16,4 +16,4 @@ export default (async function pass(argv) {
 	unifySameFeatures(font.gpos);
 	CliProc.gcFont(font, Ot.ListGlyphStoreFactory);
 	await writeFont(argv.o, font);
-});
+}
