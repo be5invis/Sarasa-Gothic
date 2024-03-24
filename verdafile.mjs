@@ -22,6 +22,7 @@ const PROJECT_ROOT = url.fileURLToPath(new URL(".", import.meta.url));
 const NODEJS = `node`;
 const SEVEN_ZIP = process.env.SEVEN_ZIP_PATH || "7z";
 const OTC2OTF = `otc2otf`;
+const TTFAUTOHINT = process.env.TTFAUTOHINT_PATH || "ttfautohint";
 
 const TTC_BUNDLE = [
 	NODEJS,
@@ -85,6 +86,14 @@ const Ttc = phony(`ttc`, async t => {
 
 const Ttf = phony(`ttf`, async t => {
 	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
+});
+
+const CheckTtfAutoHintExists = oracle("oracle:check-ttfautohint-exists", async target => {
+	try {
+		return await which(TTFAUTOHINT);
+	} catch (e) {
+		fail("External dependency <ttfautohint>, needed for building hinted font, does not exist.");
+	}
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
@@ -308,6 +317,7 @@ const LatinSource = file.make(
 		if (isCff) {
 			await run("otf2ttf", "-o", out.full, source.full);
 		} else {
+			await t.need(CheckTtfAutoHintExists);
 			await run("ttfautohint", "-d", source.full, out.full);
 		}
 	}
@@ -352,7 +362,7 @@ const Pass1 = file.make(
 const Pass1Hinted = file.make(
 	(family, region, style) => `${BUILD}/pass1-hinted/${family}-${region}-${style}.ttf`,
 	async (t, out, family, region, style) => {
-		const [pass1] = await t.need(Pass1(family, region, style), de(out.dir));
+		const [pass1] = await t.need(Pass1(family, region, style), CheckTtfAutoHintExists, de(out.dir));
 		await run("ttfautohint", pass1.full, out.full);
 	}
 );
