@@ -1,14 +1,15 @@
-import os, { version } from "os";
-import path, { format } from "path";
+import os from "os";
+import path from "path";
 import * as url from "url";
 
 import fs from "fs-extra";
 import verda from "verda";
+import which from "which";
 
 export const build = verda.create();
 const { task, file, oracle, phony, computed } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, node, rm, cd, mv, cp } = build.actions;
+const { run, node, rm, cd, mv, fail } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 // Directories
@@ -362,7 +363,11 @@ const Pass1 = file.make(
 const Pass1Hinted = file.make(
 	(family, region, style) => `${BUILD}/pass1-hinted/${family}-${region}-${style}.ttf`,
 	async (t, out, family, region, style) => {
-		const [pass1] = await t.need(Pass1(family, region, style), CheckTtfAutoHintExists, de(out.dir));
+		const [pass1] = await t.need(
+			Pass1(family, region, style),
+			CheckTtfAutoHintExists,
+			de(out.dir)
+		);
 		await run("ttfautohint", pass1.full, out.full);
 	}
 );
