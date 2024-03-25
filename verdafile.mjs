@@ -431,7 +431,7 @@ const GroupHintStyleList = computed(`group-hint-style-list`, async t => {
 });
 
 const GroupHintSelfPass1 = file.make(
-	weight => `${HintDirPrefix(weight)}/cache-pass1.gz`,
+	weight => `${BUILD}/.hc/${weight}-pass1.gz`,
 	async (t, out, weight) => {
 		const [config, jHint] = await t.need(Config, JHint);
 		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
@@ -448,8 +448,8 @@ const GroupHintSelfPass1 = file.make(
 		);
 	}
 );
-const GroupHintSelfIdeo = file.make(
-	weight => `${HintDirPrefix(weight)}/cache-ideo.gz`,
+const GroupHintSelfFe = file.make(
+	weight => `${BUILD}/.hc/${weight}-fe.gz`,
 	async (t, out, weight) => {
 		const [config, jHint] = await t.need(Config, JHint);
 		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
@@ -468,11 +468,11 @@ const GroupHintSelfIdeo = file.make(
 );
 const HgzHani = file.make(
 	(weight, region, style) => `${HintDirPrefix(weight)}/hani/${region}-${style}.hint.gz`,
-	(t, out, weight, region, style) => t.need(GroupHintSelfIdeo(weight))
+	(t, out, weight, region, style) => t.need(GroupHintSelfFe(weight))
 );
 const HgzHang = file.make(
 	(weight, region, style) => `${HintDirPrefix(weight)}/hang/${region}-${style}.hint.gz`,
-	(t, out, weight, region, style) => t.need(GroupHintSelfIdeo(weight))
+	(t, out, weight, region, style) => t.need(GroupHintSelfFe(weight))
 );
 const HgzPass1 = file.make(
 	(weight, family, region, style) =>
@@ -486,7 +486,7 @@ const GroupHintDependent = task.make(
 		const [styleList] = await t.need(GroupHintStyleList);
 		const weightIndex = styleList.indexOf(weight);
 		if (weightIndex > 0) await t.need(GroupHintDependent(styleList[weightIndex - 1]));
-		await t.need(GroupHintSelfPass1(weight), GroupHintSelfIdeo(weight));
+		await t.need(GroupHintSelfPass1(weight), GroupHintSelfFe(weight));
 	}
 );
 
