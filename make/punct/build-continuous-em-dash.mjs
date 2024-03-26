@@ -38,7 +38,7 @@ function buildHGlyph(emDash, bound) {
 	const adw = getAdvanceWidth(emDash);
 	copyGeometryData(g1, emDash);
 	alterContours(g1, (x, y) => [
-		x <= (bound.xMin + bound.xMax) / 2 ? bound.xMax - 1.05 * adw : x,
+		x <= (bound.xMin + bound.xMax) / 2 ? bound.xMax - 1.0 * adw : x,
 		y
 	]);
 	return g1;
@@ -49,7 +49,7 @@ function buildVGlyph(emDashV, boundV) {
 	copyGeometryData(g1, emDashV);
 	alterContours(g1, (x, y) => [
 		x,
-		y >= (boundV.yMin + boundV.yMax) / 2 ? boundV.yMin + 1.05 * adh : y
+		y >= (boundV.yMin + boundV.yMax) / 2 ? boundV.yMin + 1.0 * adh : y
 	]);
 	return g1;
 }
