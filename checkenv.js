@@ -11,4 +11,3 @@ function check(util) {
 
 check("otc2otf");
 check("otf2ttf");
-check("ttfautohint");

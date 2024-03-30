@@ -1,14 +1,15 @@
-import os, { version } from "os";
-import path, { format } from "path";
+import os from "os";
+import path from "path";
 import * as url from "url";
 
 import fs from "fs-extra";
 import verda from "verda";
+import which from "which";
 
 export const build = verda.create();
 const { task, file, oracle, phony, computed } = build.ruleTypes;
 const { de, fu } = build.rules;
-const { run, node, rm, cd, mv, cp } = build.actions;
+const { run, node, rm, cd, mv, fail } = build.actions;
 const { FileList } = build.predefinedFuncs;
 
 // Directories
@@ -22,6 +23,7 @@ const PROJECT_ROOT = url.fileURLToPath(new URL(".", import.meta.url));
 const NODEJS = `node`;
 const SEVEN_ZIP = process.env.SEVEN_ZIP_PATH || "7z";
 const OTC2OTF = `otc2otf`;
+const TTFAUTOHINT = process.env.TTFAUTOHINT_PATH || "ttfautohint";
 
 const TTC_BUNDLE = [
 	NODEJS,
@@ -85,6 +87,14 @@ const Ttc = phony(`ttc`, async t => {
 
 const Ttf = phony(`ttf`, async t => {
 	await t.need(TtfFontFiles`TTF`, TtfFontFiles`TTF-Unhinted`);
+});
+
+const CheckTtfAutoHintExists = oracle("oracle:check-ttfautohint-exists", async target => {
+	try {
+		return await which(TTFAUTOHINT);
+	} catch (e) {
+		fail("External dependency <ttfautohint>, needed for building hinted font, does not exist.");
+	}
 });
 
 const Dependencies = oracle("oracles::dependencies", async () => {
@@ -308,6 +318,7 @@ const LatinSource = file.make(
 		if (isCff) {
 			await run("otf2ttf", "-o", out.full, source.full);
 		} else {
+			await t.need(CheckTtfAutoHintExists);
 			await run("ttfautohint", "-d", source.full, out.full);
 		}
 	}
@@ -352,7 +363,11 @@ const Pass1 = file.make(
 const Pass1Hinted = file.make(
 	(family, region, style) => `${BUILD}/pass1-hinted/${family}-${region}-${style}.ttf`,
 	async (t, out, family, region, style) => {
-		const [pass1] = await t.need(Pass1(family, region, style), de(out.dir));
+		const [pass1] = await t.need(
+			Pass1(family, region, style),
+			CheckTtfAutoHintExists,
+			de(out.dir)
+		);
 		await run("ttfautohint", pass1.full, out.full);
 	}
 );
@@ -416,7 +431,7 @@ const GroupHintStyleList = computed(`group-hint-style-list`, async t => {
 });
 
 const GroupHintSelfPass1 = file.make(
-	weight => `${HintDirPrefix(weight)}/cache-pass1.gz`,
+	weight => `${BUILD}/.hc/${weight}-pass1.gz`,
 	async (t, out, weight) => {
 		const [config, jHint] = await t.need(Config, JHint);
 		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
@@ -433,8 +448,8 @@ const GroupHintSelfPass1 = file.make(
 		);
 	}
 );
-const GroupHintSelfIdeo = file.make(
-	weight => `${HintDirPrefix(weight)}/cache-ideo.gz`,
+const GroupHintSelfFe = file.make(
+	weight => `${BUILD}/.hc/${weight}-fe.gz`,
 	async (t, out, weight) => {
 		const [config, jHint] = await t.need(Config, JHint);
 		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
@@ -453,11 +468,11 @@ const GroupHintSelfIdeo = file.make(
 );
 const HgzHani = file.make(
 	(weight, region, style) => `${HintDirPrefix(weight)}/hani/${region}-${style}.hint.gz`,
-	(t, out, weight, region, style) => t.need(GroupHintSelfIdeo(weight))
+	(t, out, weight, region, style) => t.need(GroupHintSelfFe(weight))
 );
 const HgzHang = file.make(
 	(weight, region, style) => `${HintDirPrefix(weight)}/hang/${region}-${style}.hint.gz`,
-	(t, out, weight, region, style) => t.need(GroupHintSelfIdeo(weight))
+	(t, out, weight, region, style) => t.need(GroupHintSelfFe(weight))
 );
 const HgzPass1 = file.make(
 	(weight, family, region, style) =>
@@ -471,7 +486,7 @@ const GroupHintDependent = task.make(
 		const [styleList] = await t.need(GroupHintStyleList);
 		const weightIndex = styleList.indexOf(weight);
 		if (weightIndex > 0) await t.need(GroupHintDependent(styleList[weightIndex - 1]));
-		await t.need(GroupHintSelfPass1(weight), GroupHintSelfIdeo(weight));
+		await t.need(GroupHintSelfPass1(weight), GroupHintSelfFe(weight));
 	}
 );
 
