@@ -433,7 +433,7 @@ const GroupHintStyleList = computed(`group-hint-style-list`, async t => {
 const GroupHintSelfPass1 = file.make(
 	weight => `${BUILD}/.hc/${weight}-pass1.gz`,
 	async (t, out, weight) => {
-		const [config, jHint] = await t.need(Config, JHint);
+		const [config, jHint] = await t.need(Config, JHint, de(out.dir));
 		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
 		const hd = HintingDeps(config, weight);
 
@@ -451,7 +451,7 @@ const GroupHintSelfPass1 = file.make(
 const GroupHintSelfFe = file.make(
 	weight => `${BUILD}/.hc/${weight}-fe.gz`,
 	async (t, out, weight) => {
-		const [config, jHint] = await t.need(Config, JHint);
+		const [config, jHint] = await t.need(Config, JHint, de(out.dir));
 		const [hintCfg] = await t.need(fu`hcfg/${weight}.json`);
 		const hd = HintingDeps(config, weight);
 		await t.need(hd.haniDeps, hd.hangDeps);
