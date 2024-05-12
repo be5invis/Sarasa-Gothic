@@ -29,6 +29,8 @@ export default (async function makeFont(argv) {
 	simplifySingleSub(main.gsub, "vert");
 	simplifySingleSub(main.gsub, "vrt2");
 
+	padCvtToAppeaseFreetype(main);
+
 	await writeFont(argv.o, main);
 });
 
@@ -70,4 +72,14 @@ function isFarEastScript(tag) {
 function isFarEastLanguage(tag) {
 	tag = tag.trim();
 	return tag === "JAN" || tag === "KOR" || tag === "ZHS" || tag === "ZHT" || tag === "ZHH";
+}
+
+// Freetype limits the "available" twilight point count to 2 * max(glyph points, cvt size).
+// Thus, we pad the CVT to make sure all twilights could be properly accessed.
+function padCvtToAppeaseFreetype(font) {
+	if (!font.cvt || !font.maxp) return;
+	while (2 * font.cvt.items.length < font.maxp.maxTwilightPoints) {
+		font.cvt.items.push(0);
+		font.cvt.items.push(0);
+	}
 }
