@@ -1,6 +1,6 @@
 # Sarasa Gothic (更纱黑体 / 更紗黑體 / 更紗ゴシック / 사라사고딕)
 
-This is SARASA GOTHIC, a CJK programming font based on Iosevka and Source Han Sans.
+This is SARASA GOTHIC, a CJK composite font based on Inter, Iosevka and Source Han Sans.
 
 ## Note
 
