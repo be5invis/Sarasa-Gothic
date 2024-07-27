@@ -174,9 +174,11 @@ const StandaloneTtfArchive = file.make(
 );
 
 function SevenZipCompress(format, dir, target, ...inputs) {
-	const formatArgs =
-		format === "7z" ? [`-t7z`, `-m0=LZMA2:a=1:mf=bt4:d=256m:fb=256`] : [`-tzip`, `-mx=9`];
-	return cd(dir).run([SEVEN_ZIP, `a`], formatArgs, [path.relative(dir, target), ...inputs]);
+	const formatArgs = format === "7z" ? [`-t7z`, `-mx=9`] : [`-tzip`, `-mx=9`];
+	return cd(dir).run([SEVEN_ZIP, `a`], formatArgs, "-mmt1", [
+		path.relative(dir, target),
+		...inputs
+	]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
