@@ -3,10 +3,12 @@
 	"version": "1.0.16",
 	"main": "./run",
 	"scripts": {
+		"lint": "eslint",
+		"lint:fix": "eslint --fix",
 		"build": "verda -f verdafile.mjs",
 		"clean": "verda -f verdafile.mjs clean",
 		"full-clean": "verda -f verdafile.mjs full-clean",
-		"install": "node checkenv"
+		"install": "node check-env.mjs"
 	},
 	"dependencies": {
 		"@chlorophytum/cli": "^0.50.0",
@@ -22,9 +24,9 @@
 		"which": "^4.0.0"
 	},
 	"devDependencies": {
-		"eslint": "^8.56.0",
+		"eslint": "^9.8.0",
 		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-prettier": "^5.2.1",
 		"prettier": "^3.3.3"
 	},
 	"engines": {
