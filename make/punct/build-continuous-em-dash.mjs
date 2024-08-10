@@ -1,12 +1,6 @@
 import { Ot } from "ot-builder";
 
-import {
-	alterContours,
-	copyGeometryData,
-	getAdvanceHeight,
-	getAdvanceWidth,
-	setAdvanceWidth
-} from "../helpers/geometry.mjs";
+import { copyGeometryData, getAdvanceHeight, getAdvanceWidth } from "../helpers/geometry.mjs";
 import { GlyphFinder } from "../helpers/glyph-finder.mjs";
 
 export function buildContinuousEmDash(font) {
