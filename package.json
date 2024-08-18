@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "1.0.18",
+	"version": "1.0.19",
 	"main": "./run",
 	"scripts": {
 		"lint": "eslint",
