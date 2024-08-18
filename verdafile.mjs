@@ -66,13 +66,19 @@ const Start = phony("all", async t => {
 		}
 	}
 
-	await t.need(archiveTargets);
+	const [packages] = await t.need(archiveTargets);
 
 	await run(
 		"node",
 		"tools/generate-release-notes.mjs",
 		version,
 		`${OUT}/release-notes-${version}.md`
+	);
+
+	await node(
+		`tools/generate-release-sha-file.mjs`,
+		packages.map(x => x.full),
+		`out/SHA-256.txt`
 	);
 });
 
