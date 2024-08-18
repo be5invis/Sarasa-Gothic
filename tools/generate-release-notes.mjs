@@ -59,6 +59,8 @@ async function main() {
 	}
 	out.writeP(`</details>`);
 
+	out.writeP(`[SHA-256 hashes](${pkgLink(version, "SHA-256", "txt")})`);
+
 	out.end();
 }
 function generateTableHeader(config) {
