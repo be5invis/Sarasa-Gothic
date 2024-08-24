@@ -125,7 +125,7 @@ const SuperTtcArchive = file.make(
 	async (t, out, format, infix) => {
 		const [input] = await t.need(SuperTtcFile(infix));
 		await rm(out.full);
-		await SevenZipCompress(format, `${OUT}/.super-ttc`, out.full, input.base);
+		await SevenZipCompress(format, true, `${OUT}/.super-ttc`, out.full, input.base);
 	}
 );
 const TtcArchive = file.make(
@@ -133,7 +133,7 @@ const TtcArchive = file.make(
 	async (t, out, format, infix) => {
 		await t.need(TtcFontFiles(infix));
 		await rm(out.full);
-		await SevenZipCompress(format, `${OUT}/${infix}`, out.full, `*.ttc`);
+		await SevenZipCompress(format, true, `${OUT}/${infix}`, out.full, `*.ttc`);
 	}
 );
 
@@ -144,7 +144,7 @@ const AllFamilyTtfArchive = file.make(
 		await rm(out.full);
 		for (let j = 0; j < config.styleOrder.length; j += 1) {
 			const style = config.styleOrder[j];
-			await SevenZipCompress(format, `${OUT}/${infix}`, out.full, `*-${style}.ttf`);
+			await SevenZipCompress(format, true, `${OUT}/${infix}`, out.full, `*-${style}.ttf`);
 		}
 	}
 );
@@ -160,7 +160,7 @@ const SingleFamilyTtfArchive = file.make(
 			for (const sf of config.subfamilyOrder) {
 				files.push(`${PREFIX}${family}${sf}-${style}.ttf`);
 			}
-			await SevenZipCompress(format, `${OUT}/${infix}`, out.full, files);
+			await SevenZipCompress(format, false, `${OUT}/${infix}`, out.full, files);
 		}
 	}
 );
@@ -172,6 +172,7 @@ const StandaloneTtfArchive = file.make(
 		await rm(out.full);
 		await SevenZipCompress(
 			format,
+			false,
 			`${OUT}/${infix}`,
 			out.full,
 			`${PREFIX}${family}${subfamily}-*.ttf`
@@ -179,9 +180,9 @@ const StandaloneTtfArchive = file.make(
 	}
 );
 
-function SevenZipCompress(format, dir, target, ...inputs) {
+function SevenZipCompress(format, fMT, dir, target, ...inputs) {
 	const formatArgs = format === "7z" ? [`-t7z`, `-mx=9`] : [`-tzip`, `-mx=9`];
-	return cd(dir).run([SEVEN_ZIP, `a`], formatArgs, "-mmt1", [
+	return cd(dir).run([SEVEN_ZIP, `a`], formatArgs, fMT ? [] : ["-mmt1"], [
 		path.relative(dir, target),
 		...inputs
 	]);
