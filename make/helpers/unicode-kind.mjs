@@ -33,7 +33,20 @@ export const isWS = function (c) {
 	);
 };
 export function isLocaleDependentFwidPunct(c) {
-	return c == 0xff01 || c == 0xff0c || c == 0xff0e || c == 0xff1a || c == 0xff1b || c == 0xff1f;
+	return (
+		c == 0xff01 ||
+		c == 0xff08 ||
+		c == 0xff09 ||
+		c == 0xff0c ||
+		c == 0xff0e ||
+		c == 0xff1a ||
+		c == 0xff1b ||
+		c == 0xff3b ||
+		c == 0xff3d ||
+		c == 0xff5b ||
+		c == 0xff5d ||
+		c == 0xff1f
+	);
 }
 export const isLongDash = function (c, isTerm) {
 	return isTerm ? c === 0x2e3a || c === 0x2e3b : false;
