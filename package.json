@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "1.0.40",
+	"version": "1.0.41",
 	"main": "./run",
 	"scripts": {
 		"lint": "biome check .",
