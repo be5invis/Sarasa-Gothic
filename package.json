@@ -1,6 +1,6 @@
 {
 	"name": "sarasa-gothic",
-	"version": "1.0.42",
+	"version": "1.0.43",
 	"main": "./run",
 	"scripts": {
 		"lint": "biome check .",
@@ -17,14 +17,14 @@
 		"@chlorophytum/hm-combine": "^0.50.0",
 		"@chlorophytum/hm-ideograph": "^0.50.1",
 		"@chlorophytum/hm-select-glyphs": "^0.50.0",
-		"fs-extra": "^11.3.5",
-		"ot-builder": "^1.8.0",
-		"otb-ttc-bundle": "^1.8.0",
+		"fs-extra": "^11.4.1",
+		"ot-builder": "^1.8.1",
+		"otb-ttc-bundle": "^1.8.1",
 		"verda": "^1.14.0",
 		"which": "^7.0.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.0"
+		"@biomejs/biome": "^2.6.2"
 	},
 	"engines": {
 		"node": ">=20.0.0"
