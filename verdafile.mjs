@@ -88,7 +88,8 @@ const _SuperTtc = phony(`super-ttc`, async target => {
 
 const Ttc = phony(`ttc`, async t => {
 	await t.need(Ttf);
-	await t.need(TtcFontFiles`TTC`, TtcFontFiles`TTC-Unhinted`);
+	await t.need(TtcFontFiles`TTC`);
+	await t.need(TtcFontFiles`TTC-Unhinted`);
 });
 
 const Ttf = phony(`ttf`, async t => {
@@ -638,7 +639,7 @@ const TtcFontFiles = task.make(
 	infix => `intermediate::ttcFontFiles::${infix}`,
 	async (t, infix) => {
 		const [config] = await t.need(Config);
-		await t.need(config.styleOrder.map(st => TtcFile(infix, st)));
+		for (const st of config.styleOrder) await t.need(TtcFile(infix, st));
 	},
 );
 
